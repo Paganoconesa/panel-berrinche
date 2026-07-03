@@ -1135,12 +1135,14 @@ function processRecurrences(selectedMonth) {
         if (!isTemporal && (!isPausado || showPausados()) && !alreadyNative) {
             const virtualId = `${baseId}_${selectedMonth}`;
             const override  = virtualOverrides[virtualId] || {};
+            // Buscar si ya existe un registro nativo para este cliente en meses anteriores con status guardado
+            const savedStatus = getLocalStatus(virtualId) || latest.status || "Pendiente";
             activeList.push({
                 ...latest,
                 id: virtualId,
                 month: selectedMonth,
                 currentMonth: selectedMonth,
-                status: override.status !== undefined ? override.status : "Pendiente",
+                status: override.status !== undefined ? override.status : savedStatus,
                 budget: override.budget !== undefined ? override.budget : latest.budget,
                 isVirtual: true,
                 pausado: isPausado
@@ -1301,7 +1303,7 @@ function renderDashboard() {
                     <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
                 </div>
                 <div class="client-top-right">
-                    <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status||"Pendiente"}</button>
+                    <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
                     <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
                 </div>
             </div>
@@ -1611,8 +1613,7 @@ function toggleLiveStatus(idStr) {
     let next = curStatus === "pagado" ? "Pendiente" : "Pagado";
 
     if (!idStr.toString().includes('_')) {
-        // Nativo: buscar por ID exacto, luego por nombre+mes
-        let cache = rawClients.find(x => x.id.toString() === idStr.toString());
+        let cache = rawClients.find(x => x.id.toString()===idStr.toString());
         if (cache) {
             cache.status = next;
         } else {
@@ -1626,11 +1627,11 @@ function toggleLiveStatus(idStr) {
         renderDashboard();
         syncPost({ action:"update", id:idStr, status:next });
     } else {
-        // Virtual: guardar en override para que sobreviva el re-render
-        if (!virtualOverrides[idStr]) virtualOverrides[idStr] = {};
+        virtualOverrides[idStr] = virtualOverrides[idStr] || {};
         virtualOverrides[idStr].status = next;
         saveLocalStatus(idStr, next);
-        updateLiveCell(idStr, 'status', next);
+        renderDashboard();
+        syncPost({ action:"update", id:idStr.toString().split('_')[0], status:next });
     }
 }
 
@@ -1782,7 +1783,7 @@ function buildClientCard(client) {
                 <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
             </div>
             <div class="client-top-right">
-                <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status||"Pendiente"}</button>
+                <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
                 <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
             </div>
         </div>
@@ -1861,7 +1862,7 @@ function addClient(e) {
 }
 
 /* ================================================================
-   LOCAL STATUS PERSISTENCE — el status sobrevive al Sync
+   LOCAL STATUS PERSISTENCE
    ================================================================ */
 function saveLocalStatus(id, status) {
     try {
@@ -1869,6 +1870,13 @@ function saveLocalStatus(id, status) {
         all[id.toString()] = status;
         localStorage.setItem('berrinche_status', JSON.stringify(all));
     } catch(e) {}
+}
+
+function getLocalStatus(id) {
+    try {
+        const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}');
+        return all[id.toString()] || null;
+    } catch(e) { return null; }
 }
 
 function applyLocalStatusOverrides() {
