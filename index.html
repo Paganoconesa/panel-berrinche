@@ -1301,7 +1301,7 @@ function renderDashboard() {
                     <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
                 </div>
                 <div class="client-top-right">
-                    <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
+                    <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status||"Pendiente"}</button>
                     <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
                 </div>
             </div>
@@ -1611,13 +1611,13 @@ function toggleLiveStatus(idStr) {
     let next = curStatus === "pagado" ? "Pendiente" : "Pagado";
 
     if (!idStr.toString().includes('_')) {
-        let cache = rawClients.find(x => x.id.toString()===idStr.toString());
+        // Nativo: buscar por ID exacto, luego por nombre+mes
+        let cache = rawClients.find(x => x.id.toString() === idStr.toString());
         if (cache) {
             cache.status = next;
         } else {
             let fallback = rawClients.find(x =>
-                x.name === cur.name &&
-                parseCleanMonth(x.month) === parseCleanMonth(cur.month)
+                x.name === cur.name && parseCleanMonth(x.month) === parseCleanMonth(cur.month)
             );
             if (fallback) fallback.status = next;
             else rawClients.push({ ...cur, status: next });
@@ -1626,6 +1626,7 @@ function toggleLiveStatus(idStr) {
         renderDashboard();
         syncPost({ action:"update", id:idStr, status:next });
     } else {
+        // Virtual: guardar en override para que sobreviva el re-render
         if (!virtualOverrides[idStr]) virtualOverrides[idStr] = {};
         virtualOverrides[idStr].status = next;
         saveLocalStatus(idStr, next);
@@ -1781,7 +1782,7 @@ function buildClientCard(client) {
                 <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
             </div>
             <div class="client-top-right">
-                <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
+                <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status||"Pendiente"}</button>
                 <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
             </div>
         </div>
@@ -1860,7 +1861,7 @@ function addClient(e) {
 }
 
 /* ================================================================
-   LOCAL STATUS PERSISTENCE
+   LOCAL STATUS PERSISTENCE — el status sobrevive al Sync
    ================================================================ */
 function saveLocalStatus(id, status) {
     try {
