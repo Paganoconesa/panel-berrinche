@@ -1082,7 +1082,8 @@ async function loadDataFromSheet(forzar=false) {
         const res = await fetch(SHEET_API_URL);
         rawClients = await res.json();
         lastFetchTime = now;
-        virtualOverrides = {}; // resetear overrides al recargar datos frescos
+        virtualOverrides = {};
+        applyLocalStatusOverrides();
         initDynamicMonths();
         renderDashboard();
     } catch(e) {
@@ -1158,7 +1159,7 @@ function calcTotalHistorico() {
         processRecurrences(m).forEach(c => {
             const b = parseFloat(c.budget)||0;
             total += b;
-            if (c.status === "Pagado") cobrado += b;
+            if ((c.status||"").trim().toLowerCase() === "pagado") cobrado += b;
             else pendiente += b;
         });
     });
@@ -1262,7 +1263,7 @@ function renderDashboard() {
 
         const budget = parseFloat(client.budget)||0;
         totalFact += budget;
-        if (client.status==="Pagado") totalCob += budget;
+        if ((client.status||"").trim().toLowerCase()==="pagado") totalCob += budget;
         else { totalPend += budget; tiers[client.tier].pendiente += budget; }
         if (!client.pausado) tiers[client.tier].total += budget;
 
@@ -1300,7 +1301,7 @@ function renderDashboard() {
                     <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
                 </div>
                 <div class="client-top-right">
-                    <button class="status-btn ${client.status.toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
+                    <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
                     <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
                 </div>
             </div>
@@ -1370,7 +1371,7 @@ function renderDashboard() {
             processRecurrences(m).forEach(c => {
                 const b = parseFloat(c.budget)||0;
                 kpiTotal += b;
-                if (c.status === "Pagado") kpiCob += b;
+                if ((c.status||"").trim().toLowerCase() === "pagado") kpiCob += b;
                 else kpiPend += b;
             });
         });
@@ -1619,6 +1620,7 @@ function toggleLiveStatus(idStr) {
                 parseCleanMonth(x.month) === parseCleanMonth(cur.month)
             );
             if (fallback) fallback.status = next;
+            else rawClients.push({ ...cur, status: next });
         }
         saveLocalStatus(idStr, next);
         renderDashboard();
@@ -1719,7 +1721,7 @@ function renderTagView(clients) {
     sortedTags.forEach(tag => {
         const items = groups[tag];
         const total = items.reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
-        const pendiente = items.filter(c => c.status !== "Pagado")
+        const pendiente = items.filter(c => (c.status||"").trim().toLowerCase() !== "pagado")
                                .reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
         const groupId = "tg_" + tag.replace(/\s+/g,"_");
 
@@ -1779,7 +1781,7 @@ function buildClientCard(client) {
                 <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
             </div>
             <div class="client-top-right">
-                <button class="status-btn ${client.status.toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
+                <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
                 <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
             </div>
         </div>
@@ -1855,6 +1857,27 @@ function addClient(e) {
     syncPost(payload);
     document.getElementById('client-form').reset();
     document.getElementById('parent-input-group').style.display = 'none';
+}
+
+/* ================================================================
+   LOCAL STATUS PERSISTENCE
+   ================================================================ */
+function saveLocalStatus(id, status) {
+    try {
+        const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}');
+        all[id.toString()] = status;
+        localStorage.setItem('berrinche_status', JSON.stringify(all));
+    } catch(e) {}
+}
+
+function applyLocalStatusOverrides() {
+    try {
+        const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}');
+        rawClients.forEach(c => {
+            const saved = all[c.id.toString()];
+            if (saved !== undefined) c.status = saved;
+        });
+    } catch(e) {}
 }
 
 /* ================================================================
