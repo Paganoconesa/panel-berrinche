@@ -103,8 +103,6 @@
 
         .client-badges { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 14px 6px; }
         .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        .badge-platform   { background: #f1f0f6; color: var(--text-secondary); }
-        .badge-recurrence { background: var(--brand-soft); color: var(--brand); }
         .badge-sub        { background: #f1f0f6; color: var(--text-secondary); }
 
         .tag-row, .notes-row { border-top: 1px dashed var(--border); padding: 7px 14px; display: flex; align-items: center; gap: 6px; }
@@ -417,6 +415,7 @@ function processRecurrences(selectedMonth) {
                     ...latest, id: virtualId, month: selectedMonth, currentMonth: selectedMonth,
                     status: override.status !== undefined ? override.status : savedStatus,
                     budget: override.budget !== undefined ? override.budget : latest.budget,
+                    platform: override.platform !== undefined ? override.platform : latest.platform,
                     isVirtual: true, pausado: isPausado
                 });
             }
@@ -557,7 +556,9 @@ function renderDashboard() {
 
     document.getElementById('donut-total').innerText = formatMoney(totalFact);
     
-    updateCharts(tiers, getTimelineArray(), selectedMonth, isPeriod);
+    // Filtro corregido: Toma solo los meses del periodo si aplica
+    let chartMonths = isPeriod ? periodMonths : getTimelineArray();
+    updateCharts(tiers, chartMonths, selectedMonth, isPeriod);
 }
 
 /* ================================================================
@@ -676,17 +677,59 @@ function updateLiveCell(idStr, field, value) {
         if (!virtualOverrides[idStr]) virtualOverrides[idStr] = {};
         if (field === 'status') virtualOverrides[idStr].status = value;
         if (field === 'budget') virtualOverrides[idStr].budget = parseFloat(value);
+        if (field === 'platform') virtualOverrides[idStr].platform = value;
 
         let override = virtualOverrides[idStr] || {};
         let payload = {
             action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
-            month: virtualMonth, tier: field==='tier' ? value : source.tier, platform: source.platform,
-            tag: source.tag || "",
-            status: override.status || source.status, notes: source.notes || ""
+            month: virtualMonth, 
+            tier: field === 'tier' ? value : source.tier, 
+            platform: field === 'platform' ? value : (override.platform || source.platform),
+            status: override.status !== undefined ? override.status : source.status, 
+            notes: source.notes || ""
         };
         rawClients.push(payload); delete virtualOverrides[idStr];
         renderDashboard(); syncPost(payload);
+    }
+}
+
+function updateContractType(idStr, type) {
+    let isVirtual = idStr.toString().includes('_');
+    let baseId = idStr.toString().split('_')[0];
+
+    rawClients.forEach(c => {
+        if (c.id.toString() === baseId) {
+            let notes = (c.notes || "").toString();
+            if (type === "temporal") {
+                if (!notes.toLowerCase().includes("[temporal]")) c.notes = `[TEMPORAL] ${notes}`.trim();
+            } else {
+                c.notes = notes.replace(/\[TEMPORAL\]/gi, "").trim();
+            }
+        }
+    });
+
+    let exactClient = rawClients.find(x => x.id.toString() === (isVirtual ? baseId : idStr));
+    if (!exactClient) return;
+
+    if (!isVirtual) {
+        let payload = { action: "update", id: baseId, notes: exactClient.notes };
+        renderDashboard();
+        syncPost(payload);
+    } else {
+        let virtualMonth = idStr.toString().split('_')[1];
+        let override = virtualOverrides[idStr] || {};
+        let payload = {
+            action: "add", id: idStr, name: exactClient.name, contact: exactClient.contact,
+            budget: override.budget !== undefined ? override.budget : parseFloat(exactClient.budget),
+            month: virtualMonth, tier: exactClient.tier, platform: exactClient.platform,
+            status: override.status !== undefined ? override.status : exactClient.status,
+            notes: exactClient.notes
+        };
+        rawClients.push(payload);
+        delete virtualOverrides[idStr];
+        renderDashboard();
+        syncPost(payload);
     }
 }
 
@@ -705,7 +748,7 @@ function updateAccountStatus(idStr, statusValue) {
     if (exactRecord) {
         exactRecord.notes = baseNotes; renderDashboard(); syncPost({ action:"update", id: exactRecord.id, notes: baseNotes });
     } else {
-        let payload = { action:"add", id: idStr, name:template.name, contact:template.contact, budget:parseFloat(template.budget), month:targetMonth, tier:template.tier, platform:template.platform, tag: template.tag || "", status:template.status, notes:baseNotes };
+        let payload = { action:"add", id: idStr, name:template.name, contact:template.contact, budget:parseFloat(template.budget), month:targetMonth, tier:template.tier, platform:template.platform, status:template.status, notes:baseNotes };
         rawClients.push(payload); renderDashboard(); syncPost(payload);
     }
 }
@@ -735,7 +778,7 @@ function deleteLiveClient(idStr) {
     else {
         let baseId = idStr.toString().split('_')[0], virtualMonth = idStr.toString().split('_')[1], src = rawClients.find(x => x.id.toString()===baseId);
         if (!src) return;
-        let payload = { action:"add", id: idStr, name:src.name, contact:src.contact, budget:0, month:virtualMonth, tier:src.tier, platform:src.platform, tag: src.tag || "", status:"Pagado", notes:`[PAUSADO:${virtualMonth}]` };
+        let payload = { action:"add", id: idStr, name:src.name, contact:src.contact, budget:0, month:virtualMonth, tier:src.tier, platform:src.platform, status:"Pagado", notes:`[PAUSADO:${virtualMonth}]` };
         rawClients.push(payload); renderDashboard(); syncPost(payload);
     }
 }
@@ -772,11 +815,10 @@ function updateLiveTag(idStr, newTag) {
     if (!exactClient) return;
 
     if (!isVirtual) {
-        // Doble guardado: Enviamos 'tag' (por si tu script soporta la nueva columna) y 'notes' (formateado con [TAG:...]) para 100% de compatibilidad
+        // FIX: Enviamos SOLO "notes". Así el Google Apps Script viejo no falla al ver el campo "tag".
         let payload = { 
             action: "update", 
             id: baseId, 
-            tag: tagValue, 
             notes: exactClient.notes 
         };
         renderDashboard(); 
@@ -784,12 +826,13 @@ function updateLiveTag(idStr, newTag) {
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
         let override = virtualOverrides[idStr] || {};
+        // FIX: También quitamos "tag" de aquí por las dudas
         let payload = {
             action: "add", id: idStr, name: exactClient.name, contact: exactClient.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(exactClient.budget),
             month: virtualMonth, tier: exactClient.tier, platform: exactClient.platform,
             status: override.status !== undefined ? override.status : exactClient.status,
-            tag: tagValue, notes: exactClient.notes
+            notes: exactClient.notes
         };
         
         rawClients.push(payload);
@@ -840,7 +883,6 @@ function toggleTagGroup(groupId) {
 
 function buildClientCard(client, renderMonth) {
     const budget = parseFloat(client.budget)||0, isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]"), isFijo = !isTemporal, isSub = client.notes && client.notes.toString().toLowerCase().includes("[sub_de:"), isPausado = client.pausado, clientTag = getClientTag(client);
-    // Limpiamos los tags de las notas visualmente para que no se vea feo el [TAG:xxx]
     let displayNotes = client.notes ? client.notes.toString().replace(/\[FIJO\]/gi,"").replace(/\[TEMPORAL\]/gi,"").replace(/\[SUB_DE:\s*[^\]]+\]/gi,"").replace(/\[PAUSADO(:\d{4}-\d{2})?\]/gi,"").replace(/\[TAG:\s*[^\]]+\]/gi,"").trim() : "";
     let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
     let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
@@ -854,17 +896,22 @@ function buildClientCard(client, renderMonth) {
                 <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
             </div>
         </div>
-        <div class="client-badges">
-            <span class="badge badge-platform">${client.platform}</span>
-            ${isFijo ? '<span class="badge badge-recurrence">Mensual fijo</span>' : ''}
-            ${isSub  ? `<span class="badge badge-sub">↪ ${parentLabel}</span>` : ''}
-        </div>
+        ${isSub ? `<div class="client-badges"><span class="badge badge-sub">↪ ${parentLabel}</span></div>` : ''}
         <div class="client-controls">
             <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="updateLiveCell('${client.id}','budget',this.value)"></div>
             <select class="tier-select-live" onchange="updateLiveCell('${client.id}','tier',this.value)">
                 <option value="grande"  ${client.tier==='grande' ?'selected':''}>Grande</option>
                 <option value="mediana" ${client.tier==='mediana'?'selected':''}>Mediana</option>
                 <option value="chica"   ${client.tier==='chica'  ?'selected':''}>Chica</option>
+            </select>
+            <select class="tier-select-live" onchange="updateLiveCell('${client.id}','platform',this.value)">
+                <option value="Meta+Google" ${client.platform==='Meta+Google'?'selected':''}>Meta+Google</option>
+                <option value="Meta" ${client.platform==='Meta'?'selected':''}>Meta</option>
+                <option value="Google" ${client.platform==='Google'?'selected':''}>Google</option>
+            </select>
+            <select class="tier-select-live" onchange="updateContractType('${client.id}', this.value)">
+                <option value="fijo" ${isFijo?'selected':''}>Mensual fijo</option>
+                <option value="temporal" ${!isFijo?'selected':''}>Temporal</option>
             </select>
             ${isFijo ? `
             <select class="account-status-select ${isPausado?'pausado':'activo'}" onchange="updateAccountStatus('${client.id}',this.value)">
@@ -898,7 +945,6 @@ function addClient(e) {
 
     const payload = {
         action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, 
-        tag: tagVal, 
         status: "Pendiente", notes: tags.join(" ")
     };
     
