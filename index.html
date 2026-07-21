@@ -332,8 +332,11 @@ function getTimelineArray() {
 }
 function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 
+/* Lee primero la columna J (tag) de la Sheet y como respaldo las notas anteriores */
 function getClientTag(client) {
-    if (client.tag && client.tag.trim() !== "") return client.tag.trim();
+    if (client.tag && client.tag.toString().trim() !== "") {
+        return client.tag.toString().trim();
+    }
     if (client.notes) {
         let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
         if (m) return m[1].trim();
@@ -634,7 +637,7 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
 }
 
 /* ================================================================
-   SYNC POST Y EDICIÓN RÁPIDA (CON PERSISTENCIA EN COLUMNA TAG)
+   SYNC POST Y EDICIÓN RÁPIDA
    ================================================================ */
 async function syncPost(payload) {
     try { fetch(SHEET_API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch(e) {}
@@ -721,7 +724,7 @@ function deleteLiveClient(idStr) {
 }
 
 /* ================================================================
-   VISTAS Y GESTIÓN DE GRUPOS (TAGS EN COLUMNA DIRECTA)
+   VISTAS Y GESTIÓN DE GRUPOS (TAGS)
    ================================================================ */
 function setView(v) {
     currentView = v;
@@ -758,7 +761,6 @@ function updateLiveTag(idStr, newTag) {
         
         cache.tag = tag;
         renderDashboard(); 
-        // Envía directamente la variable tag a la columna "tag" (Columna J de tu Sheet)
         syncPost({ action: "update", id: baseId, tag: tag });
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
@@ -771,7 +773,7 @@ function updateLiveTag(idStr, newTag) {
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: source.tier, platform: source.platform,
             status: override.status !== undefined ? override.status : source.status,
-            tag: tag, // Se guarda en la columna tag del Sheet
+            tag: tag, 
             notes: source.notes || ""
         };
         
