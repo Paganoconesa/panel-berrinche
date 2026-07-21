@@ -315,7 +315,7 @@ let tierChart, historyChart;
 let lastFetchTime = 0;
 let virtualOverrides = {};
 let currentView = 'tier';
-let allKnownTags = []; // Almacenará los tags existentes
+let allKnownTags = []; 
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 
@@ -353,7 +353,6 @@ function getTimelineArray() {
 }
 function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 
-/* Función centralizada para obtener el Tag de un cliente */
 function getClientTag(client) {
     if (client.tag) return client.tag.trim();
     if (client.notes) {
@@ -491,7 +490,7 @@ function renderDashboard() {
     ['grande','mediana','chica'].forEach(t => document.getElementById(`list-${t}`).innerHTML = '');
     processedClients = processRecurrences(renderMonth);
 
-    // Extraer TODOS los tags existentes de la base cruda para la lista desplegable
+    // Extraer TODOS los tags para la lista desplegable
     const tagSet = new Set();
     rawClients.forEach(c => {
         let t = getClientTag(c);
@@ -563,7 +562,6 @@ function renderDashboard() {
 
     document.getElementById('donut-total').innerText = formatMoney(totalFact);
     
-    // El gráfico ahora analiza el contexto
     updateCharts(tiers, getTimelineArray(), selectedMonth, isPeriod);
 }
 
@@ -572,18 +570,14 @@ function renderDashboard() {
    ================================================================ */
 function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
     const isMultiMonth = selectedMonth === "Todos" || isPeriod;
-
-    // Destruir el chart anterior para evitar conflictos de tipo de gráfico
     if (historyChart) { historyChart.destroy(); }
     const ctx = document.getElementById('historyChart').getContext('2d');
 
     if (!isMultiMonth) {
         // MODO MENSUAL: Gráfico de Barras por Cliente
         document.getElementById('chart-title').textContent = `Presupuesto por cliente (${getMonthLabel(selectedMonth)})`;
-        
         let activeClients = processedClients.filter(c => !c.pausado);
         
-        // Ordenamiento para que se vea prolijo
         if (currentView === 'tier') {
             const weights = { grande: 3, mediana: 2, chica: 1 };
             activeClients.sort((a,b) => weights[b.tier] - weights[a.tier] || (b.budget - a.budget));
@@ -598,31 +592,20 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
             if (currentView === 'tier') {
                 if (c.tier === 'grande') return '#7367f0';
                 if (c.tier === 'mediana') return '#00cfe8';
-                return '#ff9f43'; // chica
+                return '#ff9f43';
             } else {
                 const tag = getClientTag(c);
-                if (!tag) return '#a9a6b8'; // Gris para "Sin grupo"
+                if (!tag) return '#a9a6b8';
                 return TAG_PALETTE[allKnownTags.indexOf(tag) % TAG_PALETTE.length];
             }
         });
 
         historyChart = new Chart(ctx, {
             type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Presupuesto',
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderRadius: 4
-                }]
-            },
+            data: { labels: labels, datasets: [{ label: 'Presupuesto', data: data, backgroundColor: backgroundColors, borderRadius: 4 }] },
             options: {
                 responsive: true, maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: { callbacks: { label: ctx => ` Presupuesto: ${formatMoney(ctx.raw)}` } }
-                },
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` Presupuesto: ${formatMoney(ctx.raw)}` } } },
                 scales: {
                     x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9b98a8', maxRotation: 45, minRotation: 45 } },
                     y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
@@ -632,7 +615,7 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
 
     } else {
         // MODO HISTÓRICO: Gráfico de Líneas
-        document.getElementById('chart-title').textContent = currentView === 'tag' ? 'Evolución de ingresos por Tag' : 'Evolución de ingresos por Tier';
+        document.getElementById('chart-title').textContent = currentView === 'tag' ? 'Evolución de ingresos por Grupo' : 'Evolución de ingresos por Tier';
         const labels = timelineMonths.map(m => getMonthLabel(m));
         let datasets = [];
 
@@ -658,24 +641,15 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
         }
 
         historyChart = new Chart(ctx, {
-            type: 'line',
-            data: { labels, datasets },
+            type: 'line', data: { labels, datasets },
             options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode: 'index', intersect: false },
-                plugins: {
-                    legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
-                    tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}` } }
-                },
-                scales: {
-                    x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9b98a8' } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
-                }
+                responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+                plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}` } } },
+                scales: { x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9b98a8' } }, y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } } }
             }
         });
     }
 
-    // Donut Tiers
     const donutData = [tiersData.grande.total, tiersData.mediana.total, tiersData.chica.total];
     if (tierChart) { tierChart.data.datasets[0].data = donutData; tierChart.update(); } 
     else {
@@ -801,19 +775,18 @@ function setView(v) {
     renderDashboard();
 }
 
-// Nueva función que intercepta el selector de grupo
 function handleTagChange(idStr, value) {
     if (value === '__NEW__') {
         const newTag = prompt("Nombre del nuevo grupo:");
         if (newTag && newTag.trim() !== "") {
             updateLiveTag(idStr, newTag.trim());
         } else {
-            renderDashboard(); // resetea visualmente el select si cancela
+            renderDashboard(); 
         }
     } else if (value === '__NONE__') {
-        updateLiveTag(idStr, ""); // Quita el tag
+        updateLiveTag(idStr, ""); 
     } else {
-        updateLiveTag(idStr, value); // Asigna el tag existente
+        updateLiveTag(idStr, value); 
     }
 }
 
@@ -831,7 +804,8 @@ function updateLiveTag(idStr, newTag) {
         cache.notes = tag ? `[TAG:${tag}] ${notes}`.trim() : notes;
         
         renderDashboard(); 
-        syncPost({ action: "update", id: baseId, tag: tag, notes: cache.notes });
+        // IMPORTANTE: Solo enviamos "notes". Evita que el App Script colapse si la columna "tag" no existe.
+        syncPost({ action: "update", id: baseId, notes: cache.notes });
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
         let source = rawClients.find(x => x.id.toString() === baseId);
@@ -839,16 +813,18 @@ function updateLiveTag(idStr, newTag) {
 
         let override = virtualOverrides[idStr] || {};
         let notes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+        let finalNotes = tag ? `[TAG:${tag}] ${notes}`.trim() : notes;
 
         let payload = {
             action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: source.tier, platform: source.platform,
             status: override.status !== undefined ? override.status : source.status,
-            tag: tag, notes: tag ? `[TAG:${tag}] ${notes}`.trim() : notes
+            notes: finalNotes // Viaja empaquetado en notes
         };
         
-        rawClients.push(payload);
+        // Guardamos el tag localmente para la vista inmediata, pero no viaja al backend como key suelta
+        rawClients.push({ ...payload, tag: tag }); 
         delete virtualOverrides[idStr];
         renderDashboard(); 
         syncPost(payload);
@@ -900,7 +876,6 @@ function buildClientCard(client, renderMonth) {
     let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
     let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
 
-    // Generar opciones del selector
     const tagOptionsHtml = allKnownTags.map(t => `<option value="${t}" ${clientTag === t ? 'selected' : ''}>${t}</option>`).join('');
 
     return `
@@ -956,11 +931,15 @@ function addClient(e) {
     if (type==="temporal") tags.push("[TEMPORAL]");
     if (subType==="subordinado" && parent) tags.push(`[SUB_DE:${parent}]`);
     
-    // No exigimos tag al crear, si luego quiere lo asigna por UI
+    const tagVal = (document.getElementById('form-tag')?.value || "").trim();
+    if (tagVal) tags.push(`[TAG:${tagVal}]`);
+
     const payload = {
-        action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, tag: "", status: "Pendiente", notes: tags.join(" ")
+        action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, status: "Pendiente", notes: tags.join(" ")
     };
-    document.getElementById('view-month').value = payload.month; rawClients.push(payload);
+    
+    document.getElementById('view-month').value = payload.month; 
+    rawClients.push({ ...payload, tag: tagVal }); 
     initDynamicMonths(); renderDashboard(); syncPost(payload);
     document.getElementById('client-form').reset(); document.getElementById('parent-input-group').style.display = 'none';
 }
