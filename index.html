@@ -6,9 +6,6 @@
     <title>Panel Berrinche</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        /* ============================================================
-           TOKENS
-           ============================================================ */
         :root {
             --brand:          #7367f0;
             --brand-soft:     #eaeafe;
@@ -35,16 +32,10 @@
             --shadow-md:      0 4px 20px rgba(115,103,240,.10);
         }
 
-        /* ============================================================
-           RESET Y BASE
-           ============================================================ */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         html { -webkit-text-size-adjust: 100%; }
         body { background: var(--bg); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.5; padding: 0 0 60px; }
 
-        /* ============================================================
-           HEADER STICKY
-           ============================================================ */
         .header { position: sticky; top: 0; z-index: 100; background: var(--card); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); padding: 12px 16px; }
         .header-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
         .header h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
@@ -58,9 +49,6 @@
         .toggle-pausados:has(input:checked) { border-color: var(--danger); background: var(--danger-soft); }
         .client-item.pausado-item { opacity: .7; border-left: 3px solid var(--danger); }
 
-        /* ============================================================
-           CONTENEDOR PRINCIPAL & KPIs
-           ============================================================ */
         .main { padding: 16px; max-width: 900px; margin: 0 auto; }
         .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); margin-bottom: var(--gap); }
         .kpi-card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
@@ -68,9 +56,6 @@
         .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-secondary); }
         .kpi-value { font-size: 22px; font-weight: 800; color: var(--kpi-color, var(--text-primary)); line-height: 1.1; }
 
-        /* ============================================================
-           SECCIÓN GRÁFICOS
-           ============================================================ */
         .charts-grid { display: grid; grid-template-columns: 1fr; gap: var(--gap); margin-bottom: var(--gap); }
         @media (min-width: 640px) { .charts-grid { grid-template-columns: 1.4fr 1fr; } }
         .chart-card { background: var(--card); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm); }
@@ -85,9 +70,6 @@
         .donut-center-val { font-size: 17px; font-weight: 800; color: var(--text-primary); line-height: 1; }
         .donut-center-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-top: 3px; }
 
-        /* ============================================================
-           TIER SECTIONS & CLIENT CARDS
-           ============================================================ */
         .tier-section { margin-bottom: 20px; }
         .tier-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card); border-radius: var(--radius-sm); margin-bottom: 10px; border-left: 5px solid var(--tier-color); box-shadow: var(--shadow-sm); }
         .tier-header-left { display: flex; align-items: center; gap: 8px; }
@@ -135,9 +117,6 @@
         .tag-select-live { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--brand); outline: none; cursor: pointer; padding: 2px 0; }
         .tag-select-live:focus { background: var(--brand-soft); border-radius: 4px; padding: 2px 6px; }
 
-        /* ============================================================
-           FORMULARIO Y VARIOS
-           ============================================================ */
         .form-card { background: var(--card); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-top: 24px; }
         .form-card h3 { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 16px; }
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: flex-end; }
@@ -354,6 +333,7 @@ function getTimelineArray() {
 function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 
 function getClientTag(client) {
+    if (client.tag && client.tag.trim() !== "") return client.tag.trim();
     if (client.notes) {
         let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
         if (m) return m[1].trim();
@@ -415,12 +395,9 @@ function processRecurrences(selectedMonth) {
             let isLegacyPausado = latest.notes && latest.notes.toString().toLowerCase().includes("[pausado]") && !latest.notes.toString().toLowerCase().match(/\[pausado:\d{4}-\d{2}\]/);
             let isPausado = isMonthPausado || isLegacyPausado;
             
-            // Conservar el tag [TAG:xxx] al proyectar hacia adelante
-            const projectedNotes = latest.notes ? latest.notes.toString().replace(/\[pausado(:\d{4}-\d{2})?\]/gi, "").trim() : "";
-            
             if (!isPausado || showPausados()) {
                 activeList.push({
-                    ...latest, notes: projectedNotes, id: virtualId, month: selectedMonth, currentMonth: selectedMonth,
+                    ...latest, id: virtualId, month: selectedMonth, currentMonth: selectedMonth,
                     status: override.status !== undefined ? override.status : savedStatus,
                     budget: override.budget !== undefined ? override.budget : latest.budget,
                     isVirtual: true, pausado: isPausado
@@ -492,14 +469,8 @@ function renderDashboard() {
     processedClients = processRecurrences(renderMonth);
 
     const tagSet = new Set();
-    rawClients.forEach(c => {
-        let t = getClientTag(c);
-        if (t) tagSet.add(t);
-    });
-    processedClients.forEach(c => {
-        let t = getClientTag(c);
-        if (t) tagSet.add(t);
-    });
+    rawClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
+    processedClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
     allKnownTags = Array.from(tagSet).sort();
 
     let totalFact=0, totalCob=0, totalPend=0, count=0;
@@ -663,7 +634,7 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
 }
 
 /* ================================================================
-   SYNC POST Y EDICIÓN RÁPIDA (CON PERSISTENCIA SEGURA EN NOTES)
+   SYNC POST Y EDICIÓN RÁPIDA (CON PERSISTENCIA EN COLUMNA TAG)
    ================================================================ */
 async function syncPost(payload) {
     try { fetch(SHEET_API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch(e) {}
@@ -674,26 +645,9 @@ function updateLiveCell(idStr, field, value) {
     let baseId    = idStr.toString().split('_')[0];
 
     if (!isVirtual) {
-        let finalValue = value;
-        if (field === 'notes') {
-            let orig = rawClients.find(x => x.id.toString()===baseId);
-            let tags = "";
-            if (orig?.notes) {
-                let pausedMatches = orig.notes.toString().match(/\[PAUSADO:\d{4}-\d{2}\]/gi) || [];
-                if (pausedMatches.length > 0) tags += pausedMatches.join(" ") + " ";
-                else if (orig.notes.toLowerCase().includes("[pausado]")) tags += "[PAUSADO] ";
-                
-                if (orig.notes.toLowerCase().includes("[temporal]"))  tags += "[TEMPORAL] ";
-                let subMatch = orig.notes.toString().match(/(\[sub_de:\s*[^\]]+\])/i);
-                if (subMatch) tags += subMatch[1] + " ";
-                let tagMatch = orig.notes.toString().match(/(\[tag:\s*[^\]]+\])/i);
-                if (tagMatch) tags += tagMatch[1] + " ";
-            }
-            finalValue = tags + value;
-        }
-        let payload = { action:"update", id:baseId }; payload[field] = finalValue;
+        let payload = { action:"update", id:baseId }; payload[field] = value;
         let idx = rawClients.findIndex(x => x.id.toString()===baseId);
-        if (idx !== -1) rawClients[idx][field] = finalValue;
+        if (idx !== -1) rawClients[idx][field] = value;
         
         renderDashboard(); syncPost(payload);
     } else {
@@ -708,7 +662,8 @@ function updateLiveCell(idStr, field, value) {
             action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: field==='tier' ? value : source.tier, platform: source.platform,
-            status: override.status || source.status, notes: field==='notes' ? `[FIJO] ${value}` : (source.notes || "").toString()
+            tag: source.tag || "",
+            status: override.status || source.status, notes: source.notes || ""
         };
         rawClients.push(payload); delete virtualOverrides[idStr];
         renderDashboard(); syncPost(payload);
@@ -730,7 +685,7 @@ function updateAccountStatus(idStr, statusValue) {
     if (exactRecord) {
         exactRecord.notes = baseNotes; renderDashboard(); syncPost({ action:"update", id: exactRecord.id, notes: baseNotes });
     } else {
-        let payload = { action:"add", id: idStr, name:template.name, contact:template.contact, budget:parseFloat(template.budget), month:targetMonth, tier:template.tier, platform:template.platform, status:template.status, notes:baseNotes };
+        let payload = { action:"add", id: idStr, name:template.name, contact:template.contact, budget:parseFloat(template.budget), month:targetMonth, tier:template.tier, platform:template.platform, tag: template.tag || "", status:template.status, notes:baseNotes };
         rawClients.push(payload); renderDashboard(); syncPost(payload);
     }
 }
@@ -760,13 +715,13 @@ function deleteLiveClient(idStr) {
     else {
         let baseId = idStr.toString().split('_')[0], virtualMonth = idStr.toString().split('_')[1], src = rawClients.find(x => x.id.toString()===baseId);
         if (!src) return;
-        let payload = { action:"add", id: idStr, name:src.name, contact:src.contact, budget:0, month:virtualMonth, tier:src.tier, platform:src.platform, status:"Pagado", notes:`[PAUSADO:${virtualMonth}]` };
+        let payload = { action:"add", id: idStr, name:src.name, contact:src.contact, budget:0, month:virtualMonth, tier:src.tier, platform:src.platform, tag: src.tag || "", status:"Pagado", notes:`[PAUSADO:${virtualMonth}]` };
         rawClients.push(payload); renderDashboard(); syncPost(payload);
     }
 }
 
 /* ================================================================
-   VISTAS Y GESTIÓN DE GRUPOS (TAGS)
+   VISTAS Y GESTIÓN DE GRUPOS (TAGS EN COLUMNA DIRECTA)
    ================================================================ */
 function setView(v) {
     currentView = v;
@@ -801,27 +756,23 @@ function updateLiveTag(idStr, newTag) {
         let cache = rawClients.find(x => x.id.toString() === baseId);
         if (!cache) return;
         
-        let cleanNotes = (cache.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-        cache.notes = tag ? `[TAG:${tag}] ${cleanNotes}`.trim() : cleanNotes;
-        
+        cache.tag = tag;
         renderDashboard(); 
-        // Se guarda persistentemente en la columna 'notes' que tu backend ya procesa
-        syncPost({ action: "update", id: baseId, notes: cache.notes });
+        // Envía directamente la variable tag a la columna "tag" (Columna J de tu Sheet)
+        syncPost({ action: "update", id: baseId, tag: tag });
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
         let source = rawClients.find(x => x.id.toString() === baseId);
         if (!source) return;
 
         let override = virtualOverrides[idStr] || {};
-        let cleanNotes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-        let finalNotes = tag ? `[TAG:${tag}] ${cleanNotes}`.trim() : cleanNotes;
-
         let payload = {
             action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: source.tier, platform: source.platform,
             status: override.status !== undefined ? override.status : source.status,
-            notes: finalNotes 
+            tag: tag, // Se guarda en la columna tag del Sheet
+            notes: source.notes || ""
         };
         
         rawClients.push(payload);
@@ -932,10 +883,11 @@ function addClient(e) {
     if (subType==="subordinado" && parent) tags.push(`[SUB_DE:${parent}]`);
     
     const tagVal = (document.getElementById('form-tag')?.value || "").trim();
-    if (tagVal) tags.push(`[TAG:${tagVal}]`);
 
     const payload = {
-        action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, status: "Pendiente", notes: tags.join(" ")
+        action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, 
+        tag: tagVal, 
+        status: "Pendiente", notes: tags.join(" ")
     };
     
     document.getElementById('view-month').value = payload.month; 
