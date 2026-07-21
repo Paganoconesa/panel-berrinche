@@ -334,14 +334,26 @@ function getTimelineArray() {
 }
 function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 
-/* Lee primero la columna J (tag) de la Sheet y como respaldo las notas anteriores */
+/* Lee primero la columna J (tag) de la Sheet y como respaldo las notas anteriores. Se hace fallback entre meses del mismo cliente */
 function getClientTag(client) {
-    if (client.tag && client.tag.toString().trim() !== "") {
-        return client.tag.toString().trim();
-    }
+    if (client.tag && client.tag.toString().trim() !== "") return client.tag.toString().trim();
     if (client.notes) {
         let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
         if (m) return m[1].trim();
+    }
+    
+    // Fallback: Si este mes no tiene el tag pero otro mes del mismo cliente sí lo tiene, heredarlo visualmente
+    if (typeof rawClients !== 'undefined' && client.id) {
+        let baseId = client.id.toString().split('_')[0];
+        let sibling = rawClients.find(x => x.id.toString() === baseId && (
+            (x.tag && x.tag.toString().trim() !== "") || 
+            (x.notes && x.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i))
+        ));
+        if (sibling) {
+            if (sibling.tag && sibling.tag.toString().trim() !== "") return sibling.tag.toString().trim();
+            let m = sibling.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
+            if (m) return m[1].trim();
+        }
     }
     return "";
 }
@@ -478,7 +490,6 @@ function renderDashboard() {
     processedClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
     allKnownTags = Array.from(tagSet).sort();
     
-    // Aquí alimentamos la lista de sugerencias dinámica
     const datalistEl = document.getElementById('available-tags');
     if(datalistEl) datalistEl.innerHTML = allKnownTags.map(t => `<option value="${t}">`).join('');
 
@@ -744,37 +755,41 @@ function setView(v) {
 function updateLiveTag(idStr, newTag) {
     const baseId = idStr.toString().split('_')[0];
     const isVirtual = idStr.toString().includes('_');
-    const tag = newTag.trim();
+    const tagValue = newTag.trim();
+
+    // 1. Actualizamos TODAS las ocurrencias de este cliente en memoria local
+    rawClients.forEach(c => {
+        if (c.id.toString() === baseId) {
+            c.tag = tagValue;
+            let cleanNotes = (c.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+            if (tagValue !== "") cleanNotes = `[TAG:${tagValue}] ${cleanNotes}`.trim();
+            c.notes = cleanNotes;
+        }
+    });
+
+    // 2. Buscamos el registro que se modificó exactamente
+    let exactClient = rawClients.find(x => x.id.toString() === (isVirtual ? baseId : idStr));
+    if (!exactClient) return;
 
     if (!isVirtual) {
-        let cache = rawClients.find(x => x.id.toString() === baseId);
-        if (!cache) return;
-        
-        cache.tag = tag;
-        
-        let payload = { action: "update", id: baseId, tag: tag };
-        if (cache.notes && cache.notes.toString().match(/\[TAG:\s*[^\]]+\]/i)) {
-            cache.notes = cache.notes.toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-            payload.notes = cache.notes;
-        }
-        
+        // Doble guardado: Enviamos 'tag' (por si tu script soporta la nueva columna) y 'notes' (formateado con [TAG:...]) para 100% de compatibilidad
+        let payload = { 
+            action: "update", 
+            id: baseId, 
+            tag: tagValue, 
+            notes: exactClient.notes 
+        };
         renderDashboard(); 
         syncPost(payload);
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
-        let source = rawClients.find(x => x.id.toString() === baseId);
-        if (!source) return;
-
         let override = virtualOverrides[idStr] || {};
-        let cleanNotes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-        
         let payload = {
-            action: "add", id: idStr, name: source.name, contact: source.contact,
-            budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
-            month: virtualMonth, tier: source.tier, platform: source.platform,
-            status: override.status !== undefined ? override.status : source.status,
-            tag: tag, 
-            notes: cleanNotes
+            action: "add", id: idStr, name: exactClient.name, contact: exactClient.contact,
+            budget: override.budget !== undefined ? override.budget : parseFloat(exactClient.budget),
+            month: virtualMonth, tier: exactClient.tier, platform: exactClient.platform,
+            status: override.status !== undefined ? override.status : exactClient.status,
+            tag: tagValue, notes: exactClient.notes
         };
         
         rawClients.push(payload);
@@ -825,6 +840,7 @@ function toggleTagGroup(groupId) {
 
 function buildClientCard(client, renderMonth) {
     const budget = parseFloat(client.budget)||0, isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]"), isFijo = !isTemporal, isSub = client.notes && client.notes.toString().toLowerCase().includes("[sub_de:"), isPausado = client.pausado, clientTag = getClientTag(client);
+    // Limpiamos los tags de las notas visualmente para que no se vea feo el [TAG:xxx]
     let displayNotes = client.notes ? client.notes.toString().replace(/\[FIJO\]/gi,"").replace(/\[TEMPORAL\]/gi,"").replace(/\[SUB_DE:\s*[^\]]+\]/gi,"").replace(/\[PAUSADO(:\d{4}-\d{2})?\]/gi,"").replace(/\[TAG:\s*[^\]]+\]/gi,"").trim() : "";
     let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
     let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
@@ -878,6 +894,7 @@ function addClient(e) {
     if (subType==="subordinado" && parent) tags.push(`[SUB_DE:${parent}]`);
     
     const tagVal = (document.getElementById('form-tag')?.value || "").trim();
+    if (tagVal) tags.push(`[TAG:${tagVal}]`);
 
     const payload = {
         action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, 
