@@ -214,13 +214,8 @@
             line-height: 1.1;
         }
 
-        .kpi-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
         /* ============================================================
-           SECCIÓN GRÁFICOS — stack vertical en mobile
+           SECCIÓN GRÁFICOS
            ============================================================ */
         .charts-grid {
             display: grid;
@@ -249,11 +244,10 @@
             margin-bottom: 14px;
         }
 
-        /* Chart de evolución: más alto para dar más impacto visual */
         .chart-history-wrap  { position: relative; height: 230px; }
         .chart-donut-wrap    { position: relative; height: 180px; }
 
-        /* Leyenda tier debajo del donut */
+        /* Donut centro y leyenda */
         .donut-legend {
             display: flex;
             justify-content: center;
@@ -261,527 +255,115 @@
             margin-top: 10px;
             flex-wrap: wrap;
         }
-
-        .donut-legend-item {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--text-secondary);
-        }
-
-        .donut-legend-dot {
-            width: 9px;
-            height: 9px;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        /* Centro del donut: total */
+        .donut-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+        .donut-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
         .donut-center {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            padding-bottom: 20px;
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; pointer-events: none; padding-bottom: 20px;
         }
-
-        .donut-center-val {
-            font-size: 17px;
-            font-weight: 800;
-            color: var(--text-primary);
-            line-height: 1;
-        }
-
-        .donut-center-label {
-            font-size: 10px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--text-muted);
-            margin-top: 3px;
-        }
+        .donut-center-val { font-size: 17px; font-weight: 800; color: var(--text-primary); line-height: 1; }
+        .donut-center-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-top: 3px; }
 
         /* ============================================================
-           TIER SECTIONS
+           TIER SECTIONS & CLIENT CARDS
            ============================================================ */
         .tier-section { margin-bottom: 20px; }
-
         .tier-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: var(--card);
-            border-radius: var(--radius-sm);
-            margin-bottom: 10px;
-            border-left: 5px solid var(--tier-color);
-            box-shadow: var(--shadow-sm);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 14px; background: var(--card); border-radius: var(--radius-sm);
+            margin-bottom: 10px; border-left: 5px solid var(--tier-color); box-shadow: var(--shadow-sm);
         }
+        .tier-header-left { display: flex; align-items: center; gap: 8px; }
+        .tier-name { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--tier-color); }
+        .tier-count-badge { background: var(--tier-color); color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 2px 7px; }
+        .tier-totals { text-align: right; }
+        .tier-total-main { font-size: 15px; font-weight: 800; color: var(--tier-color); }
+        .tier-total-sub { font-size: 11px; color: var(--text-muted); }
 
-        .tier-header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tier-name {
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--tier-color);
-        }
-
-        .tier-count-badge {
-            background: var(--tier-color);
-            color: #fff;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 7px;
-        }
-
-        .tier-totals {
-            text-align: right;
-        }
-
-        .tier-total-main {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--tier-color);
-        }
-
-        .tier-total-sub {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* ============================================================
-           TARJETA DE CLIENTE — rediseño mobile-first
-           ============================================================ */
         .client-item {
-            background: var(--card);
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-            box-shadow: var(--shadow-sm);
-            overflow: hidden;
-            transition: box-shadow .2s;
+            background: var(--card); border-radius: var(--radius-sm); margin-bottom: 8px;
+            box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow .2s;
         }
-
-        .client-item:active { box-shadow: var(--shadow-md); }
-
-        .client-item.subordinated {
-            border-left: 4px dashed var(--border);
-            margin-left: 16px;
-            background: #fafafa;
+        .client-item.subordinated { border-left: 4px dashed var(--border); margin-left: 16px; background: #fafafa; }
+        .client-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 14px 8px; gap: 8px; }
+        .client-name { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
+        .client-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .client-top-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+        
+        .client-controls { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; flex-wrap: wrap; }
+        .budget-wrap { display: flex; align-items: center; gap: 3px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 8px; }
+        .budget-symbol { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
+        .budget-input-live { width: 90px; padding: 7px 0; font-size: 14px; font-weight: 700; border: none; background: transparent; text-align: right; color: var(--text-primary); outline: none; }
+        
+        .tier-select-live, .account-status-select {
+            padding: 7px 8px; font-size: 12px; border: 1px solid var(--border);
+            border-radius: var(--radius-sm); background: var(--bg); cursor: pointer; font-weight: 600; color: var(--text-secondary); outline: none;
         }
-
-        /* Fila principal: nombre + acciones clave */
-        .client-top {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            padding: 12px 14px 8px;
-            gap: 8px;
-        }
-
-        .client-name {
-            font-size: 15px;
-            font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1.2;
-        }
-
-        .client-meta {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-top: 2px;
-        }
-
-        .client-top-right {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            flex-shrink: 0;
-        }
-
-        /* Fila de controles: budget, tier, status, borrar */
-        .client-controls {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            padding: 0 14px 10px;
-            flex-wrap: wrap;
-        }
-
-        .budget-wrap {
-            display: flex;
-            align-items: center;
-            gap: 3px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            padding: 0 8px;
-        }
-
-        .budget-symbol {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-secondary);
-        }
-
-        .budget-input-live {
-            width: 90px;
-            padding: 7px 0;
-            font-size: 14px;
-            font-weight: 700;
-            border: none;
-            background: transparent;
-            text-align: right;
-            color: var(--text-primary);
-            outline: none;
-        }
-
-        .tier-select-live,
-        .account-status-select {
-            padding: 7px 8px;
-            font-size: 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            background: var(--bg);
-            cursor: pointer;
-            font-weight: 600;
-            color: var(--text-secondary);
-            outline: none;
-        }
-
         .account-status-select.activo  { color: var(--success); border-color: var(--success); }
         .account-status-select.pausado { color: var(--danger);  border-color: var(--danger); }
-
-        .status-btn {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-        }
-
+        
+        .status-btn { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
         .status-btn.pagado   { background: var(--success-soft); color: var(--success); }
         .status-btn.pendiente{ background: var(--warning-soft); color: var(--warning); }
-
-        .delete-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 20px;
-            padding: 4px 6px;
-            opacity: .35;
-            line-height: 1;
-            margin-left: auto;
-        }
-
+        .delete-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 20px; padding: 4px 6px; opacity: .35; line-height: 1; margin-left: auto; }
         .delete-btn:hover { opacity: 1; }
 
-        /* Fila de badges */
-        .client-badges {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 5px;
-            padding: 0 14px 6px;
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 3px 9px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-        }
-
+        .client-badges { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 14px 6px; }
+        .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
         .badge-platform   { background: #f1f0f6; color: var(--text-secondary); }
         .badge-recurrence { background: var(--brand-soft); color: var(--brand); }
         .badge-sub        { background: #f1f0f6; color: var(--text-secondary); }
 
-        /* Notas */
-        .notes-row {
-            border-top: 1px dashed var(--border);
-            padding: 8px 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .notes-label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            color: var(--text-muted);
-            white-space: nowrap;
-        }
-
-        .notes-input-live {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: 13px;
-            color: var(--text-secondary);
-            outline: none;
-            font-style: italic;
-        }
-
-        .notes-input-live:focus {
-            background: var(--bg);
-            border-radius: 4px;
-            padding: 2px 5px;
-        }
+        .tag-row, .notes-row { border-top: 1px dashed var(--border); padding: 7px 14px; display: flex; align-items: center; gap: 6px; }
+        .tag-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--brand); white-space: nowrap; }
+        .notes-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted); white-space: nowrap; }
+        .tag-input-live, .notes-input-live { flex: 1; border: none; background: transparent; font-size: 13px; outline: none; }
+        .tag-input-live { font-weight: 600; color: var(--brand); }
+        .notes-input-live { color: var(--text-secondary); font-style: italic; }
+        .tag-input-live:focus, .notes-input-live:focus { background: var(--bg); border-radius: 4px; padding: 2px 6px; }
 
         /* ============================================================
            FORMULARIO
            ============================================================ */
-        .form-card {
-            background: var(--card);
-            padding: 20px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-sm);
-            margin-top: 24px;
-        }
-
-        .form-card h3 {
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            align-items: flex-end;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
+        .form-card { background: var(--card); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-top: 24px; }
+        .form-card h3 { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 16px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: flex-end; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-group.full { grid-column: 1 / -1; }
-
-        .form-group label {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            color: var(--text-secondary);
-        }
-
-        .form-group input,
-        .form-group select {
-            padding: 10px 12px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            font-size: 14px;
-            background: var(--bg);
-            color: var(--text-primary);
-            outline: none;
-            width: 100%;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus { border-color: var(--brand); background: #fff; }
-
-        .submit-btn {
-            grid-column: 1 / -1;
-            background: var(--brand);
-            color: #fff;
-            border: none;
-            padding: 13px;
-            border-radius: var(--radius-sm);
-            font-weight: 700;
-            font-size: 15px;
-            cursor: pointer;
-            letter-spacing: .3px;
-        }
-
+        .form-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text-secondary); }
+        .form-group input, .form-group select { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text-primary); outline: none; width: 100%; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--brand); background: #fff; }
+        .submit-btn { grid-column: 1 / -1; background: var(--brand); color: #fff; border: none; padding: 13px; border-radius: var(--radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; letter-spacing: .3px; }
         .submit-btn:active { background: var(--brand-dark); }
 
         /* ============================================================
-           LOADER
+           OTROS COMPONENTES
            ============================================================ */
-        .loading-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(244,243,251,.92);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            font-weight: 700;
-            color: var(--brand);
-            font-size: 16px;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .loader-spinner {
-            width: 36px;
-            height: 36px;
-            border: 3px solid var(--brand-soft);
-            border-top-color: var(--brand);
-            border-radius: 50%;
-            animation: spin .7s linear infinite;
-        }
-
+        .loading-overlay { position: fixed; inset: 0; background: rgba(244,243,251,.92); display: none; justify-content: center; align-items: center; z-index: 9999; font-weight: 700; color: var(--brand); font-size: 16px; flex-direction: column; gap: 12px; }
+        .loader-spinner { width: 36px; height: 36px; border: 3px solid var(--brand-soft); border-top-color: var(--brand); border-radius: 50%; animation: spin .7s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* ============================================================
-           TOGGLE VISTA POR TIER / TAG
-           ============================================================ */
-        .view-toggle {
-            display: flex;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-sm);
-            overflow: hidden;
-            margin-bottom: var(--gap);
-        }
+        .view-toggle { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: var(--gap); }
+        .view-toggle-btn { flex: 1; padding: 9px 12px; border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: background .15s, color .15s; }
+        .view-toggle-btn.active { background: var(--brand); color: #fff; }
 
-        .view-toggle-btn {
-            flex: 1;
-            padding: 9px 12px;
-            border: none;
-            background: transparent;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: background .15s, color .15s;
-        }
-
-        .view-toggle-btn.active {
-            background: var(--brand);
-            color: #fff;
-        }
-
-        /* ============================================================
-           TAG FIELD EN TARJETA
-           ============================================================ */
-        .tag-row {
-            border-top: 1px dashed var(--border);
-            padding: 7px 14px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .tag-label {
-            font-size: 10px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: .4px;
-            color: var(--brand);
-            white-space: nowrap;
-        }
-
-        .tag-input-live {
-            flex: 1;
-            border: none;
-            background: transparent;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--brand);
-            outline: none;
-        }
-
-        .tag-input-live::placeholder { color: var(--text-muted); font-weight: 400; }
-        .tag-input-live:focus {
-            background: var(--brand-soft);
-            border-radius: 4px;
-            padding: 2px 6px;
-        }
-
-        /* ============================================================
-           GRUPOS POR TAG
-           ============================================================ */
-        .tag-group {
-            margin-bottom: 20px;
-        }
-
-        .tag-group-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 14px;
-            background: var(--card);
-            border-radius: var(--radius-sm);
-            margin-bottom: 10px;
-            border-left: 5px solid var(--brand);
-            box-shadow: var(--shadow-sm);
-            cursor: pointer;
-            user-select: none;
-        }
-
-        .tag-group-header-left {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .tag-group-name {
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: .5px;
-            color: var(--brand);
-        }
-
-        .tag-group-badge {
-            background: var(--brand);
-            color: #fff;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            padding: 2px 7px;
-        }
-
+        .tag-group { margin-bottom: 20px; }
+        .tag-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card); border-radius: var(--radius-sm); margin-bottom: 10px; border-left: 5px solid var(--brand); box-shadow: var(--shadow-sm); cursor: pointer; user-select: none; }
+        .tag-group-header-left { display: flex; align-items: center; gap: 8px; }
+        .tag-group-name { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--brand); }
+        .tag-group-badge { background: var(--brand); color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 2px 7px; }
         .tag-group-totals { text-align: right; }
         .tag-group-total-main { font-size: 15px; font-weight: 800; color: var(--brand); }
         .tag-group-total-sub  { font-size: 11px; color: var(--text-muted); }
-
-        .tag-group-collapse-icon {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-left: 6px;
-        }
-
-        .tag-group-body { }
+        .tag-group-collapse-icon { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
         .tag-group-body.collapsed { display: none; }
 
-        /* ============================================================
-           RESPONSIVE DESKTOP
-           ============================================================ */
         @media (min-width: 640px) {
             body { padding-bottom: 40px; }
-
             .main { padding: 20px; }
-
             .kpi-grid { grid-template-columns: repeat(4, 1fr); }
-
             .form-grid { grid-template-columns: repeat(3, 1fr); }
-
             .client-controls { flex-wrap: nowrap; }
-
             .client-item.subordinated { margin-left: 24px; }
         }
     </style>
@@ -793,9 +375,6 @@
     Sincronizando con Sheets...
 </div>
 
-<!-- ================================================================
-     HEADER STICKY
-     ================================================================ -->
 <header class="header">
     <div class="header-top">
         <h1>🎯 Berrinche</h1>
@@ -815,12 +394,7 @@
     </div>
 </header>
 
-<!-- ================================================================
-     CONTENIDO PRINCIPAL
-     ================================================================ -->
 <div class="main">
-
-    <!-- KPIs -->
     <div class="kpi-grid">
         <div class="kpi-card" style="--kpi-accent: var(--brand); --kpi-color: var(--brand);">
             <span class="kpi-label">Facturación período</span>
@@ -840,53 +414,36 @@
         </div>
     </div>
 
-    <!-- GRÁFICOS -->
     <div class="charts-grid">
-
-        <!-- Evolución mensual — gráfico principal de mayor impacto -->
         <div class="chart-card">
-            <h3 id="chart-title">Evolución de ingresos</h3>
+            <h3 id="chart-title">Evolución por marcas</h3>
             <div class="chart-history-wrap">
                 <canvas id="historyChart"></canvas>
             </div>
         </div>
-
-        <!-- Donut tiers -->
         <div class="chart-card">
             <h3>Distribución por tier</h3>
             <div style="position: relative;">
-                <div class="chart-donut-wrap">
-                    <canvas id="tierChart"></canvas>
-                </div>
+                <div class="chart-donut-wrap"><canvas id="tierChart"></canvas></div>
                 <div class="donut-center" id="donut-center">
                     <span class="donut-center-val" id="donut-total">$0</span>
                     <span class="donut-center-label">Total</span>
                 </div>
             </div>
             <div class="donut-legend">
-                <div class="donut-legend-item">
-                    <div class="donut-legend-dot" style="background:var(--tier-grande)"></div> Grandes
-                </div>
-                <div class="donut-legend-item">
-                    <div class="donut-legend-dot" style="background:var(--tier-mediana)"></div> Medianas
-                </div>
-                <div class="donut-legend-item">
-                    <div class="donut-legend-dot" style="background:var(--tier-chica)"></div> Chicas
-                </div>
+                <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-grande)"></div> Grandes</div>
+                <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-mediana)"></div> Medianas</div>
+                <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-chica)"></div> Chicas</div>
             </div>
         </div>
-
     </div>
 
-    <!-- TOGGLE VISTA -->
     <div class="view-toggle">
         <button class="view-toggle-btn active" id="btn-view-tier" onclick="setView('tier')">Por tier</button>
         <button class="view-toggle-btn"        id="btn-view-tag"  onclick="setView('tag')">Por tag</button>
     </div>
 
-    <!-- TIERS -->
     <div id="tiers-container">
-
         <div class="tier-section" style="--tier-color: var(--tier-grande)">
             <div class="tier-header">
                 <div class="tier-header-left">
@@ -928,98 +485,57 @@
             </div>
             <div id="list-chica"></div>
         </div>
-
     </div>
 
-    <!-- VISTA POR TAG -->
     <div id="tags-container" style="display:none;"></div>
 
-    <!-- FORMULARIO -->
     <div class="form-card">
         <h3>➕ Cargar ítem</h3>
         <form id="client-form" onsubmit="addClient(event)">
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="form-name">Cliente / cuenta</label>
-                    <input type="text" id="form-name" required placeholder="Ej: TGB">
-                </div>
-                <div class="form-group">
-                    <label for="form-contact">Contacto / tag</label>
-                    <input type="text" id="form-contact" required placeholder="Ej: Tomás">
-                </div>
-                <div class="form-group">
-                    <label for="form-budget">Presupuesto ($)</label>
-                    <input type="number" id="form-budget" required placeholder="0">
-                </div>
-                <div class="form-group">
-                    <label for="form-month">Mes inicio</label>
-                    <select id="form-month"></select>
-                </div>
+                <div class="form-group"><label for="form-name">Cliente / cuenta</label><input type="text" id="form-name" required placeholder="Ej: TGB"></div>
+                <div class="form-group"><label for="form-contact">Contacto / tag</label><input type="text" id="form-contact" required placeholder="Ej: Tomás"></div>
+                <div class="form-group"><label for="form-budget">Presupuesto ($)</label><input type="number" id="form-budget" required placeholder="0"></div>
+                <div class="form-group"><label for="form-month">Mes inicio</label><select id="form-month"></select></div>
                 <div class="form-group">
                     <label for="form-tier">Tier</label>
-                    <select id="form-tier">
-                        <option value="grande">Grande</option>
-                        <option value="mediana" selected>Mediana</option>
-                        <option value="chica">Chica</option>
-                    </select>
+                    <select id="form-tier"><option value="grande">Grande</option><option value="mediana" selected>Mediana</option><option value="chica">Chica</option></select>
                 </div>
                 <div class="form-group">
                     <label for="form-platform">Plataforma</label>
-                    <select id="form-platform">
-                        <option value="Meta+Google">Meta + Google</option>
-                        <option value="Meta">Meta</option>
-                        <option value="Google">Google</option>
-                    </select>
+                    <select id="form-platform"><option value="Meta+Google">Meta + Google</option><option value="Meta">Meta</option><option value="Google">Google</option></select>
                 </div>
-                <div class="form-group">
-                    <label for="form-tag">Tag / grupo</label>
-                    <input type="text" id="form-tag" placeholder="Ej: TGB, Bruto...">
-                </div>
+                <div class="form-group"><label for="form-tag">Tag / grupo</label><input type="text" id="form-tag" placeholder="Ej: TGB, Bruto..."></div>
                 <div class="form-group">
                     <label for="form-recurrence">Tipo contrato</label>
-                    <select id="form-recurrence">
-                        <option value="fijo">Abono mensual (fijo)</option>
-                        <option value="temporal">Servicio temporal</option>
-                    </select>
+                    <select id="form-recurrence"><option value="fijo">Abono mensual (fijo)</option><option value="temporal">Servicio temporal</option></select>
                 </div>
                 <div class="form-group">
                     <label for="form-sub-type">Estructura</label>
-                    <select id="form-sub-type" onchange="toggleSubInput(this.value)">
-                        <option value="principal">Ítem principal</option>
-                        <option value="subordinado">Subordinar a...</option>
-                    </select>
+                    <select id="form-sub-type" onchange="toggleSubInput(this.value)"><option value="principal">Ítem principal</option><option value="subordinado">Subordinar a...</option></select>
                 </div>
                 <div class="form-group" id="parent-input-group" style="display: none;">
-                    <label for="form-parent-name" style="color: var(--warning)">Cliente padre</label>
-                    <input type="text" id="form-parent-name" placeholder="Ej: TGB">
+                    <label for="form-parent-name" style="color: var(--warning)">Cliente padre</label><input type="text" id="form-parent-name" placeholder="Ej: TGB">
                 </div>
                 <button type="submit" class="submit-btn">Cargar ítem</button>
             </div>
         </form>
     </div>
-
-</div><!-- /.main -->
+</div>
 
 <script>
 /* ================================================================
-   CONFIGURACIÓN — editá solo acá
+   CONFIGURACIÓN
    ================================================================ */
 const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzMkOYligCGvXvT1z4SaI1aRS_4A216yW-2i517j3OMFkf5IDyywO0C3Teqmg-dgzWn/exec";
-const CACHE_TTL = 15 * 60 * 1000; // 15 minutos
+const CACHE_TTL = 15 * 60 * 1000;
+const TAG_PALETTE = ['#7367f0','#00cfe8','#ff9f43','#ea5455','#28c76f','#a259ff','#ff6b9d','#4b7bec','#20bf6b','#f7b731'];
 
-/* ================================================================
-   ESTADO GLOBAL
-   ================================================================ */
 let rawClients = [];
 let processedClients = [];
 let tierChart, historyChart;
 let lastFetchTime = 0;
-
-// Overrides locales para clientes virtuales (fijos proyectados)
-// Clave: "baseId_mes" → { status, budget }
 let virtualOverrides = {};
-
-// Vista activa: 'tier' | 'tag'
 let currentView = 'tier';
 
 const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -1027,20 +543,13 @@ const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto"
 /* ================================================================
    UTILIDADES
    ================================================================ */
-function showLoader(v) {
-    document.getElementById('loadingView').style.display = v ? 'flex' : 'none';
-}
-
-function toggleSubInput(val) {
-    document.getElementById('parent-input-group').style.display = val === 'subordinado' ? 'block' : 'none';
-}
-
+function showLoader(v) { document.getElementById('loadingView').style.display = v ? 'flex' : 'none'; }
+function toggleSubInput(val) { document.getElementById('parent-input-group').style.display = val === 'subordinado' ? 'block' : 'none'; }
 function getMonthLabel(monthStr) {
     if (!monthStr || !monthStr.toString().includes('-')) return monthStr;
     const [y, m] = monthStr.split('-');
     return (MESES[parseInt(m,10)-1] || m) + " " + y;
 }
-
 function parseCleanMonth(raw) {
     if (!raw) return "";
     let s = raw.toString().trim().toLowerCase();
@@ -1053,7 +562,6 @@ function parseCleanMonth(raw) {
     if (/^\d{4}-\d{2}$/.test(s)) return s;
     return s;
 }
-
 function getTimelineArray() {
     let set = new Set();
     rawClients.forEach(c => { let m = parseCleanMonth(c.month); if (m) set.add(m); });
@@ -1064,9 +572,14 @@ function getTimelineArray() {
     }
     return Array.from(set).sort();
 }
-
-function formatMoney(n) {
-    return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0});
+function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function getClientTag(client) {
+    if (client.tag) return client.tag.trim();
+    if (client.notes) {
+        let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
+        if (m) return m[1].trim();
+    }
+    return "";
 }
 
 /* ================================================================
@@ -1074,9 +587,7 @@ function formatMoney(n) {
    ================================================================ */
 async function loadDataFromSheet(forzar=false) {
     const now = Date.now();
-    if (!forzar && rawClients.length > 0 && (now - lastFetchTime < CACHE_TTL)) {
-        renderDashboard(); return;
-    }
+    if (!forzar && rawClients.length > 0 && (now - lastFetchTime < CACHE_TTL)) { renderDashboard(); return; }
     showLoader(true);
     try {
         const res = await fetch(SHEET_API_URL);
@@ -1094,70 +605,69 @@ async function loadDataFromSheet(forzar=false) {
 }
 
 /* ================================================================
-   PROCESO DE RECURRENCIAS
+   PROCESO DE RECURRENCIAS Y PAUSAS MES A MES
    ================================================================ */
 function processRecurrences(selectedMonth) {
-    // "Todos": muestra clientes activos al mes actual
     if (selectedMonth === "Todos") {
         const hoy = new Date();
-        const currMonth = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0');
-        return processRecurrences(currMonth);
+        return processRecurrences(hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0'));
     }
 
     let activeList = [];
     let nativeItemsInMonth = rawClients.filter(x => parseCleanMonth(x.month) === selectedMonth);
 
     nativeItemsInMonth.forEach(item => {
-        let isPausado = item.notes && item.notes.toString().toLowerCase().includes("[pausado]");
+        // Pausa heredada o específica del mes
+        let isMonthPausado = item.notes && item.notes.toString().match(new RegExp(`\\[PAUSADO:${selectedMonth}\\]`, 'i'));
+        let isLegacyPausado = item.notes && item.notes.toString().toLowerCase().includes("[pausado]") && !item.notes.toString().toLowerCase().match(/\[pausado:\d{4}-\d{2}\]/);
+        let isPausado = isMonthPausado || isLegacyPausado;
+        
         if (!isPausado || showPausados()) {
             activeList.push({ ...item, month: selectedMonth, currentMonth: selectedMonth, isVirtual: false, pausado: isPausado });
         }
     });
 
     let uniqueBaseIds = new Set(rawClients.map(c => c.id.toString().split('_')[0]));
-
     uniqueBaseIds.forEach(baseId => {
-        let history = rawClients.filter(x => {
-            let xm = parseCleanMonth(x.month);
-            return x.id.toString().split('_')[0] === baseId && xm < selectedMonth;
-        });
+        let history = rawClients.filter(x => x.id.toString().split('_')[0] === baseId && parseCleanMonth(x.month) < selectedMonth);
         if (!history.length) return;
 
-        history.sort((a,b) =>
-            parseCleanMonth(b.month).localeCompare(parseCleanMonth(a.month)) ||
-            b.id.toString().localeCompare(a.id.toString())
-        );
+        history.sort((a,b) => parseCleanMonth(b.month).localeCompare(parseCleanMonth(a.month)) || b.id.toString().localeCompare(a.id.toString()));
         let latest = history[0];
         let isTemporal = latest.notes && latest.notes.toString().toLowerCase().includes("[temporal]");
         let alreadyNative = nativeItemsInMonth.some(x => x.id.toString().split('_')[0] === baseId);
 
-        // La pausa es puntual de UN mes: nunca corta la proyección hacia adelante.
-        // Se descarta el tag [PAUSADO] al proyectar el mes siguiente, así el cliente
-        // vuelve a aparecer activo automáticamente salvo que se lo pause de nuevo.
         if (!isTemporal && !alreadyNative) {
             const virtualId = `${baseId}_${selectedMonth}`;
             const override  = virtualOverrides[virtualId] || {};
-            // Buscar si ya existe un registro nativo para este cliente en meses anteriores con status guardado
             const savedStatus = getLocalStatus(virtualId) || latest.status || "Pendiente";
-            const projectedNotes = latest.notes ? latest.notes.toString().replace(/\[pausado\]/gi, "").trim() : "";
-            activeList.push({
-                ...latest,
-                notes: projectedNotes,
-                id: virtualId,
-                month: selectedMonth,
-                currentMonth: selectedMonth,
-                status: override.status !== undefined ? override.status : savedStatus,
-                budget: override.budget !== undefined ? override.budget : latest.budget,
-                isVirtual: true,
-                pausado: false
-            });
+            
+            // Evaluar pausa en el mes actual proyectado
+            let isMonthPausado = latest.notes && latest.notes.toString().match(new RegExp(`\\[PAUSADO:${selectedMonth}\\]`, 'i'));
+            let isLegacyPausado = latest.notes && latest.notes.toString().toLowerCase().includes("[pausado]") && !latest.notes.toString().toLowerCase().match(/\[pausado:\d{4}-\d{2}\]/);
+            let isPausado = isMonthPausado || isLegacyPausado;
+
+            // Limpiamos los tags de pausa viejos para la vista
+            const projectedNotes = latest.notes ? latest.notes.toString().replace(/\[pausado(:\d{4}-\d{2})?\]/gi, "").trim() : "";
+            
+            if (!isPausado || showPausados()) {
+                activeList.push({
+                    ...latest,
+                    notes: projectedNotes,
+                    id: virtualId,
+                    month: selectedMonth,
+                    currentMonth: selectedMonth,
+                    status: override.status !== undefined ? override.status : savedStatus,
+                    budget: override.budget !== undefined ? override.budget : latest.budget,
+                    isVirtual: true,
+                    pausado: isPausado
+                });
+            }
         }
     });
-
     return activeList;
 }
 
-/* Suma facturación real de TODOS los meses históricos */
 function calcTotalHistorico() {
     const months = getTimelineArray();
     let total = 0, cobrado = 0, pendiente = 0;
@@ -1174,7 +684,7 @@ function calcTotalHistorico() {
 }
 
 /* ================================================================
-   MESES DINÁMICOS
+   INTERFAZ PRINCIPAL
    ================================================================ */
 function initDynamicMonths() {
     const fSel = document.getElementById('view-month');
@@ -1185,15 +695,7 @@ function initDynamicMonths() {
     const oldVal = fSel.value || curr;
 
     fForm.innerHTML = "";
-    fSel.innerHTML = `
-        <optgroup label="Períodos">
-            <option value="Todos">Histórico completo</option>
-            <option value="ultimos3">Últimos 3 meses</option>
-            <option value="ultimos6">Últimos 6 meses</option>
-        </optgroup>
-        <optgroup label="Mes por mes">
-    `;
-
+    fSel.innerHTML = `<optgroup label="Períodos"><option value="Todos">Histórico completo</option><option value="ultimos3">Últimos 3 meses</option><option value="ultimos6">Últimos 6 meses</option></optgroup><optgroup label="Mes por mes">`;
     months.forEach(m => {
         const label = getMonthLabel(m);
         fForm.innerHTML  += `<option value="${m}" ${m===curr?'selected':''}>${label}</option>`;
@@ -1202,23 +704,18 @@ function initDynamicMonths() {
     fSel.innerHTML += `</optgroup>`;
 }
 
-/* ================================================================
-   RENDER PRINCIPAL
-   ================================================================ */
 function getMonthsForPeriod(value) {
     const hoy = new Date();
-    const curr = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0');
-    if (value === "Todos") return null; // null = histórico
+    if (value === "Todos") return null; 
     if (value === "ultimos3" || value === "ultimos6") {
-        const n = value === "ultimos3" ? 3 : 6;
         let result = [];
-        for (let i = n-1; i >= 0; i--) {
+        for (let i = (value === "ultimos3" ? 3 : 6)-1; i >= 0; i--) {
             const d = new Date(hoy.getFullYear(), hoy.getMonth()-i, 1);
             result.push(d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0'));
         }
-        return result; // array de meses
+        return result;
     }
-    return [value]; // mes único
+    return [value];
 }
 
 function showPausados() {
@@ -1231,11 +728,9 @@ function renderDashboard() {
     const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
     const isPeriod = selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
     const periodMonths = isPeriod ? getMonthsForPeriod(selectedMonth) : null;
+    const renderMonth = isPeriod ? periodMonths[periodMonths.length-1] : (selectedMonth === "Todos" ? parseCleanMonth(new Date()) : selectedMonth);
 
     ['grande','mediana','chica'].forEach(t => document.getElementById(`list-${t}`).innerHTML = '');
-
-    // Para períodos: mostrar clientes activos al último mes del período
-    const renderMonth = isPeriod ? periodMonths[periodMonths.length-1] : selectedMonth;
     processedClients = processRecurrences(renderMonth);
 
     let totalFact=0, totalCob=0, totalPend=0, count=0;
@@ -1252,21 +747,12 @@ function renderDashboard() {
     principals.forEach(p => {
         ordered.push(p);
         let core = p.name.toLowerCase().trim();
-        subordinates.filter(s => {
-            let m = s.notes.toString().toLowerCase().match(/\[sub_de:\s*([^\]]+)\]/);
-            return m && m[1].trim() === core;
-        }).forEach(ch => ordered.push(ch));
+        subordinates.filter(s => s.notes.toString().toLowerCase().match(/\[sub_de:\s*([^\]]+)\]/)?.[1].trim() === core).forEach(ch => ordered.push(ch));
     });
     subordinates.forEach(s => { if (!ordered.some(x=>x.id===s.id)) ordered.push(s); });
 
     ordered.forEach(client => {
-        const match = query==="" ||
-            (client.name    && client.name.toLowerCase().includes(query)) ||
-            (client.contact && client.contact.toLowerCase().includes(query)) ||
-            (client.notes   && client.notes.toLowerCase().includes(query)) ||
-            (client.platform&& client.platform.toLowerCase().includes(query));
-
-        if (!match) return;
+        if (query && !((client.name||"").toLowerCase().includes(query) || (client.contact||"").toLowerCase().includes(query) || (client.notes||"").toLowerCase().includes(query) || (client.platform||"").toLowerCase().includes(query) || getClientTag(client).toLowerCase().includes(query))) return;
 
         const budget = parseFloat(client.budget)||0;
         if (!client.pausado) {
@@ -1274,102 +760,17 @@ function renderDashboard() {
             if ((client.status||"").trim().toLowerCase()==="pagado") totalCob += budget;
             else { totalPend += budget; tiers[client.tier].pendiente += budget; }
             tiers[client.tier].total += budget;
-        }
-
-        const isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]");
-        const isFijo     = !isTemporal;
-        const isSub      = client.notes && client.notes.toString().toLowerCase().includes("[sub_de:");
-        const isPausado  = client.notes && client.notes.toString().toLowerCase().includes("[pausado]");
-
-        // Extraer tag del campo dedicado o de notas con sintaxis [TAG:xxx]
-        let clientTag = client.tag || "";
-        if (!clientTag && client.notes) {
-            let tm = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
-            if (tm) clientTag = tm[1].trim();
-        }
-
-        let displayNotes = client.notes ? client.notes.toString()
-            .replace(/\[FIJO\]/gi,"").replace(/\[TEMPORAL\]/gi,"")
-            .replace(/\[SUB_DE:\s*[^\]]+\]/gi,"").replace(/\[PAUSADO\]/gi,"")
-            .replace(/\[TAG:\s*[^\]]+\]/gi,"").trim() : "";
-
-        let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
-        let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
-
-        // Excluir pausados del conteo de KPIs y tiers
-        if (!client.pausado) {
             tiers[client.tier].count++;
             count++;
         }
 
-        const html = `
-        <div class="client-item ${isSub?'subordinated':''}${client.pausado?' pausado-item':''}">
-            <div class="client-top">
-                <div>
-                    <div class="client-name">${isSub?'↳ ':''}${client.name}</div>
-                    <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
-                </div>
-                <div class="client-top-right">
-                    <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
-                    <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
-                </div>
-            </div>
-            <div class="client-badges">
-                <span class="badge badge-platform">${client.platform}</span>
-                ${isFijo ? '<span class="badge badge-recurrence">Mensual fijo</span>' : ''}
-                ${isSub  ? `<span class="badge badge-sub">↪ ${parentLabel}</span>` : ''}
-            </div>
-            <div class="client-controls">
-                <div class="budget-wrap">
-                    <span class="budget-symbol">$</span>
-                    <input type="number" class="budget-input-live" value="${budget}"
-                        onchange="updateLiveCell('${client.id}','budget',this.value)">
-                </div>
-                <select class="tier-select-live" onchange="updateLiveCell('${client.id}','tier',this.value)">
-                    <option value="grande"  ${client.tier==='grande' ?'selected':''}>Grande</option>
-                    <option value="mediana" ${client.tier==='mediana'?'selected':''}>Mediana</option>
-                    <option value="chica"   ${client.tier==='chica'  ?'selected':''}>Chica</option>
-                </select>
-                ${isFijo ? `
-                <select class="account-status-select ${isPausado?'pausado':'activo'}"
-                    onchange="updateAccountStatus('${client.id}',this.value)">
-                    <option value="activo"  ${!isPausado?'selected':''}>🟢 Activo</option>
-                    <option value="pausado" ${ isPausado?'selected':''}>🔴 Pausado</option>
-                </select>` : ''}
-            </div>
-            <div class="tag-row">
-                <span class="tag-label"># Tag</span>
-                <input type="text" class="tag-input-live" value="${clientTag}"
-                    placeholder="Sin tag..."
-                    onchange="updateLiveTag('${client.id}',this.value)">
-            </div>
-            <div class="notes-row">
-                <span class="notes-label">Obs.</span>
-                <input type="text" class="notes-input-live" value="${displayNotes}"
-                    placeholder="Comentarios de este ítem..."
-                    onchange="updateLiveCell('${client.id}','notes',this.value)">
-            </div>
-        </div>`;
-
-        if (currentView === 'tier') {
-            document.getElementById(`list-${client.tier}`).innerHTML += html;
-        }
+        if (currentView === 'tier') document.getElementById(`list-${client.tier}`).innerHTML += buildClientCard(client, renderMonth);
     });
 
-    // Vista por tag
     if (currentView === 'tag') {
-        renderTagView(processedClients.filter(c => {
-            const q = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
-            return q === "" ||
-                (c.name     && c.name.toLowerCase().includes(q)) ||
-                (c.contact  && c.contact.toLowerCase().includes(q)) ||
-                (c.notes    && c.notes.toLowerCase().includes(q)) ||
-                (c.platform && c.platform.toLowerCase().includes(q)) ||
-                getClientTag(c).toLowerCase().includes(q);
-        }));
+        renderTagView(processedClients.filter(c => !query || (c.name||"").toLowerCase().includes(query) || (c.contact||"").toLowerCase().includes(query) || (c.notes||"").toLowerCase().includes(query) || (c.platform||"").toLowerCase().includes(query) || getClientTag(c).toLowerCase().includes(query)), renderMonth);
     }
 
-    // KPIs — en "Todos" y períodos la facturación suma todos los meses involucrados
     let kpiTotal = totalFact, kpiCob = totalCob, kpiPend = totalPend;
     if (selectedMonth === "Todos") {
         const hist = calcTotalHistorico();
@@ -1381,11 +782,11 @@ function renderDashboard() {
                 if (c.pausado) return;
                 const b = parseFloat(c.budget)||0;
                 kpiTotal += b;
-                if ((c.status||"").trim().toLowerCase() === "pagado") kpiCob += b;
-                else kpiPend += b;
+                if ((c.status||"").trim().toLowerCase() === "pagado") kpiCob += b; else kpiPend += b;
             });
         });
     }
+
     const isMultiMonth = selectedMonth === "Todos" || isPeriod;
     document.getElementById('kpi-total').innerText    = formatMoney(kpiTotal);
     document.getElementById('kpi-cobrado').innerText  = formatMoney(kpiCob);
@@ -1393,97 +794,89 @@ function renderDashboard() {
     document.getElementById('kpi-label-cuentas').innerText = isMultiMonth ? "Clientes activos" : "Ítems activos";
     document.getElementById('kpi-cuentas').innerText  = isMultiMonth ? `${count} activos` : `${count} ítems`;
 
-    // Tier headers
     ['grande','mediana','chica'].forEach(t => {
         document.getElementById(`total-${t}`).innerText    = formatMoney(tiers[t].total);
-        document.getElementById(`pendiente-${t}`).innerText= formatMoney(tiers[t].pendiente) + " pendiente";
+        document.getElementById(`pendiente-${t}`).innerText= formatMoney(tiers[t].pendiente) + " pdte.";
         document.getElementById(`count-${t}`).innerText    = tiers[t].count;
     });
 
-    // Centro del donut
     document.getElementById('donut-total').innerText = formatMoney(totalFact);
-
-    // Línea de tiempo: siempre se muestra completa (no colapsa al filtrar por un solo mes),
-    // agrupada por tier o por tag según la vista activa (currentView)
     updateCharts(tiers, getTimelineArray());
 }
 
 /* ================================================================
-   SERIES DE EVOLUCIÓN — agrupadas por tier o por tag, mes a mes
+   GRÁFICO POR MARCAS (Agrupadas en Legend/Tooltip)
    ================================================================ */
-const TAG_PALETTE = ['#7367f0','#00cfe8','#ff9f43','#ea5455','#28c76f','#a259ff','#ff6b9d','#4b7bec','#20bf6b','#f7b731'];
+function computeBrandSeries(timelineMonths, view) {
+    let uniqueClients = {};
+    let tagSet = new Set();
 
-function computeSeriesByTier(months) {
-    const series = { grande: [], mediana: [], chica: [] };
-    months.forEach(m => {
-        const sums = { grande:0, mediana:0, chica:0 };
+    timelineMonths.forEach(m => {
         processRecurrences(m).forEach(c => {
-            if (c.pausado) return;
-            sums[c.tier] = (sums[c.tier]||0) + (parseFloat(c.budget)||0);
-        });
-        ['grande','mediana','chica'].forEach(t => series[t].push(sums[t]));
-    });
-    return series;
-}
-
-function computeSeriesByTag(months) {
-    // Primero relevamos todos los tags que aparecen en el timeline
-    const tagSet = new Set();
-    months.forEach(m => {
-        processRecurrences(m).forEach(c => {
-            if (c.pausado) return;
+            const baseId = c.id.toString().split('_')[0];
+            if (!uniqueClients[baseId]) {
+                uniqueClients[baseId] = {
+                    name: c.name, tier: c.tier, tag: getClientTag(c) || "Sin tag",
+                    data: Array(timelineMonths.length).fill(0)
+                };
+            }
             tagSet.add(getClientTag(c) || "Sin tag");
         });
     });
-    const tags = Array.from(tagSet);
-    const series = {};
-    tags.forEach(t => series[t] = []);
 
-    months.forEach(m => {
-        const sums = {};
+    const tagsArray = Array.from(tagSet).sort();
+
+    timelineMonths.forEach((m, idx) => {
         processRecurrences(m).forEach(c => {
-            if (c.pausado) return;
-            const tag = getClientTag(c) || "Sin tag";
-            sums[tag] = (sums[tag]||0) + (parseFloat(c.budget)||0);
+            if (c.pausado) return; // Si está pausado, el budget en el array es 0 para el gráfico
+            const baseId = c.id.toString().split('_')[0];
+            if(uniqueClients[baseId]) {
+                uniqueClients[baseId].data[idx] += (parseFloat(c.budget) || 0);
+                uniqueClients[baseId].tier = c.tier;
+                uniqueClients[baseId].tag = getClientTag(c) || "Sin tag";
+            }
         });
-        tags.forEach(t => series[t].push(sums[t]||0));
     });
-    return { tags, series };
-}
 
-/* ================================================================
-   GRÁFICOS — línea de tiempo multi-serie + donut
-   ================================================================ */
-function updateCharts(tiersData, timelineMonths) {
-    const labels = timelineMonths.map(m => getMonthLabel(m));
+    let datasets = [];
+    Object.values(uniqueClients).forEach(client => {
+        if (client.data.every(v => v === 0)) return; 
 
-    document.getElementById('chart-title').textContent =
-        currentView === 'tag' ? 'Evolución por tag' : 'Evolución por tier';
+        let color = '#ccc';
+        let groupLabel = '';
+        if (view === 'tier') {
+            if (client.tier === 'grande') color = '#7367f0';
+            else if (client.tier === 'mediana') color = '#00cfe8';
+            else if (client.tier === 'chica') color = '#ff9f43';
+            groupLabel = client.tier.toUpperCase();
+        } else {
+            let tIdx = tagsArray.indexOf(client.tag);
+            color = TAG_PALETTE[tIdx % TAG_PALETTE.length] || '#000';
+            groupLabel = client.tag;
+        }
 
-    let datasets;
-    if (currentView === 'tag') {
-        const { tags, series } = computeSeriesByTag(timelineMonths);
-        datasets = tags.map((tag, i) => ({
-            label: tag,
-            data: series[tag],
-            borderColor: TAG_PALETTE[i % TAG_PALETTE.length],
+        datasets.push({
+            label: `[${groupLabel}] ${client.name}`,
+            data: client.data,
+            borderColor: color,
             backgroundColor: 'transparent',
             borderWidth: 2,
             fill: false,
-            tension: .35,
-            pointRadius: 3,
-            pointHoverRadius: 5
-        }));
-    } else {
-        const series = computeSeriesByTier(timelineMonths);
-        datasets = [
-            { label:'Grandes',  data: series.grande,  borderColor:'#7367f0', backgroundColor:'transparent', borderWidth:2, fill:false, tension:.35, pointRadius:3, pointHoverRadius:5 },
-            { label:'Medianas', data: series.mediana, borderColor:'#00cfe8', backgroundColor:'transparent', borderWidth:2, fill:false, tension:.35, pointRadius:3, pointHoverRadius:5 },
-            { label:'Chicas',   data: series.chica,   borderColor:'#ff9f43', backgroundColor:'transparent', borderWidth:2, fill:false, tension:.35, pointRadius:3, pointHoverRadius:5 }
-        ];
-    }
+            tension: 0.35,
+            pointRadius: 2,
+            pointHoverRadius: 5,
+            stack: groupLabel
+        });
+    });
 
-    // — Line chart multi-serie —
+    datasets.sort((a, b) => a.stack.localeCompare(b.stack) || a.label.localeCompare(b.label));
+    return datasets;
+}
+
+function updateCharts(tiersData, timelineMonths) {
+    const labels = timelineMonths.map(m => getMonthLabel(m));
+    const datasets = computeBrandSeries(timelineMonths, currentView);
+
     if (historyChart) {
         historyChart.data.labels = labels;
         historyChart.data.datasets = datasets;
@@ -1494,36 +887,25 @@ function updateCharts(tiersData, timelineMonths) {
             type: 'line',
             data: { labels, datasets },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false }, // Crucial para ver el tooltip agrupado en el hover vertical
                 plugins: {
-                    legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
+                    legend: { display: false }, // Ocultamos la leyenda para no saturar con 50 marcas
                     tooltip: {
+                        position: 'nearest',
                         callbacks: {
                             label: ctx => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}`
                         }
                     }
                 },
                 scales: {
-                    x: {
-                        grid: { display: false },
-                        ticks: { font: { size: 11 }, color: '#9b98a8' }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: { color: 'rgba(0,0,0,.04)' },
-                        ticks: {
-                            font: { size: 11 },
-                            color: '#9b98a8',
-                            callback: v => formatMoney(v)
-                        }
-                    }
+                    x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9b98a8' } },
+                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
                 }
             }
         });
     }
 
-    // — Donut —
     const donutData = [tiersData.grande.total, tiersData.mediana.total, tiersData.chica.total];
     if (tierChart) {
         tierChart.data.datasets[0].data = donutData;
@@ -1531,49 +913,21 @@ function updateCharts(tiersData, timelineMonths) {
     } else {
         tierChart = new Chart(document.getElementById('tierChart').getContext('2d'), {
             type: 'doughnut',
-            data: {
-                labels: ['Grandes','Medianas','Chicas'],
-                datasets: [{
-                    data: donutData,
-                    backgroundColor: ['#7367f0','#00cfe8','#ff9f43'],
-                    borderWidth: 0,
-                    hoverOffset: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                cutout: '72%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: ctx => ` ${ctx.label}: ${formatMoney(ctx.raw)}`
-                        }
-                    }
-                }
-            }
+            data: { labels: ['Grandes','Medianas','Chicas'], datasets: [{ data: donutData, backgroundColor: ['#7367f0','#00cfe8','#ff9f43'], borderWidth: 0, hoverOffset: 6 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${formatMoney(ctx.raw)}` } } } }
         });
     }
 }
 
 /* ================================================================
-   SYNC POST
+   SYNC POST Y EDICIÓN (Con Pausas Aisladas)
    ================================================================ */
 async function syncPost(payload) {
     try {
-        fetch(SHEET_API_URL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
-        });
+        fetch(SHEET_API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
     } catch(e) { console.error("Sync error:", e); }
 }
 
-/* ================================================================
-   EDICIÓN EN VIVO
-   ================================================================ */
 function updateLiveCell(idStr, field, value) {
     let isVirtual = idStr.toString().includes('_');
     let baseId    = idStr.toString().split('_')[0];
@@ -1584,70 +938,68 @@ function updateLiveCell(idStr, field, value) {
             let orig = rawClients.find(x => x.id.toString()===baseId);
             let tags = "";
             if (orig?.notes) {
-                if (orig.notes.toLowerCase().includes("[pausado]"))   tags += "[PAUSADO] ";
+                // Preservar pausas mensuales especificas
+                let pausedMatches = orig.notes.toString().match(/\[PAUSADO:\d{4}-\d{2}\]/gi) || [];
+                tags += pausedMatches.join(" ") + " ";
                 if (orig.notes.toLowerCase().includes("[temporal]"))  tags += "[TEMPORAL] ";
                 let subMatch = orig.notes.toString().match(/(\[sub_de:\s*[^\]]+\])/i);
                 if (subMatch) tags += subMatch[1] + " ";
             }
             finalValue = tags + value;
         }
-        let payload = { action:"update", id:baseId };
-        payload[field] = finalValue;
+        let payload = { action:"update", id:baseId }; payload[field] = finalValue;
         let idx = rawClients.findIndex(x => x.id.toString()===baseId);
         if (idx !== -1) rawClients[idx][field] = finalValue;
-        renderDashboard();
-        syncPost(payload);
+        renderDashboard(); syncPost(payload);
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
         let source = rawClients.find(x => x.id.toString()===baseId);
         if (!source) return;
 
-        // Persistir en overrides locales para que sobreviva el re-render
         if (!virtualOverrides[idStr]) virtualOverrides[idStr] = {};
         if (field === 'status') virtualOverrides[idStr].status = value;
         if (field === 'budget') virtualOverrides[idStr].budget = parseFloat(value);
 
-        let secureNotes = source.notes ? source.notes.toString() : "";
         let override = virtualOverrides[idStr] || {};
         let payload = {
-            action: "add", id: idStr,
-            name: source.name, contact: source.contact,
+            action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: field==='tier' ? value : source.tier,
             platform: source.platform, status: override.status || source.status,
-            notes: field==='notes' ? `[FIJO] ${value}` : secureNotes
+            notes: field==='notes' ? `[FIJO] ${value}` : (source.notes || "").toString()
         };
         rawClients.push(payload);
-        // Una vez persistido en rawClients, limpiar el override
         delete virtualOverrides[idStr];
-        renderDashboard();
-        syncPost(payload);
+        renderDashboard(); syncPost(payload);
     }
 }
 
+// LOGICA CLAVE: Pausa aislada al mes activo
 function updateAccountStatus(idStr, statusValue) {
-    let isVirtual  = idStr.toString().includes('_');
-    let baseId     = idStr.toString().split('_')[0];
-    // El registro exacto de ESTE mes (si ya fue materializado antes)
+    let isVirtual   = idStr.toString().includes('_');
+    let baseId      = idStr.toString().split('_')[0];
     let exactRecord = rawClients.find(x => x.id.toString() === idStr.toString());
-    // Plantilla de referencia (el registro base) por si hay que crear uno nuevo
     let template    = exactRecord || rawClients.find(x => x.id.toString() === baseId);
     if (!template) return;
+    
     let targetMonth = isVirtual ? idStr.toString().split('_')[1] : parseCleanMonth(template.month);
+    let pauseTag = `[PAUSADO:${targetMonth}]`;
+    let baseNotes = (template.notes || "").toString().replace(/\[pausado\]/gi, "").trim(); // Limpiamos el tag global viejo si existe
 
-    // Pausar/reactivar sólo toca el tag [PAUSADO], preserva TAG/TEMPORAL/SUB_DE existentes
-    let baseNotes = (template.notes || "").toString().replace(/\[pausado\]/gi, "").trim();
-    let newNotes  = statusValue === "pausado" ? `[PAUSADO] ${baseNotes}`.trim() : baseNotes;
+    if (statusValue === "pausado") {
+        if (!baseNotes.toLowerCase().includes(pauseTag.toLowerCase())) baseNotes = `${pauseTag} ${baseNotes}`.trim();
+    } else {
+        baseNotes = baseNotes.replace(new RegExp(`\\[PAUSADO:${targetMonth}\\]`, 'gi'), "").trim();
+    }
 
     if (exactRecord) {
-        exactRecord.notes = newNotes;
+        exactRecord.notes = baseNotes;
         renderDashboard();
-        syncPost({ action:"update", id: idStr, notes: newNotes });
+        syncPost({ action:"update", id: exactRecord.id, notes: baseNotes });
     } else {
         let payload = {
-            action:"add", id: idStr, name:template.name, contact:template.contact,
-            budget:parseFloat(template.budget), month:targetMonth, tier:template.tier,
-            platform:template.platform, status:template.status, notes:newNotes
+            action:"add", id: idStr, name:template.name, contact:template.contact, budget:parseFloat(template.budget), 
+            month:targetMonth, tier:template.tier, platform:template.platform, status:template.status, notes:baseNotes
         };
         rawClients.push(payload);
         renderDashboard();
@@ -1663,24 +1015,15 @@ function toggleLiveStatus(idStr) {
 
     if (!idStr.toString().includes('_')) {
         let cache = rawClients.find(x => x.id.toString()===idStr.toString());
-        if (cache) {
-            cache.status = next;
-        } else {
-            let fallback = rawClients.find(x =>
-                x.name === cur.name && parseCleanMonth(x.month) === parseCleanMonth(cur.month)
-            );
-            if (fallback) fallback.status = next;
-            else rawClients.push({ ...cur, status: next });
+        if (cache) cache.status = next;
+        else {
+            let fallback = rawClients.find(x => x.name === cur.name && parseCleanMonth(x.month) === parseCleanMonth(cur.month));
+            if (fallback) fallback.status = next; else rawClients.push({ ...cur, status: next });
         }
-        saveLocalStatus(idStr, next);
-        renderDashboard();
-        syncPost({ action:"update", id:idStr, status:next });
+        saveLocalStatus(idStr, next); renderDashboard(); syncPost({ action:"update", id:idStr, status:next });
     } else {
-        virtualOverrides[idStr] = virtualOverrides[idStr] || {};
-        virtualOverrides[idStr].status = next;
-        saveLocalStatus(idStr, next);
-        renderDashboard();
-        syncPost({ action:"update", id:idStr.toString().split('_')[0], status:next });
+        virtualOverrides[idStr] = virtualOverrides[idStr] || {}; virtualOverrides[idStr].status = next;
+        saveLocalStatus(idStr, next); renderDashboard(); syncPost({ action:"update", id:idStr.toString().split('_')[0], status:next });
     }
 }
 
@@ -1688,26 +1031,18 @@ function deleteLiveClient(idStr) {
     if (!confirm("¿Eliminar este registro de forma definitiva?")) return;
     if (!idStr.toString().includes('_')) {
         rawClients = rawClients.filter(x => x.id.toString()!==idStr.toString());
-        renderDashboard();
-        syncPost({ action:"delete", id:idStr });
+        renderDashboard(); syncPost({ action:"delete", id:idStr });
     } else {
-        let baseId = idStr.toString().split('_')[0];
-        let virtualMonth = idStr.toString().split('_')[1];
+        let baseId = idStr.toString().split('_')[0], virtualMonth = idStr.toString().split('_')[1];
         let src = rawClients.find(x => x.id.toString()===baseId);
         if (!src) return;
-        let payload = {
-            action:"add", id: idStr, name:src.name, contact:src.contact,
-            budget:0, month:virtualMonth, tier:src.tier,
-            platform:src.platform, status:"Pagado", notes:"[PAUSADO]"
-        };
-        rawClients.push(payload);
-        renderDashboard();
-        syncPost(payload);
+        let payload = { action:"add", id: idStr, name:src.name, contact:src.contact, budget:0, month:virtualMonth, tier:src.tier, platform:src.platform, status:"Pagado", notes:`[PAUSADO:${virtualMonth}]` };
+        rawClients.push(payload); renderDashboard(); syncPost(payload);
     }
 }
 
 /* ================================================================
-   VISTA POR TAG
+   UI DE VISTAS (Tags / Tiers)
    ================================================================ */
 function setView(v) {
     currentView = v;
@@ -1718,61 +1053,28 @@ function setView(v) {
     renderDashboard();
 }
 
-function getClientTag(client) {
-    if (client.tag) return client.tag.trim();
-    if (client.notes) {
-        let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
-        if (m) return m[1].trim();
-    }
-    return "";
-}
-
 function updateLiveTag(idStr, newTag) {
-    const baseId    = idStr.toString().split('_')[0];
-    const isVirtual = idStr.toString().includes('_');
-    const tag       = newTag.trim();
-
+    const baseId = idStr.toString().split('_')[0], isVirtual = idStr.toString().includes('_'), tag = newTag.trim();
     if (!isVirtual) {
         let cache = rawClients.find(x => x.id.toString() === baseId);
         if (!cache) return;
-        // Guardar en campo dedicado Y en notes como [TAG:xxx] para sincronizar con Sheets
         cache.tag = tag;
-        let notes = (cache.notes || "").toString()
-            .replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+        let notes = (cache.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
         cache.notes = tag ? `[TAG:${tag}] ${notes}`.trim() : notes;
         syncPost({ action: "update", id: baseId, tag, notes: cache.notes });
     } else {
-        // Cliente proyectado (mensual fijo aún no tocado este mes): hay que
-        // materializarlo con el tag nuevo, igual que ya se hace con budget/tier/notas.
-        let virtualMonth = idStr.toString().split('_')[1];
-        let source = rawClients.find(x => x.id.toString() === baseId);
+        let virtualMonth = idStr.toString().split('_')[1], source = rawClients.find(x => x.id.toString() === baseId);
         if (!source) return;
-
-        let override = virtualOverrides[idStr] || {};
-        let notes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-
-        let payload = {
-            action: "add", id: idStr,
-            name: source.name, contact: source.contact,
-            budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
-            month: virtualMonth, tier: source.tier,
-            platform: source.platform,
-            status: override.status !== undefined ? override.status : source.status,
-            tag: tag,
-            notes: tag ? `[TAG:${tag}] ${notes}`.trim() : notes
-        };
-        rawClients.push(payload);
-        delete virtualOverrides[idStr];
-        syncPost(payload);
+        let override = virtualOverrides[idStr] || {}, notes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+        let payload = { action: "add", id: idStr, name: source.name, contact: source.contact, budget: override.budget !== undefined ? override.budget : parseFloat(source.budget), month: virtualMonth, tier: source.tier, platform: source.platform, status: override.status !== undefined ? override.status : source.status, tag: tag, notes: tag ? `[TAG:${tag}] ${notes}`.trim() : notes };
+        rawClients.push(payload); delete virtualOverrides[idStr]; syncPost(payload);
     }
     renderDashboard();
 }
 
-function renderTagView(clients) {
+function renderTagView(clients, renderMonth) {
     const container = document.getElementById('tags-container');
     container.innerHTML = "";
-
-    // Agrupar por tag (sin tag → grupo "Sin tag")
     const groups = {};
     clients.forEach(c => {
         if (c.pausado && !showPausados()) return;
@@ -1781,75 +1083,42 @@ function renderTagView(clients) {
         groups[tag].push(c);
     });
 
-    // Orden: tags con nombre primero (alfabético), "Sin tag" al final
-    const sortedTags = Object.keys(groups).sort((a, b) => {
-        if (a === "Sin tag") return 1;
-        if (b === "Sin tag") return -1;
-        return a.localeCompare(b);
-    });
-
-    sortedTags.forEach(tag => {
+    Object.keys(groups).sort((a, b) => a === "Sin tag" ? 1 : (b === "Sin tag" ? -1 : a.localeCompare(b))).forEach(tag => {
         const items = groups[tag];
         const total = items.reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
-        const pendiente = items.filter(c => (c.status||"").trim().toLowerCase() !== "pagado")
-                               .reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
+        const pendiente = items.filter(c => (c.status||"").trim().toLowerCase() !== "pagado").reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
         const groupId = "tg_" + tag.replace(/\s+/g,"_");
-
-        const groupHtml = `
+        container.innerHTML += `
         <div class="tag-group">
             <div class="tag-group-header" onclick="toggleTagGroup('${groupId}')">
-                <div class="tag-group-header-left">
-                    <span class="tag-group-name"># ${tag}</span>
-                    <span class="tag-group-badge">${items.length}</span>
-                </div>
+                <div class="tag-group-header-left"><span class="tag-group-name"># ${tag}</span><span class="tag-group-badge">${items.length}</span></div>
                 <div style="display:flex;align-items:center;gap:8px">
-                    <div class="tag-group-totals">
-                        <div class="tag-group-total-main">${formatMoney(total)}</div>
-                        <div class="tag-group-total-sub">${formatMoney(pendiente)} pendiente</div>
-                    </div>
+                    <div class="tag-group-totals"><div class="tag-group-total-main">${formatMoney(total)}</div><div class="tag-group-total-sub">${formatMoney(pendiente)} pendiente</div></div>
                     <span class="tag-group-collapse-icon" id="${groupId}_icon">▼</span>
                 </div>
             </div>
-            <div class="tag-group-body" id="${groupId}">
-                ${items.map(c => buildClientCard(c)).join('')}
-            </div>
+            <div class="tag-group-body" id="${groupId}">${items.map(c => buildClientCard(c, renderMonth)).join('')}</div>
         </div>`;
-        container.innerHTML += groupHtml;
     });
 }
 
 function toggleTagGroup(groupId) {
-    const body = document.getElementById(groupId);
-    const icon = document.getElementById(groupId + '_icon');
+    const body = document.getElementById(groupId), icon = document.getElementById(groupId + '_icon');
     if (!body) return;
     body.classList.toggle('collapsed');
     if (icon) icon.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
 }
 
-/* Construye el HTML de una tarjeta de cliente (extraído para reusar en ambas vistas) */
-function buildClientCard(client) {
-    const budget     = parseFloat(client.budget)||0;
-    const isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]");
-    const isFijo     = !isTemporal;
-    const isSub      = client.notes && client.notes.toString().toLowerCase().includes("[sub_de:");
-    const isPausado  = client.pausado || (client.notes && client.notes.toString().toLowerCase().includes("[pausado]"));
-    const clientTag  = getClientTag(client);
-
-    let displayNotes = client.notes ? client.notes.toString()
-        .replace(/\[FIJO\]/gi,"").replace(/\[TEMPORAL\]/gi,"")
-        .replace(/\[SUB_DE:\s*[^\]]+\]/gi,"").replace(/\[PAUSADO\]/gi,"")
-        .replace(/\[TAG:\s*[^\]]+\]/gi,"").trim() : "";
-
+function buildClientCard(client, renderMonth) {
+    const budget = parseFloat(client.budget)||0, isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]"), isFijo = !isTemporal, isSub = client.notes && client.notes.toString().toLowerCase().includes("[sub_de:"), isPausado = client.pausado, clientTag = getClientTag(client);
+    let displayNotes = client.notes ? client.notes.toString().replace(/\[FIJO\]/gi,"").replace(/\[TEMPORAL\]/gi,"").replace(/\[SUB_DE:\s*[^\]]+\]/gi,"").replace(/\[PAUSADO(:\d{4}-\d{2})?\]/gi,"").replace(/\[TAG:\s*[^\]]+\]/gi,"").trim() : "";
     let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
     let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
 
     return `
     <div class="client-item ${isSub?'subordinated':''}${isPausado?' pausado-item':''}">
         <div class="client-top">
-            <div>
-                <div class="client-name">${isSub?'↳ ':''}${client.name}</div>
-                <div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div>
-            </div>
+            <div><div class="client-name">${isSub?'↳ ':''}${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
             <div class="client-top-right">
                 <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
                 <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
@@ -1861,105 +1130,48 @@ function buildClientCard(client) {
             ${isSub  ? `<span class="badge badge-sub">↪ ${parentLabel}</span>` : ''}
         </div>
         <div class="client-controls">
-            <div class="budget-wrap">
-                <span class="budget-symbol">$</span>
-                <input type="number" class="budget-input-live" value="${budget}"
-                    onchange="updateLiveCell('${client.id}','budget',this.value)">
-            </div>
+            <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="updateLiveCell('${client.id}','budget',this.value)"></div>
             <select class="tier-select-live" onchange="updateLiveCell('${client.id}','tier',this.value)">
                 <option value="grande"  ${client.tier==='grande' ?'selected':''}>Grande</option>
                 <option value="mediana" ${client.tier==='mediana'?'selected':''}>Mediana</option>
                 <option value="chica"   ${client.tier==='chica'  ?'selected':''}>Chica</option>
             </select>
             ${isFijo ? `
-            <select class="account-status-select ${isPausado?'pausado':'activo'}"
-                onchange="updateAccountStatus('${client.id}',this.value)">
-                <option value="activo"  ${!isPausado?'selected':''}>🟢 Activo</option>
-                <option value="pausado" ${ isPausado?'selected':''}>🔴 Pausado</option>
+            <select class="account-status-select ${isPausado?'pausado':'activo'}" onchange="updateAccountStatus('${client.id}',this.value)">
+                <option value="activo"  ${!isPausado?'selected':''}>🟢 Activo en ${getMonthLabel(renderMonth)}</option>
+                <option value="pausado" ${ isPausado?'selected':''}>🔴 Pausado en ${getMonthLabel(renderMonth)}</option>
             </select>` : ''}
         </div>
-        <div class="tag-row">
-            <span class="tag-label"># Tag</span>
-            <input type="text" class="tag-input-live" value="${clientTag}"
-                placeholder="Sin tag..."
-                onchange="updateLiveTag('${client.id}',this.value)">
-        </div>
-        <div class="notes-row">
-            <span class="notes-label">Obs.</span>
-            <input type="text" class="notes-input-live" value="${displayNotes}"
-                placeholder="Comentarios de este ítem..."
-                onchange="updateLiveCell('${client.id}','notes',this.value)">
-        </div>
+        <div class="tag-row"><span class="tag-label"># Tag</span><input type="text" class="tag-input-live" value="${clientTag}" placeholder="Sin tag..." onchange="updateLiveTag('${client.id}',this.value)"></div>
+        <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${displayNotes}" placeholder="Comentarios de este ítem..." onchange="updateLiveCell('${client.id}','notes',this.value)"></div>
     </div>`;
 }
 
-/* ================================================================
-   FORMULARIO AGREGAR
-   ================================================================ */
 function addClient(e) {
     e.preventDefault();
-    const type     = document.getElementById('form-recurrence').value;
-    const subType  = document.getElementById('form-sub-type').value;
-    const parent   = document.getElementById('form-parent-name').value.trim();
+    const type = document.getElementById('form-recurrence').value, subType = document.getElementById('form-sub-type').value, parent = document.getElementById('form-parent-name').value.trim();
     let tags = [];
     if (type==="temporal") tags.push("[TEMPORAL]");
     if (subType==="subordinado" && parent) tags.push(`[SUB_DE:${parent}]`);
-
     const tagVal = (document.getElementById('form-tag')?.value || "").trim();
     if (tagVal) tags.push(`[TAG:${tagVal}]`);
 
     const payload = {
         action:"add", id: Date.now(),
-        name:    document.getElementById('form-name').value,
-        contact: document.getElementById('form-contact').value,
-        budget:  parseFloat(document.getElementById('form-budget').value),
-        month:   document.getElementById('form-month').value,
-        tier:    document.getElementById('form-tier').value,
-        platform:document.getElementById('form-platform').value,
-        tag:     tagVal,
-        status:  "Pendiente",
-        notes:   tags.join(" ")
+        name:    document.getElementById('form-name').value, contact: document.getElementById('form-contact').value,
+        budget:  parseFloat(document.getElementById('form-budget').value), month:   document.getElementById('form-month').value,
+        tier:    document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value,
+        tag:     tagVal, status:  "Pendiente", notes:   tags.join(" ")
     };
-    document.getElementById('view-month').value = payload.month;
-    rawClients.push(payload);
-    initDynamicMonths();
-    renderDashboard();
-    syncPost(payload);
-    document.getElementById('client-form').reset();
-    document.getElementById('parent-input-group').style.display = 'none';
+    document.getElementById('view-month').value = payload.month; rawClients.push(payload);
+    initDynamicMonths(); renderDashboard(); syncPost(payload);
+    document.getElementById('client-form').reset(); document.getElementById('parent-input-group').style.display = 'none';
 }
 
-/* ================================================================
-   LOCAL STATUS PERSISTENCE
-   ================================================================ */
-function saveLocalStatus(id, status) {
-    try {
-        const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}');
-        all[id.toString()] = status;
-        localStorage.setItem('berrinche_status', JSON.stringify(all));
-    } catch(e) {}
-}
+function saveLocalStatus(id, status) { try { const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}'); all[id.toString()] = status; localStorage.setItem('berrinche_status', JSON.stringify(all)); } catch(e) {} }
+function getLocalStatus(id) { try { return JSON.parse(localStorage.getItem('berrinche_status') || '{}')[id.toString()] || null; } catch(e) { return null; } }
+function applyLocalStatusOverrides() { try { const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}'); rawClients.forEach(c => { const saved = all[c.id.toString()]; if (saved !== undefined) c.status = saved; }); } catch(e) {} }
 
-function getLocalStatus(id) {
-    try {
-        const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}');
-        return all[id.toString()] || null;
-    } catch(e) { return null; }
-}
-
-function applyLocalStatusOverrides() {
-    try {
-        const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}');
-        rawClients.forEach(c => {
-            const saved = all[c.id.toString()];
-            if (saved !== undefined) c.status = saved;
-        });
-    } catch(e) {}
-}
-
-/* ================================================================
-   INIT
-   ================================================================ */
 window.onload = loadDataFromSheet;
 </script>
 </body>
