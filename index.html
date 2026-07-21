@@ -1742,9 +1742,28 @@ function updateLiveTag(idStr, newTag) {
         cache.notes = tag ? `[TAG:${tag}] ${notes}`.trim() : notes;
         syncPost({ action: "update", id: baseId, tag, notes: cache.notes });
     } else {
-        // Para virtuales, guardar en override
-        if (!virtualOverrides[idStr]) virtualOverrides[idStr] = {};
-        virtualOverrides[idStr].tag = tag;
+        // Cliente proyectado (mensual fijo aún no tocado este mes): hay que
+        // materializarlo con el tag nuevo, igual que ya se hace con budget/tier/notas.
+        let virtualMonth = idStr.toString().split('_')[1];
+        let source = rawClients.find(x => x.id.toString() === baseId);
+        if (!source) return;
+
+        let override = virtualOverrides[idStr] || {};
+        let notes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+
+        let payload = {
+            action: "add", id: idStr,
+            name: source.name, contact: source.contact,
+            budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
+            month: virtualMonth, tier: source.tier,
+            platform: source.platform,
+            status: override.status !== undefined ? override.status : source.status,
+            tag: tag,
+            notes: tag ? `[TAG:${tag}] ${notes}`.trim() : notes
+        };
+        rawClients.push(payload);
+        delete virtualOverrides[idStr];
+        syncPost(payload);
     }
     renderDashboard();
 }
