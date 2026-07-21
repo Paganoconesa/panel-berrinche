@@ -114,8 +114,9 @@
         .notes-input-live { flex: 1; border: none; background: transparent; font-size: 13px; outline: none; color: var(--text-secondary); font-style: italic; }
         .notes-input-live:focus { background: var(--bg); border-radius: 4px; padding: 2px 6px; }
 
-        .tag-select-live { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--brand); outline: none; cursor: pointer; padding: 2px 0; }
-        .tag-select-live:focus { background: var(--brand-soft); border-radius: 4px; padding: 2px 6px; }
+        .tag-input-live { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--brand); outline: none; padding: 2px 0; }
+        .tag-input-live:focus { background: var(--brand-soft); border-radius: 4px; padding: 2px 6px; }
+        .tag-input-live::placeholder { color: #a9a6b8; font-weight: 500; font-style: italic; }
 
         .form-card { background: var(--card); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-top: 24px; }
         .form-card h3 { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 16px; }
@@ -158,6 +159,7 @@
 </head>
 <body>
 
+<datalist id="available-tags"></datalist>
 <div class="loading-overlay" id="loadingView">
     <div class="loader-spinner"></div>
     Sincronizando con Sheets...
@@ -475,6 +477,10 @@ function renderDashboard() {
     rawClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
     processedClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
     allKnownTags = Array.from(tagSet).sort();
+    
+    // Aquí alimentamos la lista de sugerencias dinámica
+    const datalistEl = document.getElementById('available-tags');
+    if(datalistEl) datalistEl.innerHTML = allKnownTags.map(t => `<option value="${t}">`).join('');
 
     let totalFact=0, totalCob=0, totalPend=0, count=0;
     let tiers = { grande: { total:0, pendiente:0, count:0 }, mediana: { total:0, pendiente:0, count:0 }, chica: { total:0, pendiente:0, count:0 } };
@@ -735,21 +741,6 @@ function setView(v) {
     renderDashboard();
 }
 
-function handleTagChange(idStr, value) {
-    if (value === '__NEW__') {
-        const newTag = prompt("Nombre del nuevo grupo:");
-        if (newTag && newTag.trim() !== "") {
-            updateLiveTag(idStr, newTag.trim());
-        } else {
-            renderDashboard(); 
-        }
-    } else if (value === '__NONE__') {
-        updateLiveTag(idStr, ""); 
-    } else {
-        updateLiveTag(idStr, value); 
-    }
-}
-
 function updateLiveTag(idStr, newTag) {
     const baseId = idStr.toString().split('_')[0];
     const isVirtual = idStr.toString().includes('_');
@@ -760,21 +751,30 @@ function updateLiveTag(idStr, newTag) {
         if (!cache) return;
         
         cache.tag = tag;
+        
+        let payload = { action: "update", id: baseId, tag: tag };
+        if (cache.notes && cache.notes.toString().match(/\[TAG:\s*[^\]]+\]/i)) {
+            cache.notes = cache.notes.toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+            payload.notes = cache.notes;
+        }
+        
         renderDashboard(); 
-        syncPost({ action: "update", id: baseId, tag: tag });
+        syncPost(payload);
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
         let source = rawClients.find(x => x.id.toString() === baseId);
         if (!source) return;
 
         let override = virtualOverrides[idStr] || {};
+        let cleanNotes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+        
         let payload = {
             action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: source.tier, platform: source.platform,
             status: override.status !== undefined ? override.status : source.status,
             tag: tag, 
-            notes: source.notes || ""
+            notes: cleanNotes
         };
         
         rawClients.push(payload);
@@ -829,8 +829,6 @@ function buildClientCard(client, renderMonth) {
     let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
     let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
 
-    const tagOptionsHtml = allKnownTags.map(t => `<option value="${t}" ${clientTag === t ? 'selected' : ''}>${t}</option>`).join('');
-
     return `
     <div class="client-item ${isSub?'subordinated':''}${isPausado?' pausado-item':''}">
         <div class="client-top">
@@ -860,12 +858,7 @@ function buildClientCard(client, renderMonth) {
         </div>
         <div class="tag-row">
             <span class="tag-label"># Grupo</span>
-            <select class="tag-select-live" onchange="handleTagChange('${client.id}', this.value)">
-                <option value="__NONE__" ${!clientTag ? 'selected' : ''}>Sin grupo</option>
-                ${tagOptionsHtml}
-                <option disabled>──────────</option>
-                <option value="__NEW__">➕ Crear nuevo grupo...</option>
-            </select>
+            <input type="text" class="tag-input-live" list="available-tags" value="${clientTag}" placeholder="Sin grupo..." onchange="updateLiveTag('${client.id}', this.value)">
         </div>
         <div class="notes-row">
             <span class="notes-label">Obs.</span>
