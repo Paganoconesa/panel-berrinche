@@ -354,7 +354,6 @@ function getTimelineArray() {
 function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
 
 function getClientTag(client) {
-    if (client.tag) return client.tag.trim();
     if (client.notes) {
         let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
         if (m) return m[1].trim();
@@ -415,6 +414,8 @@ function processRecurrences(selectedMonth) {
             let isMonthPausado = latest.notes && latest.notes.toString().match(new RegExp(`\\[PAUSADO:${selectedMonth}\\]`, 'i'));
             let isLegacyPausado = latest.notes && latest.notes.toString().toLowerCase().includes("[pausado]") && !latest.notes.toString().toLowerCase().match(/\[pausado:\d{4}-\d{2}\]/);
             let isPausado = isMonthPausado || isLegacyPausado;
+            
+            // Conservar el tag [TAG:xxx] al proyectar hacia adelante
             const projectedNotes = latest.notes ? latest.notes.toString().replace(/\[pausado(:\d{4}-\d{2})?\]/gi, "").trim() : "";
             
             if (!isPausado || showPausados()) {
@@ -490,9 +491,12 @@ function renderDashboard() {
     ['grande','mediana','chica'].forEach(t => document.getElementById(`list-${t}`).innerHTML = '');
     processedClients = processRecurrences(renderMonth);
 
-    // Extraer TODOS los tags para la lista desplegable
     const tagSet = new Set();
     rawClients.forEach(c => {
+        let t = getClientTag(c);
+        if (t) tagSet.add(t);
+    });
+    processedClients.forEach(c => {
         let t = getClientTag(c);
         if (t) tagSet.add(t);
     });
@@ -574,7 +578,6 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
     const ctx = document.getElementById('historyChart').getContext('2d');
 
     if (!isMultiMonth) {
-        // MODO MENSUAL: Gráfico de Barras por Cliente
         document.getElementById('chart-title').textContent = `Presupuesto por cliente (${getMonthLabel(selectedMonth)})`;
         let activeClients = processedClients.filter(c => !c.pausado);
         
@@ -614,7 +617,6 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
         });
 
     } else {
-        // MODO HISTÓRICO: Gráfico de Líneas
         document.getElementById('chart-title').textContent = currentView === 'tag' ? 'Evolución de ingresos por Grupo' : 'Evolución de ingresos por Tier';
         const labels = timelineMonths.map(m => getMonthLabel(m));
         let datasets = [];
@@ -661,7 +663,7 @@ function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
 }
 
 /* ================================================================
-   SYNC POST Y EDICIÓN RÁPIDA
+   SYNC POST Y EDICIÓN RÁPIDA (CON PERSISTENCIA SEGURA EN NOTES)
    ================================================================ */
 async function syncPost(payload) {
     try { fetch(SHEET_API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch(e) {}
@@ -764,7 +766,7 @@ function deleteLiveClient(idStr) {
 }
 
 /* ================================================================
-   VISTAS Y GESTIÓN DE GRUPOS (TAGS) CON SELECT
+   VISTAS Y GESTIÓN DE GRUPOS (TAGS)
    ================================================================ */
 function setView(v) {
     currentView = v;
@@ -799,12 +801,11 @@ function updateLiveTag(idStr, newTag) {
         let cache = rawClients.find(x => x.id.toString() === baseId);
         if (!cache) return;
         
-        cache.tag = tag;
-        let notes = (cache.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-        cache.notes = tag ? `[TAG:${tag}] ${notes}`.trim() : notes;
+        let cleanNotes = (cache.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+        cache.notes = tag ? `[TAG:${tag}] ${cleanNotes}`.trim() : cleanNotes;
         
         renderDashboard(); 
-        // IMPORTANTE: Solo enviamos "notes". Evita que el App Script colapse si la columna "tag" no existe.
+        // Se guarda persistentemente en la columna 'notes' que tu backend ya procesa
         syncPost({ action: "update", id: baseId, notes: cache.notes });
     } else {
         let virtualMonth = idStr.toString().split('_')[1];
@@ -812,19 +813,18 @@ function updateLiveTag(idStr, newTag) {
         if (!source) return;
 
         let override = virtualOverrides[idStr] || {};
-        let notes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-        let finalNotes = tag ? `[TAG:${tag}] ${notes}`.trim() : notes;
+        let cleanNotes = (source.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
+        let finalNotes = tag ? `[TAG:${tag}] ${cleanNotes}`.trim() : cleanNotes;
 
         let payload = {
             action: "add", id: idStr, name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: source.tier, platform: source.platform,
             status: override.status !== undefined ? override.status : source.status,
-            notes: finalNotes // Viaja empaquetado en notes
+            notes: finalNotes 
         };
         
-        // Guardamos el tag localmente para la vista inmediata, pero no viaja al backend como key suelta
-        rawClients.push({ ...payload, tag: tag }); 
+        rawClients.push(payload);
         delete virtualOverrides[idStr];
         renderDashboard(); 
         syncPost(payload);
@@ -939,7 +939,7 @@ function addClient(e) {
     };
     
     document.getElementById('view-month').value = payload.month; 
-    rawClients.push({ ...payload, tag: tagVal }); 
+    rawClients.push(payload); 
     initDynamicMonths(); renderDashboard(); syncPost(payload);
     document.getElementById('client-form').reset(); document.getElementById('parent-input-group').style.display = 'none';
 }
