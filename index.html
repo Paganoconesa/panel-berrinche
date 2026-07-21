@@ -250,7 +250,7 @@
         }
 
         /* Chart de evolución: más alto para dar más impacto visual */
-        .chart-history-wrap  { position: relative; height: 200px; }
+        .chart-history-wrap  { position: relative; height: 230px; }
         .chart-donut-wrap    { position: relative; height: 180px; }
 
         /* Leyenda tier debajo del donut */
@@ -845,7 +845,7 @@
 
         <!-- Evolución mensual — gráfico principal de mayor impacto -->
         <div class="chart-card">
-            <h3>Evolución de ingresos</h3>
+            <h3 id="chart-title">Evolución de ingresos</h3>
             <div class="chart-history-wrap">
                 <canvas id="historyChart"></canvas>
             </div>
@@ -1129,23 +1129,27 @@ function processRecurrences(selectedMonth) {
         );
         let latest = history[0];
         let isTemporal = latest.notes && latest.notes.toString().toLowerCase().includes("[temporal]");
-        let isPausado  = latest.notes && latest.notes.toString().toLowerCase().includes("[pausado]");
         let alreadyNative = nativeItemsInMonth.some(x => x.id.toString().split('_')[0] === baseId);
 
-        if (!isTemporal && (!isPausado || showPausados()) && !alreadyNative) {
+        // La pausa es puntual de UN mes: nunca corta la proyección hacia adelante.
+        // Se descarta el tag [PAUSADO] al proyectar el mes siguiente, así el cliente
+        // vuelve a aparecer activo automáticamente salvo que se lo pause de nuevo.
+        if (!isTemporal && !alreadyNative) {
             const virtualId = `${baseId}_${selectedMonth}`;
             const override  = virtualOverrides[virtualId] || {};
             // Buscar si ya existe un registro nativo para este cliente en meses anteriores con status guardado
             const savedStatus = getLocalStatus(virtualId) || latest.status || "Pendiente";
+            const projectedNotes = latest.notes ? latest.notes.toString().replace(/\[pausado\]/gi, "").trim() : "";
             activeList.push({
                 ...latest,
+                notes: projectedNotes,
                 id: virtualId,
                 month: selectedMonth,
                 currentMonth: selectedMonth,
                 status: override.status !== undefined ? override.status : savedStatus,
                 budget: override.budget !== undefined ? override.budget : latest.budget,
                 isVirtual: true,
-                pausado: isPausado
+                pausado: false
             });
         }
     });
@@ -1159,6 +1163,7 @@ function calcTotalHistorico() {
     let total = 0, cobrado = 0, pendiente = 0;
     months.forEach(m => {
         processRecurrences(m).forEach(c => {
+            if (c.pausado) return;
             const b = parseFloat(c.budget)||0;
             total += b;
             if ((c.status||"").trim().toLowerCase() === "pagado") cobrado += b;
@@ -1264,10 +1269,12 @@ function renderDashboard() {
         if (!match) return;
 
         const budget = parseFloat(client.budget)||0;
-        totalFact += budget;
-        if ((client.status||"").trim().toLowerCase()==="pagado") totalCob += budget;
-        else { totalPend += budget; tiers[client.tier].pendiente += budget; }
-        if (!client.pausado) tiers[client.tier].total += budget;
+        if (!client.pausado) {
+            totalFact += budget;
+            if ((client.status||"").trim().toLowerCase()==="pagado") totalCob += budget;
+            else { totalPend += budget; tiers[client.tier].pendiente += budget; }
+            tiers[client.tier].total += budget;
+        }
 
         const isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]");
         const isFijo     = !isTemporal;
@@ -1371,6 +1378,7 @@ function renderDashboard() {
         kpiTotal = 0; kpiCob = 0; kpiPend = 0;
         periodMonths.forEach(m => {
             processRecurrences(m).forEach(c => {
+                if (c.pausado) return;
                 const b = parseFloat(c.budget)||0;
                 kpiTotal += b;
                 if ((c.status||"").trim().toLowerCase() === "pagado") kpiCob += b;
@@ -1395,69 +1403,104 @@ function renderDashboard() {
     // Centro del donut
     document.getElementById('donut-total').innerText = formatMoney(totalFact);
 
-    // Historial mensual para el gráfico
-    let monthlyHistory = {};
-    if (selectedMonth === "Todos") {
-        getTimelineArray().forEach(m => {
-            let items = processRecurrences(m);
-            monthlyHistory[m] = items.reduce((acc,c) => acc+(parseFloat(c.budget)||0), 0);
-        });
-    } else if (isPeriod && periodMonths) {
-        periodMonths.forEach(m => {
-            let items = processRecurrences(m);
-            monthlyHistory[m] = items.reduce((acc,c) => acc+(parseFloat(c.budget)||0), 0);
-        });
-    } else {
-        monthlyHistory[selectedMonth] = totalFact;
-    }
-
-    updateCharts(tiers, monthlyHistory);
+    // Línea de tiempo: siempre se muestra completa (no colapsa al filtrar por un solo mes),
+    // agrupada por tier o por tag según la vista activa (currentView)
+    updateCharts(tiers, getTimelineArray());
 }
 
 /* ================================================================
-   GRÁFICOS — line chart con gradiente + donut
+   SERIES DE EVOLUCIÓN — agrupadas por tier o por tag, mes a mes
    ================================================================ */
-function updateCharts(tiersData, monthlyHistory) {
-    const sortedMonths = Object.keys(monthlyHistory).sort();
-    const labels = sortedMonths.map(m => getMonthLabel(m));
-    const values = sortedMonths.map(m => monthlyHistory[m]);
+const TAG_PALETTE = ['#7367f0','#00cfe8','#ff9f43','#ea5455','#28c76f','#a259ff','#ff6b9d','#4b7bec','#20bf6b','#f7b731'];
 
-    // — Line chart con gradiente —
+function computeSeriesByTier(months) {
+    const series = { grande: [], mediana: [], chica: [] };
+    months.forEach(m => {
+        const sums = { grande:0, mediana:0, chica:0 };
+        processRecurrences(m).forEach(c => {
+            if (c.pausado) return;
+            sums[c.tier] = (sums[c.tier]||0) + (parseFloat(c.budget)||0);
+        });
+        ['grande','mediana','chica'].forEach(t => series[t].push(sums[t]));
+    });
+    return series;
+}
+
+function computeSeriesByTag(months) {
+    // Primero relevamos todos los tags que aparecen en el timeline
+    const tagSet = new Set();
+    months.forEach(m => {
+        processRecurrences(m).forEach(c => {
+            if (c.pausado) return;
+            tagSet.add(getClientTag(c) || "Sin tag");
+        });
+    });
+    const tags = Array.from(tagSet);
+    const series = {};
+    tags.forEach(t => series[t] = []);
+
+    months.forEach(m => {
+        const sums = {};
+        processRecurrences(m).forEach(c => {
+            if (c.pausado) return;
+            const tag = getClientTag(c) || "Sin tag";
+            sums[tag] = (sums[tag]||0) + (parseFloat(c.budget)||0);
+        });
+        tags.forEach(t => series[t].push(sums[t]||0));
+    });
+    return { tags, series };
+}
+
+/* ================================================================
+   GRÁFICOS — línea de tiempo multi-serie + donut
+   ================================================================ */
+function updateCharts(tiersData, timelineMonths) {
+    const labels = timelineMonths.map(m => getMonthLabel(m));
+
+    document.getElementById('chart-title').textContent =
+        currentView === 'tag' ? 'Evolución por tag' : 'Evolución por tier';
+
+    let datasets;
+    if (currentView === 'tag') {
+        const { tags, series } = computeSeriesByTag(timelineMonths);
+        datasets = tags.map((tag, i) => ({
+            label: tag,
+            data: series[tag],
+            borderColor: TAG_PALETTE[i % TAG_PALETTE.length],
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            fill: false,
+            tension: .35,
+            pointRadius: 3,
+            pointHoverRadius: 5
+        }));
+    } else {
+        const series = computeSeriesByTier(timelineMonths);
+        datasets = [
+            { label:'Grandes',  data: series.grande,  borderColor:'#7367f0', backgroundColor:'transparent', borderWidth:2, fill:false, tension:.35, pointRadius:3, pointHoverRadius:5 },
+            { label:'Medianas', data: series.mediana, borderColor:'#00cfe8', backgroundColor:'transparent', borderWidth:2, fill:false, tension:.35, pointRadius:3, pointHoverRadius:5 },
+            { label:'Chicas',   data: series.chica,   borderColor:'#ff9f43', backgroundColor:'transparent', borderWidth:2, fill:false, tension:.35, pointRadius:3, pointHoverRadius:5 }
+        ];
+    }
+
+    // — Line chart multi-serie —
     if (historyChart) {
         historyChart.data.labels = labels;
-        historyChart.data.datasets[0].data = values;
+        historyChart.data.datasets = datasets;
         historyChart.update();
     } else {
         const ctx = document.getElementById('historyChart').getContext('2d');
-        const grad = ctx.createLinearGradient(0,0,0,200);
-        grad.addColorStop(0,  'rgba(115,103,240,.25)');
-        grad.addColorStop(1,  'rgba(115,103,240,0)');
-
         historyChart = new Chart(ctx, {
             type: 'line',
-            data: {
-                labels,
-                datasets: [{
-                    label: 'Ingresos',
-                    data: values,
-                    borderColor: '#7367f0',
-                    backgroundColor: grad,
-                    borderWidth: 2.5,
-                    fill: true,
-                    tension: .35,
-                    pointBackgroundColor: '#7367f0',
-                    pointRadius: 4,
-                    pointHoverRadius: 6
-                }]
-            },
+            data: { labels, datasets },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
+                    legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } },
                     tooltip: {
                         callbacks: {
-                            label: ctx => formatMoney(ctx.raw)
+                            label: ctx => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}`
                         }
                     }
                 },
@@ -1467,7 +1510,7 @@ function updateCharts(tiersData, monthlyHistory) {
                         ticks: { font: { size: 11 }, color: '#9b98a8' }
                     },
                     y: {
-                        beginAtZero: false,
+                        beginAtZero: true,
                         grid: { color: 'rgba(0,0,0,.04)' },
                         ticks: {
                             font: { size: 11 },
@@ -1567,7 +1610,7 @@ function updateLiveCell(idStr, field, value) {
         let secureNotes = source.notes ? source.notes.toString() : "";
         let override = virtualOverrides[idStr] || {};
         let payload = {
-            action: "add", id: baseId,
+            action: "add", id: idStr,
             name: source.name, contact: source.contact,
             budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
             month: virtualMonth, tier: field==='tier' ? value : source.tier,
@@ -1585,20 +1628,26 @@ function updateLiveCell(idStr, field, value) {
 function updateAccountStatus(idStr, statusValue) {
     let isVirtual  = idStr.toString().includes('_');
     let baseId     = idStr.toString().split('_')[0];
-    let target     = rawClients.find(x => x.id.toString()===baseId);
-    if (!target) return;
-    let targetMonth= isVirtual ? idStr.toString().split('_')[1] : parseCleanMonth(target.month);
-    let noteStr    = statusValue==="pausado" ? "[PAUSADO]" : "";
+    // El registro exacto de ESTE mes (si ya fue materializado antes)
+    let exactRecord = rawClients.find(x => x.id.toString() === idStr.toString());
+    // Plantilla de referencia (el registro base) por si hay que crear uno nuevo
+    let template    = exactRecord || rawClients.find(x => x.id.toString() === baseId);
+    if (!template) return;
+    let targetMonth = isVirtual ? idStr.toString().split('_')[1] : parseCleanMonth(template.month);
 
-    if (!isVirtual && parseCleanMonth(target.month)===targetMonth) {
-        target.notes = noteStr;
+    // Pausar/reactivar sólo toca el tag [PAUSADO], preserva TAG/TEMPORAL/SUB_DE existentes
+    let baseNotes = (template.notes || "").toString().replace(/\[pausado\]/gi, "").trim();
+    let newNotes  = statusValue === "pausado" ? `[PAUSADO] ${baseNotes}`.trim() : baseNotes;
+
+    if (exactRecord) {
+        exactRecord.notes = newNotes;
         renderDashboard();
-        syncPost({ action:"update", id:baseId, notes:noteStr });
+        syncPost({ action:"update", id: idStr, notes: newNotes });
     } else {
         let payload = {
-            action:"add", id:baseId, name:target.name, contact:target.contact,
-            budget:parseFloat(target.budget), month:targetMonth, tier:target.tier,
-            platform:target.platform, status:target.status, notes:noteStr
+            action:"add", id: idStr, name:template.name, contact:template.contact,
+            budget:parseFloat(template.budget), month:targetMonth, tier:template.tier,
+            platform:template.platform, status:template.status, notes:newNotes
         };
         rawClients.push(payload);
         renderDashboard();
@@ -1647,7 +1696,7 @@ function deleteLiveClient(idStr) {
         let src = rawClients.find(x => x.id.toString()===baseId);
         if (!src) return;
         let payload = {
-            action:"add", id:baseId, name:src.name, contact:src.contact,
+            action:"add", id: idStr, name:src.name, contact:src.contact,
             budget:0, month:virtualMonth, tier:src.tier,
             platform:src.platform, status:"Pagado", notes:"[PAUSADO]"
         };
