@@ -1,962 +1,1020 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <title>Panel Berrinche</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <style>
-        :root {
-            --brand:          #7367f0;
-            --brand-soft:     #eaeafe;
-            --brand-dark:     #5a52cc;
-            --success:        #28c76f;
-            --success-soft:   #ddf6e9;
-            --warning:        #ff9f43;
-            --warning-soft:   #fff3e8;
-            --danger:         #ea5455;
-            --danger-soft:    #fde8e8;
-            --tier-grande:    #7367f0;
-            --tier-mediana:   #00cfe8;
-            --tier-chica:     #ff9f43;
-            --text-primary:   #1e1e2d;
-            --text-secondary: #6e6b7b;
-            --text-muted:     #b9b9c3;
-            --bg:             #f4f3fb;
-            --card:           #ffffff;
-            --border:         #e8e6f0;
-            --gap:            16px;
-            --radius:         14px;
-            --radius-sm:      8px;
-            --shadow-sm:      0 2px 8px rgba(115,103,240,.06);
-            --shadow-md:      0 4px 20px rgba(115,103,240,.10);
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Berrinche · Panel de facturación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
 
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { -webkit-text-size-adjust: 100%; }
-        body { background: var(--bg); color: var(--text-primary); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 15px; line-height: 1.5; padding: 0 0 60px; }
+/* ============================================================
+   1) CONFIGURACIÓN VISUAL — editá acá los colores, tipografías
+      y textos generales. Todo lo demás usa estas variables.
+   ============================================================ */
+:root {
+  /* Paleta de marca Berrinche */
+  --cream:      #E8E4D4;
+  --teal:       #2AABBD;
+  --teal-soft:  #E3F4F6;
+  --coral:      #F05E5E;
+  --coral-soft: #FDEBEB;
+  --brown:      #2E2826;
+  --brown-60:   #6b6360;
+  --brown-30:   #b3aead;
 
-        .header { position: sticky; top: 0; z-index: 100; background: var(--card); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); padding: 12px 16px; }
-        .header-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-        .header h1 { font-size: 18px; font-weight: 700; color: var(--text-primary); white-space: nowrap; }
-        .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-        .btn-sync { background: var(--success); color: #fff; border: none; padding: 8px 14px; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap; }
-        .header-bottom { display: flex; gap: 8px; margin-top: 10px; }
-        .header-bottom select, .header-bottom input { flex: 1; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text-primary); outline: none; }
-        .header-bottom select:focus, .header-bottom input:focus { border-color: var(--brand); }
-        .toggle-pausados { display: flex; align-items: center; justify-content: center; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 10px; cursor: pointer; white-space: nowrap; font-size: 16px; height: 38px; flex-shrink: 0; }
-        .toggle-pausados input { display: none; }
-        .toggle-pausados:has(input:checked) { border-color: var(--danger); background: var(--danger-soft); }
-        .client-item.pausado-item { opacity: .7; border-left: 3px solid var(--danger); }
+  /* Roles semánticos (así se usan en todo el panel) */
+  --brand:          var(--teal);
+  --brand-soft:     var(--teal-soft);
+  --success:        #3EA872;
+  --success-soft:   #E3F5EC;
+  --warning:        var(--coral);
+  --warning-soft:   var(--coral-soft);
+  --danger:         #C23B3B;
+  --danger-soft:    #FBE4E4;
 
-        .main { padding: 16px; max-width: 900px; margin: 0 auto; }
-        .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--gap); margin-bottom: var(--gap); }
-        .kpi-card { background: var(--card); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--kpi-accent, var(--brand)); }
-        .kpi-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text-secondary); }
-        .kpi-value { font-size: 22px; font-weight: 800; color: var(--kpi-color, var(--text-primary)); line-height: 1.1; }
+  --tier-grande:  var(--brown);
+  --tier-mediana: var(--teal);
+  --tier-chica:   var(--coral);
 
-        .charts-grid { display: grid; grid-template-columns: 1fr; gap: var(--gap); margin-bottom: var(--gap); }
-        @media (min-width: 640px) { .charts-grid { grid-template-columns: 1.4fr 1fr; } }
-        .chart-card { background: var(--card); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow-sm); }
-        .chart-card h3 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 14px; }
-        .chart-history-wrap  { position: relative; height: 230px; }
-        .chart-donut-wrap    { position: relative; height: 180px; }
+  --text-primary:   var(--brown);
+  --text-secondary: var(--brown-60);
+  --text-muted:     var(--brown-30);
+  --bg:    #FBFAF6;
+  --card:  #ffffff;
+  --border:#ECE9DD;
 
-        .donut-legend { display: flex; justify-content: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
-        .donut-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
-        .donut-legend-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-        .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none; padding-bottom: 20px; }
-        .donut-center-val { font-size: 17px; font-weight: 800; color: var(--text-primary); line-height: 1; }
-        .donut-center-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); margin-top: 3px; }
+  --gap: 14px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-sm: 0 2px 10px rgba(46,40,38,.06);
+  --shadow-md: 0 6px 24px rgba(46,40,38,.12);
+  --font-head: 'Work Sans', sans-serif;
+  --font-body: 'Inter', sans-serif;
+}
 
-        .tier-section { margin-bottom: 20px; }
-        .tier-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card); border-radius: var(--radius-sm); margin-bottom: 10px; border-left: 5px solid var(--tier-color); box-shadow: var(--shadow-sm); }
-        .tier-header-left { display: flex; align-items: center; gap: 8px; }
-        .tier-name { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--tier-color); }
-        .tier-count-badge { background: var(--tier-color); color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 2px 7px; }
-        .tier-totals { text-align: right; }
-        .tier-total-main { font-size: 15px; font-weight: 800; color: var(--tier-color); }
-        .tier-total-sub { font-size: 11px; color: var(--text-muted); }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:15px;line-height:1.5;padding:0 0 70px;}
 
-        .client-item { background: var(--card); border-radius: var(--radius-sm); margin-bottom: 8px; box-shadow: var(--shadow-sm); overflow: hidden; transition: box-shadow .2s; }
-        .client-item.subordinated { border-left: 4px dashed var(--border); margin-left: 16px; background: #fafafa; }
-        .client-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 12px 14px 8px; gap: 8px; }
-        .client-name { font-size: 15px; font-weight: 700; color: var(--text-primary); line-height: 1.2; }
-        .client-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
-        .client-top-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-        
-        .client-controls { display: flex; align-items: center; gap: 6px; padding: 0 14px 10px; flex-wrap: wrap; }
-        .budget-wrap { display: flex; align-items: center; gap: 3px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 8px; }
-        .budget-symbol { font-size: 13px; font-weight: 700; color: var(--text-secondary); }
-        .budget-input-live { width: 90px; padding: 7px 0; font-size: 14px; font-weight: 700; border: none; background: transparent; text-align: right; color: var(--text-primary); outline: none; }
-        
-        .tier-select-live, .account-status-select { padding: 7px 8px; font-size: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); cursor: pointer; font-weight: 600; color: var(--text-secondary); outline: none; }
-        .account-status-select.activo  { color: var(--success); border-color: var(--success); }
-        .account-status-select.pausado { color: var(--danger);  border-color: var(--danger); }
-        
-        .status-btn { padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; }
-        .status-btn.pagado   { background: var(--success-soft); color: var(--success); }
-        .status-btn.pendiente{ background: var(--warning-soft); color: var(--warning); }
-        .delete-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 20px; padding: 4px 6px; opacity: .35; line-height: 1; margin-left: auto; }
-        .delete-btn:hover { opacity: 1; }
+/* ---------- Header ---------- */
+.header{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm);padding:12px 16px;}
+.header-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.logo-wrap{display:flex;align-items:center;gap:8px;}
+.logo-wrap img{height:24px;display:block;}
+.sync-status{font-size:11px;color:var(--text-muted);font-weight:500;margin-left:2px;white-space:nowrap;}
+.header-actions{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.btn-sync{background:var(--brand);color:#fff;border:none;padding:9px 14px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:transform .1s;}
+.btn-sync:active{transform:scale(.96);}
+.btn-sync.spinning .sync-ic{display:inline-block;animation:spin .8s linear infinite;}
+.header-bottom{display:flex;gap:8px;margin-top:10px;}
+.header-bottom select,.header-bottom input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;font-family:var(--font-body);}
+.header-bottom select:focus,.header-bottom input:focus{border-color:var(--brand);}
+.toggle-pausados{display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 12px;cursor:pointer;white-space:nowrap;font-size:15px;height:40px;flex-shrink:0;gap:4px;}
+.toggle-pausados input{display:none;}
+.toggle-pausados:has(input:checked){border-color:var(--danger);background:var(--danger-soft);color:var(--danger);}
+.client-item.pausado-item{opacity:.65;border-left:3px solid var(--danger);}
 
-        .client-badges { display: flex; flex-wrap: wrap; gap: 5px; padding: 0 14px 6px; }
-        .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
-        .badge-sub        { background: #f1f0f6; color: var(--text-secondary); }
+.main{padding:16px;max-width:920px;margin:0 auto;}
 
-        .tag-row, .notes-row { border-top: 1px dashed var(--border); padding: 7px 14px; display: flex; align-items: center; gap: 6px; }
-        .tag-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--brand); white-space: nowrap; }
-        .notes-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text-muted); white-space: nowrap; }
-        
-        .notes-input-live { flex: 1; border: none; background: transparent; font-size: 13px; outline: none; color: var(--text-secondary); font-style: italic; }
-        .notes-input-live:focus { background: var(--bg); border-radius: 4px; padding: 2px 6px; }
+/* ---------- KPIs ---------- */
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap);margin-bottom:var(--gap);}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-accent,var(--brand));}
+.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);}
+.kpi-value{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--kpi-color,var(--text-primary));line-height:1.1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);font-weight:600;}
+.kpi-bar{height:5px;border-radius:4px;background:var(--border);overflow:hidden;margin-top:2px;}
+.kpi-bar-fill{height:100%;background:var(--success);border-radius:4px;transition:width .4s;}
 
-        .tag-input-live { flex: 1; border: none; background: transparent; font-size: 13px; font-weight: 600; color: var(--brand); outline: none; padding: 2px 0; }
-        .tag-input-live:focus { background: var(--brand-soft); border-radius: 4px; padding: 2px 6px; }
-        .tag-input-live::placeholder { color: #a9a6b8; font-weight: 500; font-style: italic; }
+/* ---------- Charts ---------- */
+.charts-grid{display:grid;grid-template-columns:1fr;gap:var(--gap);margin-bottom:var(--gap);}
+@media(min-width:640px){.charts-grid{grid-template-columns:1.4fr 1fr;}}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);}
+.chart-card h3{font-family:var(--font-head);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:4px;}
+.chart-sub{font-size:11px;color:var(--text-muted);margin-bottom:12px;}
+.chart-history-wrap{position:relative;height:230px;}
+.chart-donut-wrap{position:relative;height:180px;}
+.donut-legend{display:flex;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.donut-legend-item{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text-secondary);}
+.donut-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;padding-bottom:20px;}
+.donut-center-val{font-family:var(--font-head);font-size:19px;font-weight:800;color:var(--text-primary);line-height:1;}
+.donut-center-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-top:3px;}
 
-        .form-card { background: var(--card); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow-sm); margin-top: 24px; }
-        .form-card h3 { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--text-secondary); margin-bottom: 16px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: flex-end; }
-        .form-group { display: flex; flex-direction: column; gap: 5px; }
-        .form-group.full { grid-column: 1 / -1; }
-        .form-group label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--text-secondary); }
-        .form-group input, .form-group select { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 14px; background: var(--bg); color: var(--text-primary); outline: none; width: 100%; }
-        .form-group input:focus, .form-group select:focus { border-color: var(--brand); background: #fff; }
-        .submit-btn { grid-column: 1 / -1; background: var(--brand); color: #fff; border: none; padding: 13px; border-radius: var(--radius-sm); font-weight: 700; font-size: 15px; cursor: pointer; letter-spacing: .3px; }
-        
-        .loading-overlay { position: fixed; inset: 0; background: rgba(244,243,251,.92); display: none; justify-content: center; align-items: center; z-index: 9999; font-weight: 700; color: var(--brand); font-size: 16px; flex-direction: column; gap: 12px; }
-        .loader-spinner { width: 36px; height: 36px; border: 3px solid var(--brand-soft); border-top-color: var(--brand); border-radius: 50%; animation: spin .7s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+/* ---------- Tiers / tags ---------- */
+.tier-section{margin-bottom:20px;}
+.tier-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:10px;border-left:5px solid var(--tier-color);box-shadow:var(--shadow-sm);}
+.tier-header-left{display:flex;align-items:center;gap:8px;}
+.tier-name{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--tier-color);}
+.tier-count-badge{background:var(--tier-color);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:2px 7px;}
+.tier-totals{text-align:right;}
+.tier-total-main{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--tier-color);}
+.tier-total-sub{font-size:11px;color:var(--text-muted);}
+.empty-state{text-align:center;padding:30px 16px;color:var(--text-muted);font-size:13px;}
 
-        .view-toggle { display: flex; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; margin-bottom: var(--gap); }
-        .view-toggle-btn { flex: 1; padding: 9px 12px; border: none; background: transparent; font-size: 13px; font-weight: 700; color: var(--text-secondary); cursor: pointer; transition: background .15s, color .15s; }
-        .view-toggle-btn.active { background: var(--brand); color: #fff; }
+/* ---------- Client cards ---------- */
+.client-item{background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;box-shadow:var(--shadow-sm);overflow:hidden;transition:box-shadow .2s;}
+.client-item.subordinated{border-left:4px dashed var(--border);margin-left:16px;background:#fbfaf7;}
+.client-top{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px;gap:8px;}
+.client-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.2;}
+.client-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.client-top-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
 
-        .tag-group { margin-bottom: 20px; }
-        .tag-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--card); border-radius: var(--radius-sm); margin-bottom: 10px; border-left: 5px solid var(--brand); box-shadow: var(--shadow-sm); cursor: pointer; user-select: none; }
-        .tag-group-header-left { display: flex; align-items: center; gap: 8px; }
-        .tag-group-name { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; color: var(--brand); }
-        .tag-group-badge { background: var(--brand); color: #fff; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 2px 7px; }
-        .tag-group-totals { text-align: right; }
-        .tag-group-total-main { font-size: 15px; font-weight: 800; color: var(--brand); }
-        .tag-group-total-sub  { font-size: 11px; color: var(--text-muted); }
-        .tag-group-collapse-icon { font-size: 12px; color: var(--text-muted); margin-left: 6px; }
-        .tag-group-body.collapsed { display: none; }
+.client-controls{display:flex;align-items:center;gap:6px;padding:0 14px 10px;flex-wrap:wrap;}
+.budget-wrap{display:flex;align-items:center;gap:3px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 8px;}
+.budget-symbol{font-size:13px;font-weight:700;color:var(--text-secondary);}
+.budget-input-live{width:90px;padding:8px 0;font-size:14px;font-weight:700;border:none;background:transparent;text-align:right;color:var(--text-primary);outline:none;font-family:var(--font-body);}
 
-        @media (min-width: 640px) {
-            body { padding-bottom: 40px; }
-            .main { padding: 20px; }
-            .kpi-grid { grid-template-columns: repeat(4, 1fr); }
-            .form-grid { grid-template-columns: repeat(3, 1fr); }
-            .client-controls { flex-wrap: nowrap; }
-            .client-item.subordinated { margin-left: 24px; }
-        }
-    </style>
+.field-select{padding:8px;font-size:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;font-weight:600;color:var(--text-secondary);outline:none;font-family:var(--font-body);}
+.field-select.activo{color:var(--success);border-color:var(--success);}
+.field-select.pausado{color:var(--danger);border-color:var(--danger);}
+
+.status-btn{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-head);transition:transform .1s;}
+.status-btn:active{transform:scale(.95);}
+.status-btn.pagado{background:var(--success-soft);color:var(--success);}
+.status-btn.pendiente{background:var(--warning-soft);color:var(--warning);}
+.delete-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:20px;padding:4px 6px;opacity:.35;line-height:1;}
+.delete-btn:hover{opacity:1;}
+
+.client-badges{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 6px;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+.badge-sub{background:#f1efe6;color:var(--text-secondary);}
+
+.tag-row,.notes-row{border-top:1px dashed var(--border);padding:8px 14px;display:flex;align-items:center;gap:6px;}
+.tag-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);white-space:nowrap;}
+.notes-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);white-space:nowrap;}
+.notes-input-live{flex:1;border:none;background:transparent;font-size:13px;outline:none;color:var(--text-secondary);font-style:italic;font-family:var(--font-body);}
+.notes-input-live:focus{background:var(--bg);border-radius:4px;padding:2px 6px;}
+.tag-input-live{flex:1;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--brand);outline:none;padding:2px 0;font-family:var(--font-body);}
+.tag-input-live:focus{background:var(--brand-soft);border-radius:4px;padding:2px 6px;}
+.tag-input-live::placeholder{color:#a9a6b8;font-weight:500;font-style:italic;}
+
+/* ---------- Formulario ---------- */
+.form-card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:24px;}
+.form-card h3{font-family:var(--font-head);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:16px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group.full{grid-column:1/-1;}
+.form-group label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);}
+.form-group input,.form-group select{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;width:100%;font-family:var(--font-body);}
+.form-group input:focus,.form-group select:focus{border-color:var(--brand);background:#fff;}
+.submit-btn{grid-column:1/-1;background:var(--brand);color:#fff;border:none;padding:13px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:15px;cursor:pointer;letter-spacing:.3px;}
+.submit-btn:active{transform:scale(.99);}
+
+/* ---------- Loader / toast / modal ---------- */
+.loading-overlay{position:fixed;inset:0;background:rgba(251,250,246,.94);display:none;justify-content:center;align-items:center;z-index:9999;font-weight:700;font-family:var(--font-head);color:var(--brand);font-size:16px;flex-direction:column;gap:12px;}
+.loader-spinner{width:36px;height:36px;border:3px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--brown);color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shadow-md);opacity:0;transition:opacity .25s,transform .25s;z-index:9998;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.error{background:var(--danger);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(46,40,38,.45);display:none;justify-content:center;align-items:center;z-index:9997;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--radius);padding:22px;max-width:340px;width:100%;box-shadow:var(--shadow-md);}
+.modal-box p{font-size:14px;color:var(--text-primary);margin-bottom:18px;line-height:1.5;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions button{flex:1;padding:11px;border-radius:var(--radius-sm);border:none;font-weight:700;font-family:var(--font-head);font-size:13px;cursor:pointer;}
+.modal-cancel{background:var(--bg);color:var(--text-secondary);}
+.modal-confirm{background:var(--danger);color:#fff;}
+
+/* ---------- Toggle vista ---------- */
+.view-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:var(--gap);}
+.view-toggle-btn{flex:1;padding:10px 12px;border:none;background:transparent;font-size:13px;font-weight:700;font-family:var(--font-head);color:var(--text-secondary);cursor:pointer;transition:background .15s,color .15s;}
+.view-toggle-btn.active{background:var(--brand);color:#fff;}
+
+.tag-group{margin-bottom:20px;}
+.tag-group-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:10px;border-left:5px solid var(--brand);box-shadow:var(--shadow-sm);cursor:pointer;user-select:none;}
+.tag-group-header-left{display:flex;align-items:center;gap:8px;}
+.tag-group-name{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--brand);}
+.tag-group-badge{background:var(--brand);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:2px 7px;}
+.tag-group-totals{text-align:right;}
+.tag-group-total-main{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--brand);}
+.tag-group-total-sub{font-size:11px;color:var(--text-muted);}
+.tag-group-collapse-icon{font-size:12px;color:var(--text-muted);margin-left:6px;}
+.tag-group-body.collapsed{display:none;}
+
+@media(min-width:640px){
+  body{padding-bottom:40px;}
+  .main{padding:20px;}
+  .kpi-grid{grid-template-columns:repeat(4,1fr);}
+  .form-grid{grid-template-columns:repeat(3,1fr);}
+  .client-controls{flex-wrap:nowrap;}
+  .client-item.subordinated{margin-left:24px;}
+}
+</style>
 </head>
 <body>
 
 <datalist id="available-tags"></datalist>
+
 <div class="loading-overlay" id="loadingView">
-    <div class="loader-spinner"></div>
-    Sincronizando con Sheets...
+  <div class="loader-spinner"></div>
+  Sincronizando con Sheets...
+</div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <p id="confirmModalText">¿Confirmás esta acción?</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeConfirm(false)">Cancelar</button>
+      <button class="modal-confirm" onclick="closeConfirm(true)">Eliminar</button>
+    </div>
+  </div>
 </div>
 
 <header class="header">
-    <div class="header-top">
-        <h1>🎯 Berrinche</h1>
-        <div class="header-actions">
-            <button class="btn-sync" onclick="loadDataFromSheet(true)">🔄 Sync</button>
-        </div>
+  <div class="header-top">
+    <div class="logo-wrap">
+      <img src="data:image/png;base64,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" alt="Berrinche">
+      <span class="sync-status" id="sync-status">sin sincronizar</span>
     </div>
-    <div class="header-bottom">
-        <select id="view-month" onchange="renderDashboard()">
-            <option value="Todos">Histórico completo</option>
-        </select>
-        <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente, tag...">
-        <label class="toggle-pausados" title="Mostrar pausados">
-            <input type="checkbox" id="show-pausados" onchange="renderDashboard()">
-            <span>🔴</span>
-        </label>
+    <div class="header-actions">
+      <button class="btn-sync" id="btn-sync" onclick="loadDataFromSheet(true)"><span class="sync-ic">🔄</span> Sync</button>
     </div>
+  </div>
+  <div class="header-bottom">
+    <select id="view-month" onchange="renderDashboard()"></select>
+    <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente, tag...">
+    <label class="toggle-pausados" title="Mostrar pausados">
+      <input type="checkbox" id="show-pausados" onchange="renderDashboard()">
+      <span>🔴</span>
+    </label>
+  </div>
 </header>
 
 <div class="main">
 
-    <div class="kpi-grid">
-        <div class="kpi-card" style="--kpi-accent: var(--brand); --kpi-color: var(--brand);">
-            <span class="kpi-label">Facturación período</span>
-            <span class="kpi-value" id="kpi-total">$0</span>
-        </div>
-        <div class="kpi-card" style="--kpi-accent: var(--success); --kpi-color: var(--success);">
-            <span class="kpi-label">Cobrado</span>
-            <span class="kpi-value" id="kpi-cobrado">$0</span>
-        </div>
-        <div class="kpi-card" style="--kpi-accent: var(--warning); --kpi-color: var(--warning);">
-            <span class="kpi-label">Por cobrar</span>
-            <span class="kpi-value" id="kpi-pendiente">$0</span>
-        </div>
-        <div class="kpi-card" style="--kpi-accent: var(--tier-mediana);">
-            <span class="kpi-label" id="kpi-label-cuentas">Ítems activos</span>
-            <span class="kpi-value" id="kpi-cuentas">0</span>
-        </div>
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--kpi-accent:var(--brand);--kpi-color:var(--brand);">
+      <span class="kpi-label">Facturación período</span>
+      <span class="kpi-value" id="kpi-total">$0</span>
     </div>
-
-    <div class="charts-grid">
-        <div class="chart-card">
-            <h3 id="chart-title">Evolución</h3>
-            <div class="chart-history-wrap">
-                <canvas id="historyChart"></canvas>
-            </div>
-        </div>
-
-        <div class="chart-card">
-            <h3>Distribución por tier</h3>
-            <div style="position: relative;">
-                <div class="chart-donut-wrap"><canvas id="tierChart"></canvas></div>
-                <div class="donut-center" id="donut-center">
-                    <span class="donut-center-val" id="donut-total">$0</span>
-                    <span class="donut-center-label">Total</span>
-                </div>
-            </div>
-            <div class="donut-legend">
-                <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-grande)"></div> Grandes</div>
-                <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-mediana)"></div> Medianas</div>
-                <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-chica)"></div> Chicas</div>
-            </div>
-        </div>
+    <div class="kpi-card" style="--kpi-accent:var(--success);--kpi-color:var(--success);">
+      <span class="kpi-label">Cobrado</span>
+      <span class="kpi-value" id="kpi-cobrado">$0</span>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kpi-cobrado-bar" style="width:0%"></div></div>
+      <span class="kpi-sub" id="kpi-cobrado-pct">0% del total</span>
     </div>
-
-    <div class="view-toggle">
-        <button class="view-toggle-btn active" id="btn-view-tier" onclick="setView('tier')">Por tier</button>
-        <button class="view-toggle-btn"        id="btn-view-tag"  onclick="setView('tag')">Por tag</button>
+    <div class="kpi-card" style="--kpi-accent:var(--warning);--kpi-color:var(--warning);">
+      <span class="kpi-label">Por cobrar</span>
+      <span class="kpi-value" id="kpi-pendiente">$0</span>
     </div>
-
-    <div id="tiers-container">
-        <div class="tier-section" style="--tier-color: var(--tier-grande)">
-            <div class="tier-header">
-                <div class="tier-header-left"><span class="tier-name">Grandes</span><span class="tier-count-badge" id="count-grande">0</span></div>
-                <div class="tier-totals"><div class="tier-total-main" id="total-grande">$0</div><div class="tier-total-sub" id="pendiente-grande">$0 pendiente</div></div>
-            </div>
-            <div id="list-grande"></div>
-        </div>
-        <div class="tier-section" style="--tier-color: var(--tier-mediana)">
-            <div class="tier-header">
-                <div class="tier-header-left"><span class="tier-name">Medianas</span><span class="tier-count-badge" id="count-mediana">0</span></div>
-                <div class="tier-totals"><div class="tier-total-main" id="total-mediana">$0</div><div class="tier-total-sub" id="pendiente-mediana">$0 pendiente</div></div>
-            </div>
-            <div id="list-mediana"></div>
-        </div>
-        <div class="tier-section" style="--tier-color: var(--tier-chica)">
-            <div class="tier-header">
-                <div class="tier-header-left"><span class="tier-name">Chicas</span><span class="tier-count-badge" id="count-chica">0</span></div>
-                <div class="tier-totals"><div class="tier-total-main" id="total-chica">$0</div><div class="tier-total-sub" id="pendiente-chica">$0 pendiente</div></div>
-            </div>
-            <div id="list-chica"></div>
-        </div>
+    <div class="kpi-card" style="--kpi-accent:var(--tier-mediana);">
+      <span class="kpi-label" id="kpi-label-cuentas">Ítems activos</span>
+      <span class="kpi-value" id="kpi-cuentas">0</span>
     </div>
+  </div>
 
-    <div id="tags-container" style="display:none;"></div>
-
-    <div class="form-card">
-        <h3>➕ Cargar ítem</h3>
-        <form id="client-form" onsubmit="addClient(event)">
-            <div class="form-grid">
-                <div class="form-group"><label for="form-name">Cliente / cuenta</label><input type="text" id="form-name" required placeholder="Ej: TGB"></div>
-                <div class="form-group"><label for="form-contact">Contacto / tag</label><input type="text" id="form-contact" required placeholder="Ej: Tomás"></div>
-                <div class="form-group"><label for="form-budget">Presupuesto ($)</label><input type="number" id="form-budget" required placeholder="0"></div>
-                <div class="form-group"><label for="form-month">Mes inicio</label><select id="form-month"></select></div>
-                <div class="form-group"><label for="form-tier">Tier</label><select id="form-tier"><option value="grande">Grande</option><option value="mediana" selected>Mediana</option><option value="chica">Chica</option></select></div>
-                <div class="form-group"><label for="form-platform">Plataforma</label><select id="form-platform"><option value="Meta+Google">Meta + Google</option><option value="Meta">Meta</option><option value="Google">Google</option></select></div>
-                <div class="form-group"><label for="form-tag">Tag / grupo (Opcional)</label><input type="text" id="form-tag" placeholder="Ej: TGB, Bruto..."></div>
-                <div class="form-group"><label for="form-recurrence">Tipo contrato</label><select id="form-recurrence"><option value="fijo">Abono mensual (fijo)</option><option value="temporal">Servicio temporal</option></select></div>
-                <div class="form-group"><label for="form-sub-type">Estructura</label><select id="form-sub-type" onchange="toggleSubInput(this.value)"><option value="principal">Ítem principal</option><option value="subordinado">Subordinar a...</option></select></div>
-                <div class="form-group" id="parent-input-group" style="display: none;"><label for="form-parent-name" style="color: var(--warning)">Cliente padre</label><input type="text" id="form-parent-name" placeholder="Ej: TGB"></div>
-                <button type="submit" class="submit-btn">Cargar ítem</button>
-            </div>
-        </form>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3 id="chart-title">Evolución</h3>
+      <div class="chart-sub" id="chart-sub"></div>
+      <div class="chart-history-wrap"><canvas id="historyChart"></canvas></div>
     </div>
+    <div class="chart-card">
+      <h3>Distribución por tier</h3>
+      <div class="chart-sub">Tocá una porción para ver el detalle</div>
+      <div style="position:relative;">
+        <div class="chart-donut-wrap"><canvas id="tierChart"></canvas></div>
+        <div class="donut-center" id="donut-center">
+          <span class="donut-center-val" id="donut-total">$0</span>
+          <span class="donut-center-label">Total</span>
+        </div>
+      </div>
+      <div class="donut-legend">
+        <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-grande)"></div> Grandes</div>
+        <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-mediana)"></div> Medianas</div>
+        <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-chica)"></div> Chicas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view-toggle">
+    <button class="view-toggle-btn active" id="btn-view-tier" onclick="setView('tier')">Por tier</button>
+    <button class="view-toggle-btn" id="btn-view-tag" onclick="setView('tag')">Por tag</button>
+  </div>
+
+  <div id="tiers-container">
+    <div class="tier-section" style="--tier-color:var(--tier-grande)">
+      <div class="tier-header">
+        <div class="tier-header-left"><span class="tier-name">Grandes</span><span class="tier-count-badge" id="count-grande">0</span></div>
+        <div class="tier-totals"><div class="tier-total-main" id="total-grande">$0</div><div class="tier-total-sub" id="pendiente-grande">$0 pendiente</div></div>
+      </div>
+      <div id="list-grande"></div>
+    </div>
+    <div class="tier-section" style="--tier-color:var(--tier-mediana)">
+      <div class="tier-header">
+        <div class="tier-header-left"><span class="tier-name">Medianas</span><span class="tier-count-badge" id="count-mediana">0</span></div>
+        <div class="tier-totals"><div class="tier-total-main" id="total-mediana">$0</div><div class="tier-total-sub" id="pendiente-mediana">$0 pendiente</div></div>
+      </div>
+      <div id="list-mediana"></div>
+    </div>
+    <div class="tier-section" style="--tier-color:var(--tier-chica)">
+      <div class="tier-header">
+        <div class="tier-header-left"><span class="tier-name">Chicas</span><span class="tier-count-badge" id="count-chica">0</span></div>
+        <div class="tier-totals"><div class="tier-total-main" id="total-chica">$0</div><div class="tier-total-sub" id="pendiente-chica">$0 pendiente</div></div>
+      </div>
+      <div id="list-chica"></div>
+    </div>
+  </div>
+
+  <div id="tags-container" style="display:none;"></div>
+
+  <div class="form-card">
+    <h3>➕ Cargar ítem</h3>
+    <form id="client-form" onsubmit="addClient(event)">
+      <div class="form-grid">
+        <div class="form-group"><label for="form-name">Cliente / cuenta</label><input type="text" id="form-name" required placeholder="Ej: TGB"></div>
+        <div class="form-group"><label for="form-contact">Contacto</label><input type="text" id="form-contact" required placeholder="Ej: Tomás"></div>
+        <div class="form-group"><label for="form-budget">Presupuesto ($)</label><input type="number" id="form-budget" required placeholder="0"></div>
+        <div class="form-group"><label for="form-month">Mes inicio</label><select id="form-month"></select></div>
+        <div class="form-group"><label for="form-tier">Tier</label><select id="form-tier"><option value="grande">Grande</option><option value="mediana" selected>Mediana</option><option value="chica">Chica</option></select></div>
+        <div class="form-group"><label for="form-platform">Plataforma</label><select id="form-platform"><option value="Meta+Google">Meta + Google</option><option value="Meta">Meta</option><option value="Google">Google</option></select></div>
+        <div class="form-group"><label for="form-tag">Tag / grupo (opcional)</label><input type="text" id="form-tag" list="available-tags" placeholder="Ej: TGB, Bruto..."></div>
+        <div class="form-group"><label for="form-recurrence">Tipo contrato</label><select id="form-recurrence"><option value="fijo">Abono mensual (fijo)</option><option value="temporal">Servicio temporal</option></select></div>
+        <div class="form-group"><label for="form-sub-type">Estructura</label><select id="form-sub-type" onchange="toggleSubInput(this.value)"><option value="principal">Ítem principal</option><option value="subordinado">Subordinar a...</option></select></div>
+        <div class="form-group" id="parent-input-group" style="display:none;"><label for="form-parent-name" style="color:var(--warning)">Cliente padre</label><input type="text" id="form-parent-name" placeholder="Ej: TGB"></div>
+        <button type="submit" class="submit-btn">Cargar ítem</button>
+      </div>
+    </form>
+  </div>
 
 </div>
 
 <script>
-/* ================================================================
-   CONFIGURACIÓN
-   ================================================================ */
-const SHEET_API_URL = "https://script.google.com/macros/s/AKfycbzMkOYligCGvXvT1z4SaI1aRS_4A216yW-2i517j3OMFkf5IDyywO0C3Teqmg-dgzWn/exec";
-const CACHE_TTL = 15 * 60 * 1000;
-const TAG_PALETTE = ['#7367f0','#00cfe8','#ff9f43','#ea5455','#28c76f','#a259ff','#ff6b9d','#4b7bec','#20bf6b','#f7b731'];
+/* ============================================================
+   2) CONFIGURACIÓN DE DATOS — editá acá lo que cambia seguido:
+      la URL del Apps Script, nombres/colores de tier, paleta
+      de tags y el TTL del caché. El resto del script no
+      necesita tocarse para estos cambios.
+   ============================================================ */
+const CONFIG = {
+  sheetApiUrl: "https://script.google.com/macros/s/AKfycbzMkOYligCGvXvT1z4SaI1aRS_4A216yW-2i517j3OMFkf5IDyywO0C3Teqmg-dgzWn/exec",
+  cacheTtlMs: 15 * 60 * 1000,
+  tiers: {
+    grande:  { label: "Grandes",  color: "#2E2826" },
+    mediana: { label: "Medianas", color: "#2AABBD" },
+    chica:   { label: "Chicas",   color: "#F05E5E" }
+  },
+  tagPalette: ['#2AABBD','#F05E5E','#2E2826','#7367f0','#3EA872','#ff9f43','#4b7bec','#a259ff','#20bf6b','#f7b731'],
+  meses: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+};
 
-let rawClients = [];
-let processedClients = [];
+/* ============================================================
+   3) ESTADO EN MEMORIA
+   ============================================================ */
+let rawClients = [];        // filas tal cual vienen/van a la Sheet
+let processedClients = [];  // filas ya resueltas para el mes que se está viendo
+let virtualOverrides = {};  // ediciones sobre meses "fantasma" (recurrencia) aún no guardados como fila real
+let allKnownTags = [];
+let currentView = 'tier';
 let tierChart, historyChart;
 let lastFetchTime = 0;
-let virtualOverrides = {};
-let currentView = 'tier';
-let allKnownTags = []; 
+let pendingDeleteId = null;
 
-const MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
-
-/* ================================================================
-   UTILIDADES
-   ================================================================ */
-function showLoader(v) { document.getElementById('loadingView').style.display = v ? 'flex' : 'none'; }
-function toggleSubInput(val) { document.getElementById('parent-input-group').style.display = val === 'subordinado' ? 'block' : 'none'; }
+/* ============================================================
+   4) UTILIDADES DE FECHAS Y FORMATO
+   ============================================================ */
 function getMonthLabel(monthStr) {
-    if (!monthStr || !monthStr.toString().includes('-')) return monthStr;
-    const [y, m] = monthStr.split('-');
-    return (MESES[parseInt(m,10)-1] || m) + " " + y;
+  if (!monthStr || !monthStr.toString().includes('-')) return monthStr;
+  const [y, m] = monthStr.split('-');
+  return (CONFIG.meses[parseInt(m, 10) - 1] || m) + " " + y;
 }
 function parseCleanMonth(raw) {
-    if (!raw) return "";
-    let s = raw.toString().trim().toLowerCase();
-    if (s.includes('/') || s.includes('t') || (s.includes('-') && s.split('-')[0].length !== 4)) {
-        let d = new Date(raw);
-        if (!isNaN(d)) return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0');
-    }
-    if (s.includes("enero"))  return "2026-01";
-    if (s.includes("junio"))  return "2026-06";
-    if (/^\d{4}-\d{2}$/.test(s)) return s;
-    return s;
+  if (!raw) return "";
+  let s = raw.toString().trim().toLowerCase();
+  if (s.includes('/') || s.includes('t') || (s.includes('-') && s.split('-')[0].length !== 4)) {
+    let d = new Date(raw);
+    if (!isNaN(d)) return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0');
+  }
+  if (s.includes("enero")) return "2026-01";
+  if (s.includes("junio")) return "2026-06";
+  if (/^\d{4}-\d{2}$/.test(s)) return s;
+  return s;
+}
+function currentMonthStr() {
+  const h = new Date();
+  return h.getFullYear() + "-" + String(h.getMonth() + 1).padStart(2, '0');
+}
+function shiftMonth(base, delta) {
+  const [y, m] = base.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0');
 }
 function getTimelineArray() {
-    let set = new Set();
-    rawClients.forEach(c => { let m = parseCleanMonth(c.month); if (m) set.add(m); });
-    const hoy = new Date();
-    for (let i=-3; i<=6; i++) {
-        const d = new Date(hoy.getFullYear(), hoy.getMonth()+i, 1);
-        set.add(d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0'));
-    }
-    return Array.from(set).sort();
+  let set = new Set();
+  rawClients.forEach(c => { let m = parseCleanMonth(c.month); if (m) set.add(m); });
+  const curr = currentMonthStr();
+  for (let i = -3; i <= 6; i++) set.add(shiftMonth(curr, i));
+  return Array.from(set).sort();
 }
-function formatMoney(n) { return '$' + (n||0).toLocaleString('es-AR', {minimumFractionDigits:0, maximumFractionDigits:0}); }
+function formatMoney(n) { return '$' + (n || 0).toLocaleString('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
 
-/* Lee primero la columna J (tag) de la Sheet y como respaldo las notas anteriores. Se hace fallback entre meses del mismo cliente */
+/* ============================================================
+   5) NOTAS COMO "TAGS" — toda la información extra (temporal,
+      subordinado, tag, pausado por mes) vive codificada en el
+      campo `notes` con [CORCHETES]. Estas dos funciones son el
+      único lugar que necesita entender ese formato: para leerlo
+      usá parseTags(), para escribirlo usá buildNotes().
+   ============================================================ */
+function parseTags(notes) {
+  const s = (notes || "").toString();
+  return {
+    temporal: /\[temporal\]/i.test(s),
+    subDe: (s.match(/\[sub_de:\s*([^\]]+)\]/i) || [])[1]?.trim() || "",
+    tag: (s.match(/\[tag:\s*([^\]]+)\]/i) || [])[1]?.trim() || "",
+    pausadoMonths: [...s.matchAll(/\[pausado:(\d{4}-\d{2})\]/gi)].map(m => m[1]),
+    legacyPausado: /\[pausado\](?!:)/i.test(s),
+    freeText: s.replace(/\[(temporal|sub_de:[^\]]+|tag:[^\]]+|pausado(:\d{4}-\d{2})?)\]/gi, "").trim()
+  };
+}
+function buildNotes(tags) {
+  let parts = [];
+  if (tags.temporal) parts.push("[TEMPORAL]");
+  if (tags.subDe) parts.push(`[SUB_DE:${tags.subDe}]`);
+  if (tags.tag) parts.push(`[TAG:${tags.tag}]`);
+  (tags.pausadoMonths || []).forEach(m => parts.push(`[PAUSADO:${m}]`));
+  if (tags.freeText) parts.push(tags.freeText);
+  return parts.join(" ").trim();
+}
+function isPausadoInMonth(notes, month) {
+  const t = parseTags(notes);
+  return t.legacyPausado || t.pausadoMonths.includes(month);
+}
 function getClientTag(client) {
-    if (client.tag && client.tag.toString().trim() !== "") return client.tag.toString().trim();
-    if (client.notes) {
-        let m = client.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
-        if (m) return m[1].trim();
-    }
-    
-    // Fallback: Si este mes no tiene el tag pero otro mes del mismo cliente sí lo tiene, heredarlo visualmente
-    if (typeof rawClients !== 'undefined' && client.id) {
-        let baseId = client.id.toString().split('_')[0];
-        let sibling = rawClients.find(x => x.id.toString() === baseId && (
-            (x.tag && x.tag.toString().trim() !== "") || 
-            (x.notes && x.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i))
-        ));
-        if (sibling) {
-            if (sibling.tag && sibling.tag.toString().trim() !== "") return sibling.tag.toString().trim();
-            let m = sibling.notes.toString().match(/\[TAG:\s*([^\]]+)\]/i);
-            if (m) return m[1].trim();
-        }
-    }
-    return "";
+  if (client.tag && client.tag.toString().trim() !== "") return client.tag.toString().trim();
+  let tag = parseTags(client.notes).tag;
+  if (tag) return tag;
+  // Si este mes no tiene tag pero otro mes del mismo cliente sí, lo heredamos visualmente
+  if (client.id) {
+    let baseId = client.id.toString().split('_')[0];
+    let sibling = rawClients.find(x => x.id.toString().split('_')[0] === baseId && (x.tag || parseTags(x.notes).tag));
+    if (sibling) return (sibling.tag && sibling.tag.trim()) || parseTags(sibling.notes).tag;
+  }
+  return "";
 }
 
-/* ================================================================
-   CARGA DESDE SHEETS
-   ================================================================ */
-async function loadDataFromSheet(forzar=false) {
-    const now = Date.now();
-    if (!forzar && rawClients.length > 0 && (now - lastFetchTime < CACHE_TTL)) { renderDashboard(); return; }
-    showLoader(true);
-    try {
-        const res = await fetch(SHEET_API_URL);
-        rawClients = await res.json();
-        lastFetchTime = now;
-        virtualOverrides = {};
-        applyLocalStatusOverrides();
-        initDynamicMonths();
-        renderDashboard();
-    } catch(e) { console.error(e); }
-    showLoader(false);
+/* ============================================================
+   6) CARGA DE DATOS DESDE GOOGLE SHEETS
+   ============================================================ */
+function setSyncStatus(text) { document.getElementById('sync-status').textContent = text; }
+function showLoader(v) { document.getElementById('loadingView').style.display = v ? 'flex' : 'none'; }
+
+async function loadDataFromSheet(forzar = false) {
+  const now = Date.now();
+  if (!forzar && rawClients.length > 0 && (now - lastFetchTime < CONFIG.cacheTtlMs)) { renderDashboard(); return; }
+  showLoader(true);
+  document.getElementById('btn-sync').classList.add('spinning');
+  try {
+    const res = await fetch(CONFIG.sheetApiUrl);
+    rawClients = await res.json();
+    lastFetchTime = now;
+    virtualOverrides = {};
+    applyLocalStatusOverrides();
+    initDynamicMonths();
+    renderDashboard();
+    setSyncStatus("actualizado " + new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }));
+  } catch (e) {
+    console.error(e);
+    showToast("No se pudo sincronizar con Sheets", true);
+    setSyncStatus("error de sincronización");
+  }
+  showLoader(false);
+  document.getElementById('btn-sync').classList.remove('spinning');
 }
 
+async function syncPost(payload) {
+  try { fetch(CONFIG.sheetApiUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); }
+  catch (e) { showToast("No se pudo guardar en Sheets", true); }
+}
+
+/* ============================================================
+   7) RECURRENCIA — un abono "fijo" se repite mes a mes hasta
+      que aparece una fila real ese mes o se marca [TEMPORAL].
+      processRecurrences(mes) devuelve la lista de ítems (reales
+      + "virtuales") que corresponden a ese mes.
+   ============================================================ */
 function processRecurrences(selectedMonth) {
-    if (selectedMonth === "Todos") {
-        const hoy = new Date();
-        return processRecurrences(hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0'));
+  if (selectedMonth === "Todos") return processRecurrences(currentMonthStr());
+
+  let activeList = [];
+  let nativeItemsInMonth = rawClients.filter(x => parseCleanMonth(x.month) === selectedMonth);
+
+  nativeItemsInMonth.forEach(item => {
+    const pausado = isPausadoInMonth(item.notes, selectedMonth);
+    if (!pausado || showPausados()) activeList.push({ ...item, month: selectedMonth, currentMonth: selectedMonth, isVirtual: false, pausado });
+  });
+
+  let uniqueBaseIds = new Set(rawClients.map(c => c.id.toString().split('_')[0]));
+  uniqueBaseIds.forEach(baseId => {
+    let history = rawClients.filter(x => x.id.toString().split('_')[0] === baseId && parseCleanMonth(x.month) < selectedMonth);
+    if (!history.length) return;
+
+    history.sort((a, b) => parseCleanMonth(b.month).localeCompare(parseCleanMonth(a.month)) || b.id.toString().localeCompare(a.id.toString()));
+    let latest = history[0];
+    let tags = parseTags(latest.notes);
+    let alreadyNative = nativeItemsInMonth.some(x => x.id.toString().split('_')[0] === baseId);
+
+    if (!tags.temporal && !alreadyNative) {
+      const virtualId = `${baseId}_${selectedMonth}`;
+      const override = virtualOverrides[virtualId] || {};
+      const savedStatus = getLocalStatus(virtualId) || latest.status || "Pendiente";
+      const pausado = isPausadoInMonth(latest.notes, selectedMonth);
+
+      if (!pausado || showPausados()) {
+        activeList.push({
+          ...latest, id: virtualId, month: selectedMonth, currentMonth: selectedMonth,
+          status: override.status !== undefined ? override.status : savedStatus,
+          budget: override.budget !== undefined ? override.budget : latest.budget,
+          platform: override.platform !== undefined ? override.platform : latest.platform,
+          isVirtual: true, pausado
+        });
+      }
     }
-
-    let activeList = [];
-    let nativeItemsInMonth = rawClients.filter(x => parseCleanMonth(x.month) === selectedMonth);
-
-    nativeItemsInMonth.forEach(item => {
-        let isMonthPausado = item.notes && item.notes.toString().match(new RegExp(`\\[PAUSADO:${selectedMonth}\\]`, 'i'));
-        let isLegacyPausado = item.notes && item.notes.toString().toLowerCase().includes("[pausado]") && !item.notes.toString().toLowerCase().match(/\[pausado:\d{4}-\d{2}\]/);
-        let isPausado = isMonthPausado || isLegacyPausado;
-        if (!isPausado || showPausados()) activeList.push({ ...item, month: selectedMonth, currentMonth: selectedMonth, isVirtual: false, pausado: isPausado });
-    });
-
-    let uniqueBaseIds = new Set(rawClients.map(c => c.id.toString().split('_')[0]));
-    uniqueBaseIds.forEach(baseId => {
-        let history = rawClients.filter(x => x.id.toString().split('_')[0] === baseId && parseCleanMonth(x.month) < selectedMonth);
-        if (!history.length) return;
-
-        history.sort((a,b) => parseCleanMonth(b.month).localeCompare(parseCleanMonth(a.month)) || b.id.toString().localeCompare(a.id.toString()));
-        let latest = history[0];
-        let isTemporal = latest.notes && latest.notes.toString().toLowerCase().includes("[temporal]");
-        let alreadyNative = nativeItemsInMonth.some(x => x.id.toString().split('_')[0] === baseId);
-
-        if (!isTemporal && !alreadyNative) {
-            const virtualId = `${baseId}_${selectedMonth}`;
-            const override  = virtualOverrides[virtualId] || {};
-            const savedStatus = getLocalStatus(virtualId) || latest.status || "Pendiente";
-            
-            let isMonthPausado = latest.notes && latest.notes.toString().match(new RegExp(`\\[PAUSADO:${selectedMonth}\\]`, 'i'));
-            let isLegacyPausado = latest.notes && latest.notes.toString().toLowerCase().includes("[pausado]") && !latest.notes.toString().toLowerCase().match(/\[pausado:\d{4}-\d{2}\]/);
-            let isPausado = isMonthPausado || isLegacyPausado;
-            
-            if (!isPausado || showPausados()) {
-                activeList.push({
-                    ...latest, id: virtualId, month: selectedMonth, currentMonth: selectedMonth,
-                    status: override.status !== undefined ? override.status : savedStatus,
-                    budget: override.budget !== undefined ? override.budget : latest.budget,
-                    platform: override.platform !== undefined ? override.platform : latest.platform,
-                    isVirtual: true, pausado: isPausado
-                });
-            }
-        }
-    });
-    return activeList;
+  });
+  return activeList;
 }
 
 function calcTotalHistorico() {
-    const months = getTimelineArray();
-    let total = 0, cobrado = 0, pendiente = 0;
-    months.forEach(m => {
-        processRecurrences(m).forEach(c => {
-            if (c.pausado) return;
-            const b = parseFloat(c.budget)||0;
-            total += b;
-            if ((c.status||"").trim().toLowerCase() === "pagado") cobrado += b; else pendiente += b;
-        });
+  const months = getTimelineArray();
+  let total = 0, cobrado = 0, pendiente = 0;
+  months.forEach(m => {
+    processRecurrences(m).forEach(c => {
+      if (c.pausado) return;
+      const b = parseFloat(c.budget) || 0;
+      total += b;
+      if ((c.status || "").trim().toLowerCase() === "pagado") cobrado += b; else pendiente += b;
     });
-    return { total, cobrado, pendiente };
+  });
+  return { total, cobrado, pendiente };
 }
 
-/* ================================================================
-   INTERFAZ PRINCIPAL
-   ================================================================ */
-function initDynamicMonths() {
-    const fSel = document.getElementById('view-month');
-    const fForm = document.getElementById('form-month');
-    const months = getTimelineArray();
-    const hoy = new Date();
-    const curr = hoy.getFullYear() + "-" + String(hoy.getMonth()+1).padStart(2,'0');
-    const oldVal = fSel.value || curr;
-    fForm.innerHTML = "";
-    fSel.innerHTML = `<optgroup label="Períodos"><option value="Todos">Histórico completo</option><option value="ultimos3">Últimos 3 meses</option><option value="ultimos6">Últimos 6 meses</option></optgroup><optgroup label="Mes por mes">`;
-    months.forEach(m => {
-        const label = getMonthLabel(m);
-        fForm.innerHTML  += `<option value="${m}" ${m===curr?'selected':''}>${label}</option>`;
-        fSel.innerHTML   += `<option value="${m}" ${m===oldVal?'selected':''}>${label}</option>`;
-    });
-    fSel.innerHTML += `</optgroup>`;
-}
+/* ============================================================
+   8) UNA SOLA FUNCIÓN PARA GUARDAR CAMBIOS
+      commitChange(client, patch) recibe el ítem que se está
+      editando y un objeto con lo que cambió. Si el ítem era
+      "virtual" (recurrencia todavía no guardada), primero lo
+      materializa como fila real. Así evitamos repetir la misma
+      lógica en cada control del formulario.
 
-function getMonthsForPeriod(value) {
-    const hoy = new Date();
-    if (value === "Todos") return null; 
-    if (value === "ultimos3" || value === "ultimos6") {
-        let result = [];
-        for (let i = (value === "ultimos3" ? 3 : 6)-1; i >= 0; i--) {
-            const d = new Date(hoy.getFullYear(), hoy.getMonth()-i, 1);
-            result.push(d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,'0'));
-        }
-        return result;
-    }
-    return [value];
-}
+      patch admite: budget, tier, platform, status, tag,
+      freeText (observaciones), temporal (bool), togglePausadoMonth (mes)
+   ============================================================ */
+function commitChange(client, patch) {
+  const baseId = client.id.toString().split('_')[0];
+  const isVirtual = client.id.toString().includes('_');
+  const targetMonth = client.month;
 
-function showPausados() { return document.getElementById('show-pausados')?.checked || false; }
+  let source = rawClients.find(x => x.id.toString() === client.id.toString())
+             || rawClients.find(x => x.id.toString() === baseId);
+  if (!source) return;
 
-function renderDashboard() {
-    const selectedMonth = document.getElementById('view-month').value;
-    const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
-    const isPeriod = selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
-    const periodMonths = isPeriod ? getMonthsForPeriod(selectedMonth) : null;
-    const renderMonth = isPeriod ? periodMonths[periodMonths.length-1] : (selectedMonth === "Todos" ? parseCleanMonth(new Date()) : selectedMonth);
+  let tags = parseTags(source.notes);
+  if (patch.tag !== undefined) tags.tag = patch.tag.trim();
+  if (patch.freeText !== undefined) tags.freeText = patch.freeText.trim();
+  if (patch.temporal !== undefined) tags.temporal = patch.temporal;
+  if (patch.togglePausadoMonth) {
+    const m = patch.togglePausadoMonth;
+    tags.pausadoMonths = tags.legacyPausado ? [] : tags.pausadoMonths; // limpiamos el formato viejo al tocarlo
+    tags.legacyPausado = false;
+    tags.pausadoMonths = tags.pausadoMonths.includes(m) ? tags.pausadoMonths.filter(x => x !== m) : [...tags.pausadoMonths, m];
+  }
+  const newNotes = buildNotes(tags);
 
-    ['grande','mediana','chica'].forEach(t => document.getElementById(`list-${t}`).innerHTML = '');
-    processedClients = processRecurrences(renderMonth);
+  const record = {
+    action: "add",
+    id: isVirtual ? client.id : baseId,
+    name: source.name,
+    contact: source.contact,
+    budget: patch.budget !== undefined ? parseFloat(patch.budget) : parseFloat(source.budget),
+    month: targetMonth,
+    tier: patch.tier !== undefined ? patch.tier : source.tier,
+    platform: patch.platform !== undefined ? patch.platform : source.platform,
+    status: patch.status !== undefined ? patch.status : (source.status || "Pendiente"),
+    notes: newNotes
+  };
+  if (!isVirtual) record.action = "update";
 
-    const tagSet = new Set();
-    rawClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
-    processedClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
-    allKnownTags = Array.from(tagSet).sort();
-    
-    const datalistEl = document.getElementById('available-tags');
-    if(datalistEl) datalistEl.innerHTML = allKnownTags.map(t => `<option value="${t}">`).join('');
+  const idx = rawClients.findIndex(x => x.id.toString() === record.id.toString());
+  if (idx !== -1) rawClients[idx] = { ...rawClients[idx], ...record };
+  else rawClients.push(record);
 
-    let totalFact=0, totalCob=0, totalPend=0, count=0;
-    let tiers = { grande: { total:0, pendiente:0, count:0 }, mediana: { total:0, pendiente:0, count:0 }, chica: { total:0, pendiente:0, count:0 } };
+  if (isVirtual) delete virtualOverrides[client.id];
+  if (patch.status !== undefined) saveLocalStatus(client.id, patch.status);
 
-    let principals   = processedClients.filter(c => !(c.notes && c.notes.toString().toLowerCase().includes("[sub_de:")));
-    let subordinates = processedClients.filter(c => c.notes && c.notes.toString().toLowerCase().includes("[sub_de:"));
-
-    let ordered = [];
-    principals.forEach(p => {
-        ordered.push(p);
-        let core = p.name.toLowerCase().trim();
-        subordinates.filter(s => s.notes.toString().toLowerCase().match(/\[sub_de:\s*([^\]]+)\]/)?.[1].trim() === core).forEach(ch => ordered.push(ch));
-    });
-    subordinates.forEach(s => { if (!ordered.some(x=>x.id===s.id)) ordered.push(s); });
-
-    ordered.forEach(client => {
-        if (query && !((client.name||"").toLowerCase().includes(query) || (client.contact||"").toLowerCase().includes(query) || (client.notes||"").toLowerCase().includes(query) || (client.platform||"").toLowerCase().includes(query) || getClientTag(client).toLowerCase().includes(query))) return;
-
-        const budget = parseFloat(client.budget)||0;
-        if (!client.pausado) {
-            totalFact += budget;
-            if ((client.status||"").trim().toLowerCase()==="pagado") totalCob += budget; else { totalPend += budget; tiers[client.tier].pendiente += budget; }
-            tiers[client.tier].total += budget;
-            tiers[client.tier].count++;
-            count++;
-        }
-
-        if (currentView === 'tier') document.getElementById(`list-${client.tier}`).innerHTML += buildClientCard(client, renderMonth);
-    });
-
-    if (currentView === 'tag') {
-        renderTagView(processedClients.filter(c => !query || (c.name||"").toLowerCase().includes(query) || (c.contact||"").toLowerCase().includes(query) || (c.notes||"").toLowerCase().includes(query) || (c.platform||"").toLowerCase().includes(query) || getClientTag(c).toLowerCase().includes(query)), renderMonth);
-    }
-
-    let kpiTotal = totalFact, kpiCob = totalCob, kpiPend = totalPend;
-    if (selectedMonth === "Todos") {
-        const hist = calcTotalHistorico();
-        kpiTotal = hist.total; kpiCob = hist.cobrado; kpiPend = hist.pendiente;
-    } else if (isPeriod && periodMonths) {
-        kpiTotal = 0; kpiCob = 0; kpiPend = 0;
-        periodMonths.forEach(m => {
-            processRecurrences(m).forEach(c => {
-                if (c.pausado) return;
-                const b = parseFloat(c.budget)||0;
-                kpiTotal += b;
-                if ((c.status||"").trim().toLowerCase() === "pagado") kpiCob += b; else kpiPend += b;
-            });
-        });
-    }
-
-    const isMultiMonth = selectedMonth === "Todos" || isPeriod;
-    document.getElementById('kpi-total').innerText = formatMoney(kpiTotal);
-    document.getElementById('kpi-cobrado').innerText = formatMoney(kpiCob);
-    document.getElementById('kpi-pendiente').innerText= formatMoney(kpiPend);
-    document.getElementById('kpi-label-cuentas').innerText = isMultiMonth ? "Clientes activos" : "Ítems activos";
-    document.getElementById('kpi-cuentas').innerText = isMultiMonth ? `${count} activos` : `${count} ítems`;
-
-    ['grande','mediana','chica'].forEach(t => {
-        document.getElementById(`total-${t}`).innerText    = formatMoney(tiers[t].total);
-        document.getElementById(`pendiente-${t}`).innerText= formatMoney(tiers[t].pendiente) + " pdte.";
-        document.getElementById(`count-${t}`).innerText    = tiers[t].count;
-    });
-
-    document.getElementById('donut-total').innerText = formatMoney(totalFact);
-    
-    // Filtro corregido: Toma solo los meses del periodo si aplica
-    let chartMonths = isPeriod ? periodMonths : getTimelineArray();
-    updateCharts(tiers, chartMonths, selectedMonth, isPeriod);
-}
-
-/* ================================================================
-   GRÁFICO MUTANTE (Histórico vs. Mensual)
-   ================================================================ */
-function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod) {
-    const isMultiMonth = selectedMonth === "Todos" || isPeriod;
-    if (historyChart) { historyChart.destroy(); }
-    const ctx = document.getElementById('historyChart').getContext('2d');
-
-    if (!isMultiMonth) {
-        document.getElementById('chart-title').textContent = `Presupuesto por cliente (${getMonthLabel(selectedMonth)})`;
-        let activeClients = processedClients.filter(c => !c.pausado);
-        
-        if (currentView === 'tier') {
-            const weights = { grande: 3, mediana: 2, chica: 1 };
-            activeClients.sort((a,b) => weights[b.tier] - weights[a.tier] || (b.budget - a.budget));
-        } else {
-            activeClients.sort((a,b) => (getClientTag(a)||'').localeCompare(getClientTag(b)||'') || (b.budget - a.budget));
-        }
-
-        const labels = activeClients.map(c => c.name);
-        const data = activeClients.map(c => parseFloat(c.budget)||0);
-        
-        const backgroundColors = activeClients.map(c => {
-            if (currentView === 'tier') {
-                if (c.tier === 'grande') return '#7367f0';
-                if (c.tier === 'mediana') return '#00cfe8';
-                return '#ff9f43';
-            } else {
-                const tag = getClientTag(c);
-                if (!tag) return '#a9a6b8';
-                return TAG_PALETTE[allKnownTags.indexOf(tag) % TAG_PALETTE.length];
-            }
-        });
-
-        historyChart = new Chart(ctx, {
-            type: 'bar',
-            data: { labels: labels, datasets: [{ label: 'Presupuesto', data: data, backgroundColor: backgroundColors, borderRadius: 4 }] },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` Presupuesto: ${formatMoney(ctx.raw)}` } } },
-                scales: {
-                    x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9b98a8', maxRotation: 45, minRotation: 45 } },
-                    y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
-                }
-            }
-        });
-
-    } else {
-        document.getElementById('chart-title').textContent = currentView === 'tag' ? 'Evolución de ingresos por Grupo' : 'Evolución de ingresos por Tier';
-        const labels = timelineMonths.map(m => getMonthLabel(m));
-        let datasets = [];
-
-        if (currentView === 'tag') {
-            const tagSet = new Set();
-            timelineMonths.forEach(m => processRecurrences(m).forEach(c => { if (!c.pausado) tagSet.add(getClientTag(c) || "Sin grupo"); }));
-            const tags = Array.from(tagSet).sort((a,b) => a==="Sin grupo"? 1 : (b==="Sin grupo"? -1 : a.localeCompare(b)));
-            
-            datasets = tags.map((tag, i) => {
-                const data = timelineMonths.map(m => processRecurrences(m).filter(c => !c.pausado && (getClientTag(c) || "Sin grupo") === tag).reduce((sum, c) => sum + (parseFloat(c.budget)||0), 0));
-                const color = tag === "Sin grupo" ? '#a9a6b8' : TAG_PALETTE[i % TAG_PALETTE.length];
-                return { label: tag, data: data, borderColor: color, backgroundColor: color + '20', borderWidth: 2, fill: true, tension: 0.35, pointRadius: 2, pointHoverRadius: 5 };
-            });
-        } else {
-            const trs = ['grande', 'mediana', 'chica'];
-            const colors = { grande: '#7367f0', mediana: '#00cfe8', chica: '#ff9f43' };
-            const names = { grande: 'Grandes', mediana: 'Medianas', chica: 'Chicas' };
-            
-            datasets = trs.map(t => {
-                const data = timelineMonths.map(m => processRecurrences(m).filter(c => !c.pausado && c.tier === t).reduce((sum, c) => sum + (parseFloat(c.budget)||0), 0));
-                return { label: names[t], data: data, borderColor: colors[t], backgroundColor: colors[t] + '20', borderWidth: 2, fill: true, tension: 0.35, pointRadius: 2, pointHoverRadius: 5 };
-            });
-        }
-
-        historyChart = new Chart(ctx, {
-            type: 'line', data: { labels, datasets },
-            options: {
-                responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
-                plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}` } } },
-                scales: { x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9b98a8' } }, y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } } }
-            }
-        });
-    }
-
-    const donutData = [tiersData.grande.total, tiersData.mediana.total, tiersData.chica.total];
-    if (tierChart) { tierChart.data.datasets[0].data = donutData; tierChart.update(); } 
-    else {
-        tierChart = new Chart(document.getElementById('tierChart').getContext('2d'), {
-            type: 'doughnut', data: { labels: ['Grandes','Medianas','Chicas'], datasets: [{ data: donutData, backgroundColor: ['#7367f0','#00cfe8','#ff9f43'], borderWidth: 0, hoverOffset: 6 }] },
-            options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${formatMoney(ctx.raw)}` } } } }
-        });
-    }
-}
-
-/* ================================================================
-   SYNC POST Y EDICIÓN RÁPIDA
-   ================================================================ */
-async function syncPost(payload) {
-    try { fetch(SHEET_API_URL, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); } catch(e) {}
-}
-
-function updateLiveCell(idStr, field, value) {
-    let isVirtual = idStr.toString().includes('_');
-    let baseId    = idStr.toString().split('_')[0];
-
-    if (!isVirtual) {
-        let payload = { action:"update", id:baseId }; payload[field] = value;
-        let idx = rawClients.findIndex(x => x.id.toString()===baseId);
-        if (idx !== -1) rawClients[idx][field] = value;
-        
-        renderDashboard(); syncPost(payload);
-    } else {
-        let virtualMonth = idStr.toString().split('_')[1], source = rawClients.find(x => x.id.toString()===baseId);
-        if (!source) return;
-        if (!virtualOverrides[idStr]) virtualOverrides[idStr] = {};
-        if (field === 'status') virtualOverrides[idStr].status = value;
-        if (field === 'budget') virtualOverrides[idStr].budget = parseFloat(value);
-        if (field === 'platform') virtualOverrides[idStr].platform = value;
-
-        let override = virtualOverrides[idStr] || {};
-        let payload = {
-            action: "add", id: idStr, name: source.name, contact: source.contact,
-            budget: override.budget !== undefined ? override.budget : parseFloat(source.budget),
-            month: virtualMonth, 
-            tier: field === 'tier' ? value : source.tier, 
-            platform: field === 'platform' ? value : (override.platform || source.platform),
-            status: override.status !== undefined ? override.status : source.status, 
-            notes: source.notes || ""
-        };
-        rawClients.push(payload); delete virtualOverrides[idStr];
-        renderDashboard(); syncPost(payload);
-    }
-}
-
-function updateContractType(idStr, type) {
-    let isVirtual = idStr.toString().includes('_');
-    let baseId = idStr.toString().split('_')[0];
-
-    rawClients.forEach(c => {
-        if (c.id.toString() === baseId) {
-            let notes = (c.notes || "").toString();
-            if (type === "temporal") {
-                if (!notes.toLowerCase().includes("[temporal]")) c.notes = `[TEMPORAL] ${notes}`.trim();
-            } else {
-                c.notes = notes.replace(/\[TEMPORAL\]/gi, "").trim();
-            }
-        }
-    });
-
-    let exactClient = rawClients.find(x => x.id.toString() === (isVirtual ? baseId : idStr));
-    if (!exactClient) return;
-
-    if (!isVirtual) {
-        let payload = { action: "update", id: baseId, notes: exactClient.notes };
-        renderDashboard();
-        syncPost(payload);
-    } else {
-        let virtualMonth = idStr.toString().split('_')[1];
-        let override = virtualOverrides[idStr] || {};
-        let payload = {
-            action: "add", id: idStr, name: exactClient.name, contact: exactClient.contact,
-            budget: override.budget !== undefined ? override.budget : parseFloat(exactClient.budget),
-            month: virtualMonth, tier: exactClient.tier, platform: exactClient.platform,
-            status: override.status !== undefined ? override.status : exactClient.status,
-            notes: exactClient.notes
-        };
-        rawClients.push(payload);
-        delete virtualOverrides[idStr];
-        renderDashboard();
-        syncPost(payload);
-    }
-}
-
-function updateAccountStatus(idStr, statusValue) {
-    let isVirtual = idStr.toString().includes('_'), baseId = idStr.toString().split('_')[0];
-    let exactRecord = rawClients.find(x => x.id.toString() === idStr.toString());
-    let template = exactRecord || rawClients.find(x => x.id.toString() === baseId);
-    if (!template) return;
-    let targetMonth = isVirtual ? idStr.toString().split('_')[1] : parseCleanMonth(template.month);
-    let pauseTag = `[PAUSADO:${targetMonth}]`;
-    let baseNotes = (template.notes || "").toString().replace(/\[pausado\]/gi, "").trim();
-
-    if (statusValue === "pausado") { if (!baseNotes.toLowerCase().includes(pauseTag.toLowerCase())) baseNotes = `${pauseTag} ${baseNotes}`.trim(); } 
-    else { baseNotes = baseNotes.replace(new RegExp(`\\[PAUSADO:${targetMonth}\\]`, 'gi'), "").trim(); }
-
-    if (exactRecord) {
-        exactRecord.notes = baseNotes; renderDashboard(); syncPost({ action:"update", id: exactRecord.id, notes: baseNotes });
-    } else {
-        let payload = { action:"add", id: idStr, name:template.name, contact:template.contact, budget:parseFloat(template.budget), month:targetMonth, tier:template.tier, platform:template.platform, status:template.status, notes:baseNotes };
-        rawClients.push(payload); renderDashboard(); syncPost(payload);
-    }
+  renderDashboard();
+  syncPost(record);
+  showToast("Guardado ✓");
 }
 
 function toggleLiveStatus(idStr) {
-    let cur = processedClients.find(x => x.id.toString()===idStr.toString());
-    if (!cur) return;
-    const curStatus = (cur.status||"").trim().toLowerCase();
-    let next = curStatus === "pagado" ? "Pendiente" : "Pagado";
-    if (!idStr.toString().includes('_')) {
-        let cache = rawClients.find(x => x.id.toString()===idStr.toString());
-        if (cache) cache.status = next;
-        else {
-            let fallback = rawClients.find(x => x.name === cur.name && parseCleanMonth(x.month) === parseCleanMonth(cur.month));
-            if (fallback) fallback.status = next; else rawClients.push({ ...cur, status: next });
-        }
-        saveLocalStatus(idStr, next); renderDashboard(); syncPost({ action:"update", id:idStr, status:next });
-    } else {
-        virtualOverrides[idStr] = virtualOverrides[idStr] || {}; virtualOverrides[idStr].status = next;
-        saveLocalStatus(idStr, next); renderDashboard(); syncPost({ action:"update", id:idStr.toString().split('_')[0], status:next });
-    }
+  let cur = processedClients.find(x => x.id.toString() === idStr.toString());
+  if (!cur) return;
+  const next = (cur.status || "").trim().toLowerCase() === "pagado" ? "Pendiente" : "Pagado";
+  commitChange(cur, { status: next });
 }
 
 function deleteLiveClient(idStr) {
-    if (!confirm("¿Eliminar este registro de forma definitiva?")) return;
-    if (!idStr.toString().includes('_')) { rawClients = rawClients.filter(x => x.id.toString()!==idStr.toString()); renderDashboard(); syncPost({ action:"delete", id:idStr }); } 
-    else {
-        let baseId = idStr.toString().split('_')[0], virtualMonth = idStr.toString().split('_')[1], src = rawClients.find(x => x.id.toString()===baseId);
-        if (!src) return;
-        let payload = { action:"add", id: idStr, name:src.name, contact:src.contact, budget:0, month:virtualMonth, tier:src.tier, platform:src.platform, status:"Pagado", notes:`[PAUSADO:${virtualMonth}]` };
-        rawClients.push(payload); renderDashboard(); syncPost(payload);
-    }
-}
-
-/* ================================================================
-   VISTAS Y GESTIÓN DE GRUPOS (TAGS)
-   ================================================================ */
-function setView(v) {
-    currentView = v;
-    document.getElementById('tiers-container').style.display = v === 'tier' ? '' : 'none';
-    document.getElementById('tags-container').style.display  = v === 'tag'  ? '' : 'none';
-    document.getElementById('btn-view-tier').classList.toggle('active', v === 'tier');
-    document.getElementById('btn-view-tag').classList.toggle('active',  v === 'tag');
-    renderDashboard();
-}
-
-function updateLiveTag(idStr, newTag) {
-    const baseId = idStr.toString().split('_')[0];
-    const isVirtual = idStr.toString().includes('_');
-    const tagValue = newTag.trim();
-
-    // 1. Actualizamos TODAS las ocurrencias de este cliente en memoria local
-    rawClients.forEach(c => {
-        if (c.id.toString() === baseId) {
-            c.tag = tagValue;
-            let cleanNotes = (c.notes || "").toString().replace(/\[TAG:\s*[^\]]+\]/gi, "").trim();
-            if (tagValue !== "") cleanNotes = `[TAG:${tagValue}] ${cleanNotes}`.trim();
-            c.notes = cleanNotes;
-        }
-    });
-
-    // 2. Buscamos el registro que se modificó exactamente
-    let exactClient = rawClients.find(x => x.id.toString() === (isVirtual ? baseId : idStr));
-    if (!exactClient) return;
-
-    if (!isVirtual) {
-        // FIX: Enviamos SOLO "notes". Así el Google Apps Script viejo no falla al ver el campo "tag".
-        let payload = { 
-            action: "update", 
-            id: baseId, 
-            notes: exactClient.notes 
-        };
-        renderDashboard(); 
-        syncPost(payload);
+  askConfirm("¿Eliminar este registro de forma definitiva?", () => {
+    if (!idStr.toString().includes('_')) {
+      rawClients = rawClients.filter(x => x.id.toString() !== idStr.toString());
+      renderDashboard();
+      syncPost({ action: "delete", id: idStr });
+      showToast("Eliminado");
     } else {
-        let virtualMonth = idStr.toString().split('_')[1];
-        let override = virtualOverrides[idStr] || {};
-        // FIX: También quitamos "tag" de aquí por las dudas
-        let payload = {
-            action: "add", id: idStr, name: exactClient.name, contact: exactClient.contact,
-            budget: override.budget !== undefined ? override.budget : parseFloat(exactClient.budget),
-            month: virtualMonth, tier: exactClient.tier, platform: exactClient.platform,
-            status: override.status !== undefined ? override.status : exactClient.status,
-            notes: exactClient.notes
-        };
-        
-        rawClients.push(payload);
-        delete virtualOverrides[idStr];
-        renderDashboard(); 
-        syncPost(payload);
+      // un ítem "virtual" no existe como fila: lo pausamos ese mes puntual
+      const cur = processedClients.find(x => x.id.toString() === idStr.toString());
+      if (cur) commitChange(cur, { togglePausadoMonth: cur.month });
     }
+  });
+}
+
+/* ============================================================
+   9) MESES DISPONIBLES / SELECTOR
+   ============================================================ */
+function initDynamicMonths() {
+  const fSel = document.getElementById('view-month');
+  const fForm = document.getElementById('form-month');
+  const months = getTimelineArray();
+  const curr = currentMonthStr();
+  const oldVal = fSel.value || curr;
+  fForm.innerHTML = "";
+  fSel.innerHTML = `<optgroup label="Períodos"><option value="Todos">Histórico completo</option><option value="ultimos3">Últimos 3 meses</option><option value="ultimos6">Últimos 6 meses</option></optgroup><optgroup label="Mes por mes">`;
+  months.forEach(m => {
+    const label = getMonthLabel(m);
+    fForm.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
+    fSel.innerHTML += `<option value="${m}" ${m === oldVal ? 'selected' : ''}>${label}</option>`;
+  });
+  fSel.innerHTML += `</optgroup>`;
+}
+function getMonthsForPeriod(value) {
+  const curr = currentMonthStr();
+  if (value === "Todos") return null;
+  if (value === "ultimos3" || value === "ultimos6") {
+    let result = [];
+    for (let i = (value === "ultimos3" ? 3 : 6) - 1; i >= 0; i--) result.push(shiftMonth(curr, -i));
+    return result;
+  }
+  return [value];
+}
+function showPausados() { return document.getElementById('show-pausados')?.checked || false; }
+
+/* ============================================================
+   10) RENDER PRINCIPAL
+   ============================================================ */
+function renderDashboard() {
+  const selectedMonth = document.getElementById('view-month').value;
+  const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
+  const isPeriod = selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
+  const periodMonths = isPeriod ? getMonthsForPeriod(selectedMonth) : null;
+  const renderMonth = isPeriod ? periodMonths[periodMonths.length - 1] : (selectedMonth === "Todos" ? currentMonthStr() : selectedMonth);
+
+  Object.keys(CONFIG.tiers).forEach(t => document.getElementById(`list-${t}`).innerHTML = '');
+  processedClients = processRecurrences(renderMonth);
+
+  const tagSet = new Set();
+  rawClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
+  processedClients.forEach(c => { let t = getClientTag(c); if (t) tagSet.add(t); });
+  allKnownTags = Array.from(tagSet).sort();
+  document.getElementById('available-tags').innerHTML = allKnownTags.map(t => `<option value="${t}">`).join('');
+
+  const matchesQuery = (c) => !query || [c.name, c.contact, c.notes, c.platform, getClientTag(c)].some(v => (v || "").toLowerCase().includes(query));
+
+  let totalFact = 0, totalCob = 0, totalPend = 0, count = 0;
+  let tiers = {}; Object.keys(CONFIG.tiers).forEach(t => tiers[t] = { total: 0, pendiente: 0, count: 0 });
+
+  let principals = processedClients.filter(c => !parseTags(c.notes).subDe);
+  let subordinates = processedClients.filter(c => parseTags(c.notes).subDe);
+  let ordered = [];
+  principals.forEach(p => {
+    ordered.push(p);
+    const core = p.name.toLowerCase().trim();
+    subordinates.filter(s => parseTags(s.notes).subDe.toLowerCase() === core).forEach(ch => ordered.push(ch));
+  });
+  subordinates.forEach(s => { if (!ordered.some(x => x.id === s.id)) ordered.push(s); });
+
+  ordered.forEach(client => {
+    if (!matchesQuery(client)) return;
+    const budget = parseFloat(client.budget) || 0;
+    if (!client.pausado) {
+      totalFact += budget;
+      if ((client.status || "").trim().toLowerCase() === "pagado") totalCob += budget;
+      else { totalPend += budget; tiers[client.tier].pendiente += budget; }
+      tiers[client.tier].total += budget;
+      tiers[client.tier].count++;
+      count++;
+    }
+    if (currentView === 'tier') document.getElementById(`list-${client.tier}`).innerHTML += buildClientCard(client, renderMonth);
+  });
+
+  Object.keys(CONFIG.tiers).forEach(t => {
+    const listEl = document.getElementById(`list-${t}`);
+    if (currentView === 'tier' && !listEl.innerHTML) listEl.innerHTML = `<div class="empty-state">Sin clientes en este tier todavía.</div>`;
+  });
+
+  if (currentView === 'tag') renderTagView(processedClients.filter(matchesQuery), renderMonth);
+
+  let kpiTotal = totalFact, kpiCob = totalCob, kpiPend = totalPend;
+  if (selectedMonth === "Todos") {
+    const hist = calcTotalHistorico();
+    kpiTotal = hist.total; kpiCob = hist.cobrado; kpiPend = hist.pendiente;
+  } else if (isPeriod && periodMonths) {
+    kpiTotal = 0; kpiCob = 0; kpiPend = 0;
+    periodMonths.forEach(m => processRecurrences(m).forEach(c => {
+      if (c.pausado) return;
+      const b = parseFloat(c.budget) || 0;
+      kpiTotal += b;
+      if ((c.status || "").trim().toLowerCase() === "pagado") kpiCob += b; else kpiPend += b;
+    }));
+  }
+
+  const isMultiMonth = selectedMonth === "Todos" || isPeriod;
+  document.getElementById('kpi-total').innerText = formatMoney(kpiTotal);
+  document.getElementById('kpi-cobrado').innerText = formatMoney(kpiCob);
+  document.getElementById('kpi-pendiente').innerText = formatMoney(kpiPend);
+  document.getElementById('kpi-label-cuentas').innerText = isMultiMonth ? "Clientes activos" : "Ítems activos";
+  document.getElementById('kpi-cuentas').innerText = isMultiMonth ? `${count} activos` : `${count} ítems`;
+  const pct = kpiTotal > 0 ? Math.round((kpiCob / kpiTotal) * 100) : 0;
+  document.getElementById('kpi-cobrado-bar').style.width = pct + '%';
+  document.getElementById('kpi-cobrado-pct').innerText = pct + '% del total';
+
+  Object.keys(CONFIG.tiers).forEach(t => {
+    document.getElementById(`total-${t}`).innerText = formatMoney(tiers[t].total);
+    document.getElementById(`pendiente-${t}`).innerText = formatMoney(tiers[t].pendiente) + " pdte.";
+    document.getElementById(`count-${t}`).innerText = tiers[t].count;
+  });
+  document.getElementById('donut-total').innerText = formatMoney(totalFact);
+
+  const chartMonths = isPeriod ? periodMonths : getTimelineArray();
+  updateCharts(tiers, chartMonths, selectedMonth, isPeriod, totalFact, totalCob, totalPend);
+}
+
+/* ============================================================
+   11) GRÁFICOS
+       - Mes puntual: barras apiladas Cobrado/Pendiente por
+         cliente → responde "¿quién me debe plata este mes?"
+       - Histórico/rango: evolución mensual por tier o por tag
+       - Dona: distribución por tier + % cobrado en el centro
+   ============================================================ */
+function updateCharts(tiersData, timelineMonths, selectedMonth, isPeriod, totalFact, totalCob, totalPend) {
+  const isMultiMonth = selectedMonth === "Todos" || isPeriod;
+  if (historyChart) historyChart.destroy();
+  const ctx = document.getElementById('historyChart').getContext('2d');
+
+  if (!isMultiMonth) {
+    document.getElementById('chart-title').textContent = `Cobrado vs. pendiente (${getMonthLabel(selectedMonth)})`;
+    document.getElementById('chart-sub').textContent = 'Cada barra es un cliente: la parte gris es lo que todavía te debe';
+    let activeClients = processedClients.filter(c => !c.pausado)
+      .sort((a, b) => (parseFloat(b.budget) || 0) - (parseFloat(a.budget) || 0));
+
+    const labels = activeClients.map(c => c.name);
+    const cobradoData = activeClients.map(c => (c.status || "").trim().toLowerCase() === "pagado" ? (parseFloat(c.budget) || 0) : 0);
+    const pendienteData = activeClients.map(c => (c.status || "").trim().toLowerCase() === "pagado" ? 0 : (parseFloat(c.budget) || 0));
+
+    historyChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Cobrado', data: cobradoData, backgroundColor: '#3EA872', borderRadius: 4, stack: 's' },
+          { label: 'Pendiente', data: pendienteData, backgroundColor: '#F05E5E', borderRadius: 4, stack: 's' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${formatMoney(ctx.raw)}` } } },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, color: '#9b98a8', maxRotation: 45, minRotation: 45 } },
+          y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
+        }
+      }
+    });
+  } else {
+    document.getElementById('chart-title').textContent = currentView === 'tag' ? 'Evolución de ingresos por grupo' : 'Evolución de ingresos por tier';
+    document.getElementById('chart-sub').textContent = 'Suma de presupuestos activos mes a mes';
+    const labels = timelineMonths.map(m => getMonthLabel(m));
+    let datasets = [];
+
+    if (currentView === 'tag') {
+      const tagSet = new Set();
+      timelineMonths.forEach(m => processRecurrences(m).forEach(c => { if (!c.pausado) tagSet.add(getClientTag(c) || "Sin grupo"); }));
+      const tags = Array.from(tagSet).sort((a, b) => a === "Sin grupo" ? 1 : (b === "Sin grupo" ? -1 : a.localeCompare(b)));
+      datasets = tags.map((tag, i) => {
+        const data = timelineMonths.map(m => processRecurrences(m).filter(c => !c.pausado && (getClientTag(c) || "Sin grupo") === tag).reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+        const color = tag === "Sin grupo" ? '#a9a6b8' : CONFIG.tagPalette[i % CONFIG.tagPalette.length];
+        return { label: tag, data, borderColor: color, backgroundColor: color + '20', borderWidth: 2, fill: true, tension: .35, pointRadius: 2, pointHoverRadius: 5 };
+      });
+    } else {
+      datasets = Object.keys(CONFIG.tiers).map(t => {
+        const data = timelineMonths.map(m => processRecurrences(m).filter(c => !c.pausado && c.tier === t).reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+        return { label: CONFIG.tiers[t].label, data, borderColor: CONFIG.tiers[t].color, backgroundColor: CONFIG.tiers[t].color + '20', borderWidth: 2, fill: true, tension: .35, pointRadius: 2, pointHoverRadius: 5 };
+      });
+    }
+
+    historyChart = new Chart(ctx, {
+      type: 'line', data: { labels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${formatMoney(ctx.raw)}` } } },
+        scales: { x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9b98a8' } }, y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } } }
+      }
+    });
+  }
+
+  const donutData = Object.keys(CONFIG.tiers).map(t => tiersData[t].total);
+  const donutColors = Object.keys(CONFIG.tiers).map(t => CONFIG.tiers[t].color);
+  const pctCobrado = totalFact > 0 ? Math.round((totalCob / totalFact) * 100) : 0;
+  document.getElementById('donut-total').innerHTML = `${formatMoney(totalFact)}<br><span style="font-size:10px;color:var(--success);font-weight:700;">${pctCobrado}% cobrado</span>`;
+
+  if (tierChart) { tierChart.data.datasets[0].data = donutData; tierChart.update(); }
+  else {
+    tierChart = new Chart(document.getElementById('tierChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: Object.values(CONFIG.tiers).map(t => t.label), datasets: [{ data: donutData, backgroundColor: donutColors, borderWidth: 0, hoverOffset: 6 }] },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '72%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => { const tot = ctx.dataset.data.reduce((a, b) => a + b, 0); const p = tot > 0 ? Math.round(ctx.raw / tot * 100) : 0; return ` ${ctx.label}: ${formatMoney(ctx.raw)} (${p}%)`; } } } }
+      }
+    });
+  }
+}
+
+/* ============================================================
+   12) VISTA POR TAG / GRUPO
+   ============================================================ */
+function setView(v) {
+  currentView = v;
+  document.getElementById('tiers-container').style.display = v === 'tier' ? '' : 'none';
+  document.getElementById('tags-container').style.display = v === 'tag' ? '' : 'none';
+  document.getElementById('btn-view-tier').classList.toggle('active', v === 'tier');
+  document.getElementById('btn-view-tag').classList.toggle('active', v === 'tag');
+  renderDashboard();
 }
 
 function renderTagView(clients, renderMonth) {
-    const container = document.getElementById('tags-container');
-    container.innerHTML = "";
-    const groups = {};
-    
-    clients.forEach(c => {
-        if (c.pausado && !showPausados()) return;
-        const tag = getClientTag(c) || "Sin grupo";
-        if (!groups[tag]) groups[tag] = [];
-        groups[tag].push(c);
-    });
+  const container = document.getElementById('tags-container');
+  container.innerHTML = "";
+  const groups = {};
+  clients.forEach(c => {
+    if (c.pausado && !showPausados()) return;
+    const tag = getClientTag(c) || "Sin grupo";
+    (groups[tag] = groups[tag] || []).push(c);
+  });
 
-    Object.keys(groups).sort((a, b) => a === "Sin grupo" ? 1 : (b === "Sin grupo" ? -1 : a.localeCompare(b))).forEach(tag => {
-        const items = groups[tag];
-        const total = items.reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
-        const pendiente = items.filter(c => (c.status||"").trim().toLowerCase() !== "pagado").reduce((s, c) => s + (parseFloat(c.budget)||0), 0);
-        const groupId = "tg_" + tag.replace(/\s+/g,"_");
-        
-        container.innerHTML += `
-        <div class="tag-group">
-            <div class="tag-group-header" onclick="toggleTagGroup('${groupId}')">
-                <div class="tag-group-header-left"><span class="tag-group-name"># ${tag}</span><span class="tag-group-badge">${items.length}</span></div>
-                <div style="display:flex;align-items:center;gap:8px">
-                    <div class="tag-group-totals"><div class="tag-group-total-main">${formatMoney(total)}</div><div class="tag-group-total-sub">${formatMoney(pendiente)} pdte.</div></div>
-                    <span class="tag-group-collapse-icon" id="${groupId}_icon">▼</span>
-                </div>
-            </div>
-            <div class="tag-group-body" id="${groupId}">${items.map(c => buildClientCard(c, renderMonth)).join('')}</div>
-        </div>`;
-    });
-}
+  if (!Object.keys(groups).length) { container.innerHTML = `<div class="empty-state">Todavía no hay ítems para mostrar.</div>`; return; }
 
-function toggleTagGroup(groupId) {
-    const body = document.getElementById(groupId), icon = document.getElementById(groupId + '_icon');
-    if (!body) return;
-    body.classList.toggle('collapsed');
-    if (icon) icon.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
-}
-
-function buildClientCard(client, renderMonth) {
-    const budget = parseFloat(client.budget)||0, isTemporal = client.notes && client.notes.toString().toLowerCase().includes("[temporal]"), isFijo = !isTemporal, isSub = client.notes && client.notes.toString().toLowerCase().includes("[sub_de:"), isPausado = client.pausado, clientTag = getClientTag(client);
-    let displayNotes = client.notes ? client.notes.toString().replace(/\[FIJO\]/gi,"").replace(/\[TEMPORAL\]/gi,"").replace(/\[SUB_DE:\s*[^\]]+\]/gi,"").replace(/\[PAUSADO(:\d{4}-\d{2})?\]/gi,"").replace(/\[TAG:\s*[^\]]+\]/gi,"").trim() : "";
-    let parentMatch = isSub ? client.notes.toString().match(/\[sub_de:\s*([^\]]+)\]/i) : null;
-    let parentLabel = parentMatch ? parentMatch[1].toUpperCase() : "";
-
-    return `
-    <div class="client-item ${isSub?'subordinated':''}${isPausado?' pausado-item':''}">
-        <div class="client-top">
-            <div><div class="client-name">${isSub?'↳ ':''}${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
-            <div class="client-top-right">
-                <button class="status-btn ${(client.status||"pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
-                <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
-            </div>
+  Object.keys(groups).sort((a, b) => a === "Sin grupo" ? 1 : (b === "Sin grupo" ? -1 : a.localeCompare(b))).forEach(tag => {
+    const items = groups[tag];
+    const total = items.reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+    const pendiente = items.filter(c => (c.status || "").trim().toLowerCase() !== "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+    const groupId = "tg_" + tag.replace(/\s+/g, "_");
+    container.innerHTML += `
+    <div class="tag-group">
+      <div class="tag-group-header" onclick="toggleTagGroup('${groupId}')">
+        <div class="tag-group-header-left"><span class="tag-group-name"># ${tag}</span><span class="tag-group-badge">${items.length}</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="tag-group-totals"><div class="tag-group-total-main">${formatMoney(total)}</div><div class="tag-group-total-sub">${formatMoney(pendiente)} pdte.</div></div>
+          <span class="tag-group-collapse-icon" id="${groupId}_icon">▼</span>
         </div>
-        ${isSub ? `<div class="client-badges"><span class="badge badge-sub">↪ ${parentLabel}</span></div>` : ''}
-        <div class="client-controls">
-            <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="updateLiveCell('${client.id}','budget',this.value)"></div>
-            <select class="tier-select-live" onchange="updateLiveCell('${client.id}','tier',this.value)">
-                <option value="grande"  ${client.tier==='grande' ?'selected':''}>Grande</option>
-                <option value="mediana" ${client.tier==='mediana'?'selected':''}>Mediana</option>
-                <option value="chica"   ${client.tier==='chica'  ?'selected':''}>Chica</option>
-            </select>
-            <select class="tier-select-live" onchange="updateLiveCell('${client.id}','platform',this.value)">
-                <option value="Meta+Google" ${client.platform==='Meta+Google'?'selected':''}>Meta+Google</option>
-                <option value="Meta" ${client.platform==='Meta'?'selected':''}>Meta</option>
-                <option value="Google" ${client.platform==='Google'?'selected':''}>Google</option>
-            </select>
-            <select class="tier-select-live" onchange="updateContractType('${client.id}', this.value)">
-                <option value="fijo" ${isFijo?'selected':''}>Mensual fijo</option>
-                <option value="temporal" ${!isFijo?'selected':''}>Temporal</option>
-            </select>
-            ${isFijo ? `
-            <select class="account-status-select ${isPausado?'pausado':'activo'}" onchange="updateAccountStatus('${client.id}',this.value)">
-                <option value="activo"  ${!isPausado?'selected':''}>🟢 Activo en ${getMonthLabel(renderMonth)}</option>
-                <option value="pausado" ${ isPausado?'selected':''}>🔴 Pausado en ${getMonthLabel(renderMonth)}</option>
-            </select>` : ''}
-        </div>
-        <div class="tag-row">
-            <span class="tag-label"># Grupo</span>
-            <input type="text" class="tag-input-live" list="available-tags" value="${clientTag}" placeholder="Sin grupo..." onchange="updateLiveTag('${client.id}', this.value)">
-        </div>
-        <div class="notes-row">
-            <span class="notes-label">Obs.</span>
-            <input type="text" class="notes-input-live" value="${displayNotes}" placeholder="Comentarios de este ítem..." onchange="updateLiveCell('${client.id}','notes',this.value)">
-        </div>
+      </div>
+      <div class="tag-group-body" id="${groupId}">${items.map(c => buildClientCard(c, renderMonth)).join('')}</div>
     </div>`;
+  });
+}
+function toggleTagGroup(groupId) {
+  const body = document.getElementById(groupId), icon = document.getElementById(groupId + '_icon');
+  if (!body) return;
+  body.classList.toggle('collapsed');
+  if (icon) icon.textContent = body.classList.contains('collapsed') ? '▶' : '▼';
 }
 
-/* ================================================================
-   FORMULARIO AGREGAR
-   ================================================================ */
+/* ============================================================
+   13) TARJETA DE CLIENTE
+   ============================================================ */
+function findClientRef(idStr) {
+  return processedClients.find(x => x.id.toString() === idStr.toString());
+}
+function buildClientCard(client, renderMonth) {
+  const budget = parseFloat(client.budget) || 0;
+  const tags = parseTags(client.notes);
+  const isFijo = !tags.temporal;
+  const isSub = !!tags.subDe;
+  const isPausado = client.pausado;
+  const clientTag = getClientTag(client);
+  const tierOptions = Object.keys(CONFIG.tiers).map(t => `<option value="${t}" ${client.tier === t ? 'selected' : ''}>${CONFIG.tiers[t].label.replace(/s$/, '')}</option>`).join('');
+
+  return `
+  <div class="client-item ${isSub ? 'subordinated' : ''}${isPausado ? ' pausado-item' : ''}">
+    <div class="client-top">
+      <div><div class="client-name">${isSub ? '↳ ' : ''}${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
+      <div class="client-top-right">
+        <button class="status-btn ${(client.status || "pendiente").trim().toLowerCase()}" onclick="toggleLiveStatus('${client.id}')">${client.status}</button>
+        <button class="delete-btn" onclick="deleteLiveClient('${client.id}')">×</button>
+      </div>
+    </div>
+    ${isSub ? `<div class="client-badges"><span class="badge badge-sub">↪ ${tags.subDe.toUpperCase()}</span></div>` : ''}
+    <div class="client-controls">
+      <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="commitChange(findClientRef('${client.id}'),{budget:this.value})"></div>
+      <select class="field-select" onchange="commitChange(findClientRef('${client.id}'),{tier:this.value})">${tierOptions}</select>
+      <select class="field-select" onchange="commitChange(findClientRef('${client.id}'),{platform:this.value})">
+        <option value="Meta+Google" ${client.platform === 'Meta+Google' ? 'selected' : ''}>Meta+Google</option>
+        <option value="Meta" ${client.platform === 'Meta' ? 'selected' : ''}>Meta</option>
+        <option value="Google" ${client.platform === 'Google' ? 'selected' : ''}>Google</option>
+      </select>
+      <select class="field-select" onchange="commitChange(findClientRef('${client.id}'),{temporal:this.value==='temporal'})">
+        <option value="fijo" ${isFijo ? 'selected' : ''}>Mensual fijo</option>
+        <option value="temporal" ${!isFijo ? 'selected' : ''}>Temporal</option>
+      </select>
+      ${isFijo ? `
+      <select class="field-select ${isPausado ? 'pausado' : 'activo'}" onchange="commitChange(findClientRef('${client.id}'),{togglePausadoMonth:'${client.month}'})">
+        <option value="activo" ${!isPausado ? 'selected' : ''}>🟢 Activo en ${getMonthLabel(renderMonth)}</option>
+        <option value="pausado" ${isPausado ? 'selected' : ''}>🔴 Pausado en ${getMonthLabel(renderMonth)}</option>
+      </select>` : ''}
+    </div>
+    <div class="tag-row">
+      <span class="tag-label"># Grupo</span>
+      <input type="text" class="tag-input-live" list="available-tags" value="${clientTag}" placeholder="Sin grupo..." onchange="commitChange(findClientRef('${client.id}'),{tag:this.value})">
+    </div>
+    <div class="notes-row">
+      <span class="notes-label">Obs.</span>
+      <input type="text" class="notes-input-live" value="${tags.freeText}" placeholder="Comentarios de este ítem..." onchange="commitChange(findClientRef('${client.id}'),{freeText:this.value})">
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   14) FORMULARIO "CARGAR ÍTEM"
+   ============================================================ */
+function toggleSubInput(val) { document.getElementById('parent-input-group').style.display = val === 'subordinado' ? 'block' : 'none'; }
+
 function addClient(e) {
-    e.preventDefault();
-    const type = document.getElementById('form-recurrence').value, subType = document.getElementById('form-sub-type').value, parent = document.getElementById('form-parent-name').value.trim();
-    let tags = [];
-    if (type==="temporal") tags.push("[TEMPORAL]");
-    if (subType==="subordinado" && parent) tags.push(`[SUB_DE:${parent}]`);
-    
-    const tagVal = (document.getElementById('form-tag')?.value || "").trim();
-    if (tagVal) tags.push(`[TAG:${tagVal}]`);
+  e.preventDefault();
+  const type = document.getElementById('form-recurrence').value;
+  const subType = document.getElementById('form-sub-type').value;
+  const parent = document.getElementById('form-parent-name').value.trim();
+  const tagVal = (document.getElementById('form-tag')?.value || "").trim();
 
-    const payload = {
-        action:"add", id: Date.now(), name: document.getElementById('form-name').value, contact: document.getElementById('form-contact').value, budget: parseFloat(document.getElementById('form-budget').value), month: document.getElementById('form-month').value, tier: document.getElementById('form-tier').value, platform:document.getElementById('form-platform').value, 
-        status: "Pendiente", notes: tags.join(" ")
-    };
-    
-    document.getElementById('view-month').value = payload.month; 
-    rawClients.push(payload); 
-    initDynamicMonths(); renderDashboard(); syncPost(payload);
-    document.getElementById('client-form').reset(); document.getElementById('parent-input-group').style.display = 'none';
+  const notes = buildNotes({
+    temporal: type === "temporal",
+    subDe: subType === "subordinado" ? parent : "",
+    tag: tagVal,
+    pausadoMonths: [],
+    freeText: ""
+  });
+
+  const payload = {
+    action: "add", id: Date.now(),
+    name: document.getElementById('form-name').value,
+    contact: document.getElementById('form-contact').value,
+    budget: parseFloat(document.getElementById('form-budget').value),
+    month: document.getElementById('form-month').value,
+    tier: document.getElementById('form-tier').value,
+    platform: document.getElementById('form-platform').value,
+    status: "Pendiente", notes
+  };
+
+  document.getElementById('view-month').value = payload.month;
+  rawClients.push(payload);
+  initDynamicMonths(); renderDashboard(); syncPost(payload);
+  showToast(`${payload.name} agregado ✓`);
+  document.getElementById('client-form').reset();
+  document.getElementById('parent-input-group').style.display = 'none';
 }
 
-function saveLocalStatus(id, status) { try { const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}'); all[id.toString()] = status; localStorage.setItem('berrinche_status', JSON.stringify(all)); } catch(e) {} }
-function getLocalStatus(id) { try { return JSON.parse(localStorage.getItem('berrinche_status') || '{}')[id.toString()] || null; } catch(e) { return null; } }
-function applyLocalStatusOverrides() { try { const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}'); rawClients.forEach(c => { const saved = all[c.id.toString()]; if (saved !== undefined) c.status = saved; }); } catch(e) {} }
+/* ============================================================
+   15) PERSISTENCIA LOCAL DE ESTADO (por si falla la red)
+   ============================================================ */
+function saveLocalStatus(id, status) { try { const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}'); all[id.toString()] = status; localStorage.setItem('berrinche_status', JSON.stringify(all)); } catch (e) {} }
+function getLocalStatus(id) { try { return JSON.parse(localStorage.getItem('berrinche_status') || '{}')[id.toString()] || null; } catch (e) { return null; } }
+function applyLocalStatusOverrides() { try { const all = JSON.parse(localStorage.getItem('berrinche_status') || '{}'); rawClients.forEach(c => { const saved = all[c.id.toString()]; if (saved !== undefined) c.status = saved; }); } catch (e) {} }
+
+/* ============================================================
+   16) TOAST Y MODAL DE CONFIRMACIÓN
+   ============================================================ */
+let toastTimer = null;
+function showToast(msg, isError = false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', isError);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+let confirmCallback = null;
+function askConfirm(text, cb) {
+  document.getElementById('confirmModalText').textContent = text;
+  confirmCallback = cb;
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirm(ok) {
+  document.getElementById('confirmModal').classList.remove('show');
+  if (ok && confirmCallback) confirmCallback();
+  confirmCallback = null;
+}
 
 window.onload = loadDataFromSheet;
 </script>
