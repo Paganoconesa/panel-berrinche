@@ -487,9 +487,24 @@ async function loadDataFromSheet(forzar = false) {
   document.getElementById('btn-sync').classList.remove('spinning');
 }
 
+/* text/plain evita el preflight CORS que Apps Script no sabe responder, y al no usar
+   mode:"no-cors" SÍ podemos leer la respuesta real: así sabemos de verdad si guardó o no. */
 async function syncPost(payload) {
-  try { fetch(CONFIG.sheetApiUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); }
-  catch (e) { showToast("No se pudo guardar en Sheets", true); }
+  try {
+    const res = await fetch(CONFIG.sheetApiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    return { confirmed: true, ok: res.ok && (!data || data.error === undefined), data };
+  } catch (e) {
+    // El fetch en sí fue bloqueado (red/CORS): reintentamos a ciegas para no perder el dato,
+    // pero avisamos igual que no hay confirmación real de que llegó a la Sheet.
+    try { fetch(CONFIG.sheetApiUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) }); } catch (_) {}
+    return { confirmed: false, ok: false };
+  }
 }
 
 /* ============================================================
@@ -522,7 +537,8 @@ function processRecurrences(selectedMonth) {
     if (!tags.temporal && !alreadyNative) {
       const virtualId = `${baseId}_${selectedMonth}`;
       const override = virtualOverrides[virtualId] || {};
-      const savedStatus = getLocalStatus(virtualId) || latest.status || "Pendiente";
+      // OJO: un mes nuevo NUNCA hereda el "Pagado" del mes anterior — cada mes se cobra de cero.
+      const savedStatus = getLocalStatus(virtualId) || "Pendiente";
       const pausado = isPausadoInMonth(latest.notes, selectedMonth);
 
       if (!pausado || showPausados()) {
@@ -564,13 +580,16 @@ function calcTotalHistorico() {
       patch admite: budget, tier, platform, status, tag,
       freeText (observaciones), temporal (bool), togglePausadoMonth (mes)
    ============================================================ */
-function commitChange(client, patch) {
+async function commitChange(client, patch) {
   const baseId = client.id.toString().split('_')[0];
-  const isVirtual = client.id.toString().includes('_');
+  // OJO: un cliente recurrente conserva el "_" en su id para siempre una vez creado.
+  // Lo que define si es virtual (todavía no existe como fila) es si YA hay una fila
+  // real con ese id exacto, no el formato del id.
+  const existingExact = rawClients.find(x => x.id.toString() === client.id.toString());
+  const isVirtual = !existingExact;
   const targetMonth = client.month;
 
-  let source = rawClients.find(x => x.id.toString() === client.id.toString())
-             || rawClients.find(x => x.id.toString() === baseId);
+  let source = existingExact || rawClients.find(x => x.id.toString() === baseId);
   if (!source) return;
 
   let tags = parseTags(source.notes);
@@ -587,7 +606,7 @@ function commitChange(client, patch) {
 
   const record = {
     action: "add",
-    id: isVirtual ? client.id : baseId,
+    id: client.id,
     name: source.name,
     contact: source.contact,
     budget: patch.budget !== undefined ? parseFloat(patch.budget) : parseFloat(source.budget),
@@ -606,9 +625,12 @@ function commitChange(client, patch) {
   if (isVirtual) delete virtualOverrides[client.id];
   if (patch.status !== undefined) saveLocalStatus(client.id, patch.status);
 
-  renderDashboard();
-  syncPost(record);
-  showToast("Guardado ✓");
+  renderDashboard(); // actualiza la pantalla al instante (optimista)
+
+  const result = await syncPost(record);
+  if (result.confirmed && result.ok) showToast("Guardado ✓");
+  else if (result.confirmed && !result.ok) showToast("Sheets rechazó el cambio — revisá el Apps Script", true);
+  else showToast("Guardado local, sin confirmar en Sheets", true);
 }
 
 function toggleLiveStatus(idStr) {
@@ -619,12 +641,15 @@ function toggleLiveStatus(idStr) {
 }
 
 function deleteLiveClient(idStr) {
-  askConfirm("¿Eliminar este registro de forma definitiva?", () => {
-    if (!idStr.toString().includes('_')) {
+  askConfirm("¿Eliminar este registro de forma definitiva?", async () => {
+    const existingExact = rawClients.find(x => x.id.toString() === idStr.toString());
+    if (existingExact) {
       rawClients = rawClients.filter(x => x.id.toString() !== idStr.toString());
       renderDashboard();
-      syncPost({ action: "delete", id: idStr });
-      showToast("Eliminado");
+      const result = await syncPost({ action: "delete", id: idStr });
+      if (result.confirmed && result.ok) showToast("Eliminado ✓");
+      else if (result.confirmed && !result.ok) showToast("Sheets rechazó el borrado — revisá el Apps Script", true);
+      else showToast("Borrado local, sin confirmar en Sheets", true);
     } else {
       // un ítem "virtual" no existe como fila: lo pausamos ese mes puntual
       const cur = processedClients.find(x => x.id.toString() === idStr.toString());
@@ -951,7 +976,7 @@ function buildClientCard(client, renderMonth) {
    ============================================================ */
 function toggleSubInput(val) { document.getElementById('parent-input-group').style.display = val === 'subordinado' ? 'block' : 'none'; }
 
-function addClient(e) {
+async function addClient(e) {
   e.preventDefault();
   const type = document.getElementById('form-recurrence').value;
   const subType = document.getElementById('form-sub-type').value;
@@ -979,10 +1004,14 @@ function addClient(e) {
 
   document.getElementById('view-month').value = payload.month;
   rawClients.push(payload);
-  initDynamicMonths(); renderDashboard(); syncPost(payload);
-  showToast(`${payload.name} agregado ✓`);
+  initDynamicMonths(); renderDashboard();
   document.getElementById('client-form').reset();
   document.getElementById('parent-input-group').style.display = 'none';
+
+  const result = await syncPost(payload);
+  if (result.confirmed && result.ok) showToast(`${payload.name} agregado ✓`);
+  else if (result.confirmed && !result.ok) showToast("Sheets rechazó el alta — revisá el Apps Script", true);
+  else showToast("Agregado local, sin confirmar en Sheets", true);
 }
 
 /* ============================================================
