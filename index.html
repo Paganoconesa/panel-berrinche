@@ -955,11 +955,12 @@ function buildClientCard(client, renderMonth) {
         <option value="temporal" ${!isFijo ? 'selected' : ''}>Temporal</option>
       </select>
       ${isFijo ? `
-      <select class="field-select ${isPausado ? 'pausado' : 'activo'}" onchange="commitChange(findClientRef('${client.id}'),{togglePausadoMonth:'${client.month}'})">
+      <select class="field-select ${isPausado ? 'pausado' : 'activo'}" onchange="commitChange(findClientRef('${client.id}'),{togglePausadoMonth:'${client.month}'})" title="La pausa aplica solo a ${getMonthLabel(renderMonth)}. Los demás meses no se ven afectados.">
         <option value="activo" ${!isPausado ? 'selected' : ''}>🟢 Activo en ${getMonthLabel(renderMonth)}</option>
         <option value="pausado" ${isPausado ? 'selected' : ''}>🔴 Pausado en ${getMonthLabel(renderMonth)}</option>
       </select>` : ''}
     </div>
+    ${isFijo ? `<div style="padding:0 14px 8px;font-size:11px;color:var(--text-muted);">La pausa es solo de ${getMonthLabel(renderMonth)} · los demás meses siguen activos automáticamente</div>` : ''}
     <div class="tag-row">
       <span class="tag-label"># Grupo</span>
       <input type="text" class="tag-input-live" list="available-tags" value="${clientTag}" placeholder="Sin grupo..." onchange="commitChange(findClientRef('${client.id}'),{tag:this.value})">
