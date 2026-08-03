@@ -8,26 +8,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-
-/* ============================================================
-   1) CONFIGURACIÓN VISUAL — editá acá colores, tipografía y
-      textos generales. Todo el resto usa estas variables.
-   ============================================================ */
 :root {
   --cream:#E8E4D4; --teal:#2AABBD; --teal-soft:#E3F4F6;
   --coral:#F05E5E; --coral-soft:#FDEBEB; --brown:#2E2826;
   --brown-60:#6b6360; --brown-30:#b3aead;
-
   --brand:var(--teal); --brand-soft:var(--teal-soft);
   --success:#3EA872; --success-soft:#E3F5EC;
   --warning:var(--coral); --warning-soft:var(--coral-soft);
   --danger:#C23B3B; --danger-soft:#FBE4E4;
-
   --tier-grande:var(--brown); --tier-mediana:var(--teal); --tier-chica:var(--coral);
-
   --text-primary:var(--brown); --text-secondary:var(--brown-60); --text-muted:var(--brown-30);
   --bg:#FBFAF6; --card:#ffffff; --border:#ECE9DD;
-
   --gap:14px; --radius:16px; --radius-sm:10px;
   --shadow-sm:0 2px 10px rgba(46,40,38,.06); --shadow-md:0 6px 24px rgba(46,40,38,.12);
   --font-head:'Work Sans',sans-serif; --font-body:'Inter',sans-serif;
@@ -45,7 +36,6 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .header-bottom{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
 .header-bottom select,.header-bottom input{flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;font-family:var(--font-body);}
 .header-bottom select:focus,.header-bottom input:focus{border-color:var(--brand);}
-.btn-bring{flex-basis:100%;background:var(--brand-soft);color:var(--brand);border:1px dashed var(--brand);padding:9px 12px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:13px;cursor:pointer;margin-top:8px;}
 
 .main{padding:16px;max-width:920px;margin:0 auto;}
 
@@ -83,7 +73,6 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .empty-state{text-align:center;padding:30px 16px;color:var(--text-muted);font-size:13px;}
 
 .client-item{background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;box-shadow:var(--shadow-sm);overflow:hidden;}
-.client-item.subordinated{border-left:4px dashed var(--border);margin-left:16px;background:#fbfaf7;}
 .client-top{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px;gap:8px;}
 .client-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.2;}
 .client-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
@@ -98,11 +87,9 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .status-btn{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-head);}
 .status-btn.pagado{background:var(--success-soft);color:var(--success);}
 .status-btn.pendiente{background:var(--warning-soft);color:var(--warning);}
-.delete-btn{background:none;border:none;color:var(--danger);cursor:pointer;font-size:20px;padding:4px 6px;opacity:.35;line-height:1;}
-.delete-btn:hover{opacity:1;}
-
-.client-badges{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 6px;}
-.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;background:#f1efe6;color:var(--text-secondary);}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:4px 6px;opacity:.5;line-height:1;}
+.icon-btn:hover{opacity:1;}
+.delete-btn{color:var(--danger);font-size:20px;}
 
 .tag-row,.notes-row{border-top:1px dashed var(--border);padding:8px 14px;display:flex;align-items:center;gap:6px;}
 .tag-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);white-space:nowrap;}
@@ -114,7 +101,6 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .form-card h3{font-family:var(--font-head);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:16px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end;}
 .form-group{display:flex;flex-direction:column;gap:5px;}
-.form-group.full{grid-column:1/-1;}
 .form-group label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);}
 .form-group input,.form-group select{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;width:100%;font-family:var(--font-body);}
 .submit-btn{grid-column:1/-1;background:var(--brand);color:#fff;border:none;padding:13px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:15px;cursor:pointer;}
@@ -129,38 +115,18 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 
 .modal-overlay{position:fixed;inset:0;background:rgba(46,40,38,.45);display:none;justify-content:center;align-items:center;z-index:9997;padding:20px;}
 .modal-overlay.show{display:flex;}
-.modal-box{background:var(--card);border-radius:var(--radius);padding:22px;max-width:380px;width:100%;box-shadow:var(--shadow-md);max-height:80vh;display:flex;flex-direction:column;}
-.modal-box p{font-size:14px;color:var(--text-primary);margin-bottom:14px;line-height:1.5;}
-.modal-actions{display:flex;gap:10px;margin-top:14px;}
+.modal-box{background:var(--card);border-radius:var(--radius);padding:22px;max-width:340px;width:100%;box-shadow:var(--shadow-md);}
+.modal-box p{font-size:14px;color:var(--text-primary);margin-bottom:18px;line-height:1.5;}
+.modal-actions{display:flex;gap:10px;}
 .modal-actions button{flex:1;padding:11px;border-radius:var(--radius-sm);border:none;font-weight:700;font-family:var(--font-head);font-size:13px;cursor:pointer;}
 .modal-cancel{background:var(--bg);color:var(--text-secondary);}
 .modal-confirm{background:var(--danger);color:#fff;}
-.modal-confirm.brand{background:var(--brand);}
-.bf-list{overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);}
-.bf-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;}
-.bf-item:last-child{border-bottom:none;}
-.bf-item input{width:17px;height:17px;flex-shrink:0;}
-.bf-item .bf-budget{margin-left:auto;color:var(--text-muted);font-weight:600;font-size:12px;}
-
-.view-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:var(--gap);}
-.view-toggle-btn{flex:1;padding:10px 12px;border:none;background:transparent;font-size:13px;font-weight:700;font-family:var(--font-head);color:var(--text-secondary);cursor:pointer;}
-.view-toggle-btn.active{background:var(--brand);color:#fff;}
-
-.tag-group{margin-bottom:20px;}
-.tag-group-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:10px;border-left:5px solid var(--brand);box-shadow:var(--shadow-sm);cursor:pointer;}
-.tag-group-name{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--brand);}
-.tag-group-badge{background:var(--brand);color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:2px 7px;}
-.tag-group-total-main{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--brand);}
-.tag-group-total-sub{font-size:11px;color:var(--text-muted);}
-.tag-group-body.collapsed{display:none;}
 
 @media(min-width:640px){
   body{padding-bottom:40px;} .main{padding:20px;}
   .kpi-grid{grid-template-columns:repeat(4,1fr);}
   .form-grid{grid-template-columns:repeat(3,1fr);}
   .client-controls{flex-wrap:nowrap;}
-  .client-item.subordinated{margin-left:24px;}
-  .btn-bring{flex-basis:auto;margin-top:0;}
 }
 </style>
 </head>
@@ -169,24 +135,12 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 <datalist id="available-tags"></datalist>
 <div class="loading-overlay" id="loadingView"><div class="loader-spinner"></div>Sincronizando con Sheets...</div>
 <div class="toast" id="toast"></div>
-
 <div class="modal-overlay" id="confirmModal">
   <div class="modal-box">
     <p id="confirmModalText">¿Confirmás esta acción?</p>
     <div class="modal-actions">
       <button class="modal-cancel" onclick="closeConfirm(false)">Cancelar</button>
       <button class="modal-confirm" onclick="closeConfirm(true)">Eliminar</button>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="bringModal">
-  <div class="modal-box">
-    <p id="bringModalTitle">Traer clientes</p>
-    <div class="bf-list" id="bringList"></div>
-    <div class="modal-actions">
-      <button class="modal-cancel" onclick="closeBringModal()">Cancelar</button>
-      <button class="modal-confirm brand" onclick="confirmBringForward()">Traer seleccionados</button>
     </div>
   </div>
 </div>
@@ -201,8 +155,7 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
   </div>
   <div class="header-bottom">
     <select id="view-month" onchange="renderDashboard()"></select>
-    <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente, tag...">
-    <button class="btn-bring" onclick="openBringModal()">🔁 Traer clientes de otro mes</button>
+    <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente...">
   </div>
 </header>
 
@@ -246,11 +199,6 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
     </div>
   </div>
 
-  <div class="view-toggle">
-    <button class="view-toggle-btn active" id="btn-view-tier" onclick="setView('tier')">Por tier</button>
-    <button class="view-toggle-btn" id="btn-view-tag" onclick="setView('tag')">Por tag</button>
-  </div>
-
   <div id="tiers-container">
     <div class="tier-section" style="--tier-color:var(--tier-grande)">
       <div class="tier-header"><div class="tier-header-left"><span class="tier-name">Grandes</span><span class="tier-count-badge" id="count-grande">0</span></div><div class="tier-totals"><div class="tier-total-main" id="total-grande">$0</div><div class="tier-total-sub" id="pendiente-grande">$0 pendiente</div></div></div>
@@ -266,8 +214,6 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
     </div>
   </div>
 
-  <div id="tags-container" style="display:none;"></div>
-
   <div class="form-card">
     <h3>➕ Cargar ítem nuevo</h3>
     <form id="client-form" onsubmit="addClient(event)">
@@ -279,20 +225,16 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
         <div class="form-group"><label>Tier</label><select id="form-tier"><option value="grande">Grande</option><option value="mediana" selected>Mediana</option><option value="chica">Chica</option></select></div>
         <div class="form-group"><label>Plataforma</label><select id="form-platform"><option value="Meta+Google">Meta + Google</option><option value="Meta">Meta</option><option value="Google">Google</option></select></div>
         <div class="form-group"><label>Tag / grupo (opcional)</label><input type="text" id="form-tag" list="available-tags" placeholder="Ej: TGB, Bruto..."></div>
-        <div class="form-group"><label>Tipo contrato</label><select id="form-recurrence"><option value="fijo">Abono mensual (fijo)</option><option value="temporal">Servicio temporal</option></select></div>
-        <div class="form-group"><label>Estructura</label><select id="form-sub-type" onchange="toggleSubInput(this.value)"><option value="principal">Ítem principal</option><option value="subordinado">Subordinar a...</option></select></div>
-        <div class="form-group" id="parent-input-group" style="display:none;"><label style="color:var(--warning)">Cliente padre</label><input type="text" id="form-parent-name" placeholder="Ej: TGB"></div>
         <button type="submit" class="submit-btn">Cargar ítem</button>
       </div>
     </form>
-    <p style="font-size:11px;color:var(--text-muted);margin-top:10px;">"Fijo" = elegible para traer automáticamente el mes que viene con el botón de arriba. "Temporal" = solo este mes, nunca se sugiere para traer.</p>
   </div>
 
 </div>
 
 <script>
 /* ============================================================
-   2) CONFIGURACIÓN DE DATOS — lo que cambia seguido va acá.
+   CONFIGURACIÓN — lo que cambia seguido va acá.
    ============================================================ */
 const CONFIG = {
   sheetApiUrl: "https://script.google.com/macros/s/AKfycbzMkOYligCGvXvT1z4SaI1aRS_4A216yW-2i517j3OMFkf5IDyywO0C3Teqmg-dgzWn/exec",
@@ -306,18 +248,17 @@ const CONFIG = {
 };
 
 /* ============================================================
-   3) ESTADO — nada de "clientes virtuales": lo que hay en
-      rawClients es exactamente lo que hay en la Sheet.
+   ESTADO — rawClients es exactamente lo que hay en la Sheet.
+   Cada fila = un cargo real de un cliente en un mes. No hay
+   clientes "virtuales" ni recurrencia automática de ningún tipo.
    ============================================================ */
 let rawClients = [];
 let visibleClients = [];
-let allKnownTags = [];
-let currentView = 'tier';
 let tierChart, historyChart;
 let lastFetchTime = 0;
 
 /* ============================================================
-   4) FECHAS Y FORMATO
+   FECHAS Y FORMATO
    ============================================================ */
 function getMonthLabel(m) {
   if (!m || !m.toString().includes('-')) return m;
@@ -344,35 +285,8 @@ function shiftMonth(base, delta) {
 function formatMoney(n) { return '$' + (n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
 
 /* ============================================================
-   5) NOTAS COMO "TAGS" — temporal / subordinado / tag / texto
-      libre viven en el campo notes con [CORCHETES]. Ya no hay
-      pausado-por-mes: si el cliente no tiene fila ese mes, no
-      está, y punto.
-   ============================================================ */
-function parseTags(notes) {
-  const s = (notes || "").toString();
-  return {
-    temporal: /\[temporal\]/i.test(s),
-    subDe: (s.match(/\[sub_de:\s*([^\]]+)\]/i) || [])[1]?.trim() || "",
-    tag: (s.match(/\[tag:\s*([^\]]+)\]/i) || [])[1]?.trim() || "",
-    freeText: s.replace(/\[(temporal|sub_de:[^\]]+|tag:[^\]]+|pausado(:\d{4}-\d{2})?)\]/gi, "").trim()
-  };
-}
-function buildNotes(t) {
-  let parts = [];
-  if (t.temporal) parts.push("[TEMPORAL]");
-  if (t.subDe) parts.push(`[SUB_DE:${t.subDe}]`);
-  if (t.tag) parts.push(`[TAG:${t.tag}]`);
-  if (t.freeText) parts.push(t.freeText);
-  return parts.join(" ").trim();
-}
-function getClientTag(c) { return parseTags(c.notes).tag; }
-function familyId(id) { return id.toString().split('_')[0]; }
-
-/* ============================================================
-   6) CARGA / GUARDADO — el GET trae todo, el POST es siempre
-      verificable (leemos la respuesta real de Apps Script en
-      vez de mandar a ciegas), así un error se ve como error.
+   CARGA / GUARDADO — el POST siempre se lee de vuelta (nunca
+   se manda "a ciegas"), así un error real se ve como error.
    ============================================================ */
 function setSyncStatus(t) { document.getElementById('sync-status').textContent = t; }
 function showLoader(v) { document.getElementById('loadingView').style.display = v ? 'flex' : 'none'; }
@@ -419,31 +333,16 @@ function toastFromResult(result, okMsg, errMsg) {
 }
 
 /* ============================================================
-   7) EDICIÓN — cada fila tiene un id único de verdad, así que
-      no hay que adivinar nada: se busca por id y listo.
+   EDICIÓN — cada fila tiene un id único (timestamp + mes), así
+   que editar siempre le pega a la fila correcta.
    ============================================================ */
 async function commitChange(id, patch) {
   const idx = rawClients.findIndex(c => c.id.toString() === id.toString());
   if (idx === -1) return;
-  const current = rawClients[idx];
-
-  let tags = parseTags(current.notes);
-  if (patch.tag !== undefined) tags.tag = patch.tag.trim();
-  if (patch.freeText !== undefined) tags.freeText = patch.freeText.trim();
-  if (patch.temporal !== undefined) tags.temporal = patch.temporal;
-
-  const updated = {
-    ...current,
-    budget: patch.budget !== undefined ? parseFloat(patch.budget) : current.budget,
-    tier: patch.tier !== undefined ? patch.tier : current.tier,
-    platform: patch.platform !== undefined ? patch.platform : current.platform,
-    status: patch.status !== undefined ? patch.status : current.status,
-    notes: buildNotes(tags)
-  };
+  const updated = { ...rawClients[idx], ...patch };
   rawClients[idx] = updated;
   renderDashboard();
-
-  const result = await syncPost({ action: "update", ...updated });
+  const result = await syncPost({ ...updated, action: "update" });
   toastFromResult(result, "Guardado ✓", "Sheets rechazó el cambio");
 }
 
@@ -463,61 +362,28 @@ function deleteClient(id) {
 }
 
 /* ============================================================
-   8) TRAER CLIENTES DE OTRO MES — esto reemplaza por completo
-      al viejo sistema de "pausado / recurrencia automática".
-      Buscamos el mes con datos más reciente ANTES del mes que
-      estás mirando, mostramos sus clientes "fijo" que todavía
-      no están en el mes actual, y vos elegís cuáles traer.
+   DUPLICAR AL MES SIGUIENTE — un cliente, un clic, una fila
+   nueva. Nada de listas ni de adivinar de qué mes traer qué.
    ============================================================ */
-function findMostRecentMonthBefore(targetMonth) {
-  const months = Array.from(new Set(rawClients.map(c => parseCleanMonth(c.month)))).filter(m => m < targetMonth).sort();
-  return months.length ? months[months.length - 1] : null;
-}
-function openBringModal() {
-  const targetMonth = document.getElementById('view-month').value;
-  if (!/^\d{4}-\d{2}$/.test(targetMonth)) { showToast("Elegí primero un mes puntual arriba", true); return; }
-  const sourceMonth = findMostRecentMonthBefore(targetMonth);
-  if (!sourceMonth) { showToast("No hay meses anteriores con datos", true); return; }
-
-  const alreadyHere = new Set(rawClients.filter(c => parseCleanMonth(c.month) === targetMonth).map(c => familyId(c.id)));
-  const candidates = rawClients.filter(c => parseCleanMonth(c.month) === sourceMonth && !parseTags(c.notes).temporal && !alreadyHere.has(familyId(c.id)));
-
-  document.getElementById('bringModalTitle').textContent = `Traer de ${getMonthLabel(sourceMonth)} a ${getMonthLabel(targetMonth)}:`;
-  const list = document.getElementById('bringList');
-  if (!candidates.length) {
-    list.innerHTML = `<div class="bf-item">No hay clientes fijos de ${getMonthLabel(sourceMonth)} para traer (o ya están todos en ${getMonthLabel(targetMonth)}).</div>`;
-  } else {
-    list.innerHTML = candidates.map(c => `
-      <label class="bf-item">
-        <input type="checkbox" checked data-bf-id="${c.id}">
-        ${c.name} <span class="bf-budget">${formatMoney(c.budget)}</span>
-      </label>`).join('');
+async function duplicateToNextMonth(id) {
+  const c = rawClients.find(x => x.id.toString() === id.toString());
+  if (!c) return;
+  const thisMonth = parseCleanMonth(c.month);
+  const nextMonth = shiftMonth(thisMonth, 1);
+  if (rawClients.some(x => x.name === c.name && parseCleanMonth(x.month) === nextMonth)) {
+    showToast(`${c.name} ya tiene una fila en ${getMonthLabel(nextMonth)}`, true);
+    return;
   }
-  window.__bringData = { sourceMonth, targetMonth, candidates };
-  document.getElementById('bringModal').classList.add('show');
-}
-function closeBringModal() { document.getElementById('bringModal').classList.remove('show'); }
-
-async function confirmBringForward() {
-  const { targetMonth, candidates } = window.__bringData || {};
-  const checked = [...document.querySelectorAll('#bringList input[type=checkbox]:checked')].map(el => el.dataset.bfId);
-  const toBring = (candidates || []).filter(c => checked.includes(c.id.toString()));
-  closeBringModal();
-  if (!toBring.length) return;
-
-  let ok = 0, fail = 0;
-  for (const c of toBring) {
-    const newRow = { ...c, id: `${familyId(c.id)}_${targetMonth}`, month: targetMonth, status: "Pendiente" };
-    rawClients.push(newRow);
-    const result = await syncPost({ action: "add", ...newRow });
-    if (result.confirmed && result.ok) ok++; else fail++;
-  }
+  const newRow = { ...c, id: `${Date.now()}_${nextMonth}`, month: nextMonth, status: "Pendiente" };
+  delete newRow.action;
+  rawClients.push(newRow);
   renderDashboard();
-  showToast(fail === 0 ? `${ok} cliente(s) traídos a ${getMonthLabel(targetMonth)} ✓` : `${ok} ok, ${fail} con error — revisá Sheets`, fail > 0);
+  const result = await syncPost({ ...newRow, action: "add" });
+  toastFromResult(result, `Duplicado a ${getMonthLabel(nextMonth)} ✓`, "Sheets rechazó el alta");
 }
 
 /* ============================================================
-   9) MESES DISPONIBLES
+   MESES DISPONIBLES
    ============================================================ */
 function getTimelineArray() {
   let set = new Set();
@@ -551,69 +417,54 @@ function getMonthsForPeriod(value) {
 }
 
 /* ============================================================
-   10) RENDER PRINCIPAL — sin motor de recurrencia: filtramos
-       rawClients directo por mes(es).
+   RENDER PRINCIPAL — se filtra rawClients directo por mes(es),
+   sin ningún motor de recurrencia por detrás.
    ============================================================ */
 function renderDashboard() {
   const selectedMonth = document.getElementById('view-month').value;
   const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
   const isMultiMonth = selectedMonth === "Todos" || selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
   const monthsInView = isMultiMonth ? getMonthsForPeriod(selectedMonth) : [selectedMonth];
+  const monthSet = new Set(monthsInView);
 
   Object.keys(CONFIG.tiers).forEach(t => document.getElementById(`list-${t}`).innerHTML = '');
 
-  const monthSet = new Set(monthsInView);
-  const inView = rawClients.filter(c => monthSet.has(parseCleanMonth(c.month)));
+  const matchesQuery = (c) => !query || [c.name, c.contact, c.notes, c.platform, c.tag].some(v => (v || "").toLowerCase().includes(query));
+  visibleClients = rawClients.filter(c => monthSet.has(parseCleanMonth(c.month))).filter(matchesQuery);
 
-  allKnownTags = Array.from(new Set(rawClients.map(getClientTag).filter(Boolean))).sort();
-  document.getElementById('available-tags').innerHTML = allKnownTags.map(t => `<option value="${t}">`).join('');
-
-  const matchesQuery = (c) => !query || [c.name, c.contact, c.notes, c.platform, getClientTag(c)].some(v => (v || "").toLowerCase().includes(query));
-  visibleClients = inView.filter(matchesQuery);
-
-  // para la lista (tier/tag) mostramos solo el mes puntual más reciente dentro del rango elegido
-  const listMonth = isMultiMonth ? monthsInView[monthsInView.length - 1] : selectedMonth;
-  const listClients = visibleClients.filter(c => parseCleanMonth(c.month) === listMonth);
+  const allTags = Array.from(new Set(rawClients.map(c => c.tag).filter(Boolean))).sort();
+  document.getElementById('available-tags').innerHTML = allTags.map(t => `<option value="${t}">`).join('');
 
   let tiers = {}; Object.keys(CONFIG.tiers).forEach(t => tiers[t] = { total: 0, pendiente: 0, count: 0 });
   let totalFact = 0, totalCob = 0, totalPend = 0;
+  visibleClients.forEach(c => {
+    const b = parseFloat(c.budget) || 0;
+    totalFact += b;
+    if ((c.status || "").trim().toLowerCase() === "pagado") totalCob += b; else totalPend += b;
+    tiers[c.tier].total += b; tiers[c.tier].count++;
+    if ((c.status || "").trim().toLowerCase() !== "pagado") tiers[c.tier].pendiente += b;
+  });
 
-  monthsInView.forEach(m => {
-    visibleClients.filter(c => parseCleanMonth(c.month) === m).forEach(c => {
-      const b = parseFloat(c.budget) || 0;
-      totalFact += b;
-      if ((c.status || "").trim().toLowerCase() === "pagado") totalCob += b; else totalPend += b;
+  if (isMultiMonth) {
+    Object.keys(CONFIG.tiers).forEach(t => {
+      document.getElementById(`list-${t}`).innerHTML = `<div class="empty-state">Elegí un mes puntual arriba para ver y editar clientes uno por uno.</div>`;
     });
-  });
-
-  let principals = listClients.filter(c => !parseTags(c.notes).subDe);
-  let subordinates = listClients.filter(c => parseTags(c.notes).subDe);
-  let ordered = [];
-  principals.forEach(p => {
-    ordered.push(p);
-    const core = p.name.toLowerCase().trim();
-    subordinates.filter(s => parseTags(s.notes).subDe.toLowerCase() === core).forEach(ch => ordered.push(ch));
-  });
-  subordinates.forEach(s => { if (!ordered.some(x => x.id === s.id)) ordered.push(s); });
-
-  ordered.forEach(client => {
-    const b = parseFloat(client.budget) || 0;
-    tiers[client.tier].total += b;
-    tiers[client.tier].count++;
-    if ((client.status || "").trim().toLowerCase() !== "pagado") tiers[client.tier].pendiente += b;
-    if (currentView === 'tier') document.getElementById(`list-${client.tier}`).innerHTML += buildClientCard(client);
-  });
-  Object.keys(CONFIG.tiers).forEach(t => {
-    const el = document.getElementById(`list-${t}`);
-    if (currentView === 'tier' && !el.innerHTML) el.innerHTML = `<div class="empty-state">Sin clientes en este tier todavía.</div>`;
-  });
-  if (currentView === 'tag') renderTagView(ordered);
+  } else {
+    const monthList = visibleClients.slice().sort((a, b) => a.name.localeCompare(b.name));
+    monthList.forEach(client => {
+      document.getElementById(`list-${client.tier}`).innerHTML += buildClientCard(client);
+    });
+    Object.keys(CONFIG.tiers).forEach(t => {
+      const el = document.getElementById(`list-${t}`);
+      if (!el.innerHTML) el.innerHTML = `<div class="empty-state">Sin clientes en este tier todavía.</div>`;
+    });
+  }
 
   document.getElementById('kpi-total').innerText = formatMoney(totalFact);
   document.getElementById('kpi-cobrado').innerText = formatMoney(totalCob);
   document.getElementById('kpi-pendiente').innerText = formatMoney(totalPend);
   document.getElementById('kpi-label-cuentas').innerText = isMultiMonth ? "Ítems del período" : "Ítems este mes";
-  document.getElementById('kpi-cuentas').innerText = listClients.length;
+  document.getElementById('kpi-cuentas').innerText = visibleClients.length;
   const pct = totalFact > 0 ? Math.round((totalCob / totalFact) * 100) : 0;
   document.getElementById('kpi-cobrado-bar').style.width = pct + '%';
   document.getElementById('kpi-cobrado-pct').innerText = pct + '% del total';
@@ -629,10 +480,8 @@ function renderDashboard() {
 }
 
 /* ============================================================
-   11) UN SOLO TIPO DE GRÁFICO: barras apiladas Cobrado/Pendiente.
-       Mes puntual → una barra por cliente. Rango → una barra por mes.
-       Así el gráfico siempre contesta la misma pregunta clara:
-       "¿cuánto entró y cuánto falta cobrar?"
+   UN SOLO GRÁFICO: barras apiladas Cobrado/Pendiente.
+   Mes puntual → una barra por cliente. Rango → una barra por mes.
    ============================================================ */
 function updateCharts(tiersData, monthsInView, isMultiMonth) {
   if (historyChart) historyChart.destroy();
@@ -683,87 +532,41 @@ function updateCharts(tiersData, monthsInView, isMultiMonth) {
 }
 
 /* ============================================================
-   12) VISTA POR TAG
-   ============================================================ */
-function setView(v) {
-  currentView = v;
-  document.getElementById('tiers-container').style.display = v === 'tier' ? '' : 'none';
-  document.getElementById('tags-container').style.display = v === 'tag' ? '' : 'none';
-  document.getElementById('btn-view-tier').classList.toggle('active', v === 'tier');
-  document.getElementById('btn-view-tag').classList.toggle('active', v === 'tag');
-  renderDashboard();
-}
-function renderTagView(clients) {
-  const container = document.getElementById('tags-container');
-  const groups = {};
-  clients.forEach(c => { const tag = getClientTag(c) || "Sin grupo"; (groups[tag] = groups[tag] || []).push(c); });
-  if (!Object.keys(groups).length) { container.innerHTML = `<div class="empty-state">Todavía no hay ítems para mostrar.</div>`; return; }
-  container.innerHTML = Object.keys(groups).sort((a, b) => a === "Sin grupo" ? 1 : (b === "Sin grupo" ? -1 : a.localeCompare(b))).map(tag => {
-    const items = groups[tag];
-    const total = items.reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
-    const pendiente = items.filter(c => (c.status || "").trim().toLowerCase() !== "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
-    const groupId = "tg_" + tag.replace(/\s+/g, "_");
-    return `<div class="tag-group">
-      <div class="tag-group-header" onclick="toggleTagGroup('${groupId}')">
-        <div><span class="tag-group-name"># ${tag}</span> <span class="tag-group-badge">${items.length}</span></div>
-        <div style="text-align:right"><div class="tag-group-total-main">${formatMoney(total)}</div><div class="tag-group-total-sub">${formatMoney(pendiente)} pdte.</div></div>
-      </div>
-      <div class="tag-group-body" id="${groupId}">${items.map(buildClientCard).join('')}</div>
-    </div>`;
-  }).join('');
-}
-function toggleTagGroup(id) { document.getElementById(id)?.classList.toggle('collapsed'); }
-
-/* ============================================================
-   13) TARJETA DE CLIENTE
+   TARJETA DE CLIENTE
    ============================================================ */
 function buildClientCard(client) {
   const budget = parseFloat(client.budget) || 0;
-  const tags = parseTags(client.notes);
-  const isSub = !!tags.subDe;
   const tierOptions = Object.keys(CONFIG.tiers).map(t => `<option value="${t}" ${client.tier === t ? 'selected' : ''}>${CONFIG.tiers[t].label.replace(/s$/, '')}</option>`).join('');
   return `
-  <div class="client-item ${isSub ? 'subordinated' : ''}">
+  <div class="client-item">
     <div class="client-top">
-      <div><div class="client-name">${isSub ? '↳ ' : ''}${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
+      <div><div class="client-name">${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
       <div class="client-top-right">
         <button class="status-btn ${(client.status || "pendiente").trim().toLowerCase()}" onclick="toggleStatus('${client.id}')">${client.status}</button>
-        <button class="delete-btn" onclick="deleteClient('${client.id}')">×</button>
+        <button class="icon-btn" title="Duplicar al mes siguiente" onclick="duplicateToNextMonth('${client.id}')">📅</button>
+        <button class="icon-btn delete-btn" title="Eliminar" onclick="deleteClient('${client.id}')">×</button>
       </div>
     </div>
-    ${isSub ? `<div class="client-badges"><span class="badge">↪ ${tags.subDe.toUpperCase()}</span></div>` : ''}
     <div class="client-controls">
-      <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="commitChange('${client.id}',{budget:this.value})"></div>
+      <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="commitChange('${client.id}',{budget:parseFloat(this.value)})"></div>
       <select class="field-select" onchange="commitChange('${client.id}',{tier:this.value})">${tierOptions}</select>
       <select class="field-select" onchange="commitChange('${client.id}',{platform:this.value})">
         <option value="Meta+Google" ${client.platform === 'Meta+Google' ? 'selected' : ''}>Meta+Google</option>
         <option value="Meta" ${client.platform === 'Meta' ? 'selected' : ''}>Meta</option>
         <option value="Google" ${client.platform === 'Google' ? 'selected' : ''}>Google</option>
       </select>
-      <select class="field-select" onchange="commitChange('${client.id}',{temporal:this.value==='temporal'})">
-        <option value="fijo" ${!tags.temporal ? 'selected' : ''}>Mensual fijo</option>
-        <option value="temporal" ${tags.temporal ? 'selected' : ''}>Temporal</option>
-      </select>
     </div>
-    <div class="tag-row"><span class="tag-label"># Grupo</span><input type="text" class="tag-input-live" list="available-tags" value="${getClientTag(client)}" placeholder="Sin grupo..." onchange="commitChange('${client.id}',{tag:this.value})"></div>
-    <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${tags.freeText}" placeholder="Comentarios..." onchange="commitChange('${client.id}',{freeText:this.value})"></div>
+    <div class="tag-row"><span class="tag-label"># Grupo</span><input type="text" class="tag-input-live" list="available-tags" value="${client.tag || ''}" placeholder="Sin grupo..." onchange="commitChange('${client.id}',{tag:this.value})"></div>
+    <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${client.notes || ''}" placeholder="Comentarios..." onchange="commitChange('${client.id}',{notes:this.value})"></div>
   </div>`;
 }
 
 /* ============================================================
-   14) FORMULARIO "CARGAR ÍTEM"
+   FORMULARIO "CARGAR ÍTEM"
    ============================================================ */
-function toggleSubInput(v) { document.getElementById('parent-input-group').style.display = v === 'subordinado' ? 'block' : 'none'; }
-
 async function addClient(e) {
   e.preventDefault();
-  const type = document.getElementById('form-recurrence').value;
-  const subType = document.getElementById('form-sub-type').value;
-  const parent = document.getElementById('form-parent-name').value.trim();
-  const tagVal = (document.getElementById('form-tag')?.value || "").trim();
   const month = document.getElementById('form-month').value;
-
-  const notes = buildNotes({ temporal: type === "temporal", subDe: subType === "subordinado" ? parent : "", tag: tagVal, freeText: "" });
   const payload = {
     action: "add", id: `${Date.now()}_${month}`,
     name: document.getElementById('form-name').value,
@@ -771,21 +574,23 @@ async function addClient(e) {
     budget: parseFloat(document.getElementById('form-budget').value),
     month, tier: document.getElementById('form-tier').value,
     platform: document.getElementById('form-platform').value,
-    status: "Pendiente", notes
+    status: "Pendiente",
+    tag: (document.getElementById('form-tag')?.value || "").trim(),
+    notes: ""
   };
 
   document.getElementById('view-month').value = month;
-  rawClients.push(payload);
+  const storedRow = { ...payload }; delete storedRow.action;
+  rawClients.push(storedRow);
   initDynamicMonths(); renderDashboard();
   document.getElementById('client-form').reset();
-  document.getElementById('parent-input-group').style.display = 'none';
 
   const result = await syncPost(payload);
   toastFromResult(result, `${payload.name} agregado ✓`, "Sheets rechazó el alta");
 }
 
 /* ============================================================
-   15) TOAST Y MODAL DE CONFIRMACIÓN
+   TOAST Y MODAL DE CONFIRMACIÓN
    ============================================================ */
 let toastTimer = null;
 function showToast(msg, isError = false) {
