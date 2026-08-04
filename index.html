@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Berrinche · Panel de facturación</title>
+<link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAACmklEQVR4nL2Xu2sUURTGf7OziokPEhILxRciKpZpbEQUC0GwsbeTWOd/EOyNYGdnbaUgwdJC0mijhY+FaEQkQTRIzGZnxuKes3v2Zh73BncPXGZ2Zs75vnPueewFJ1PAA+Ar0AV6/3Ftid3HwBnBa2HkMLAMFGNYP4BrPokn8rIL5CMCzoFtuf8FHAMSJfEHyEYIbldXrvfE+XYbmBA2oaJEVVoR+i3RvSi/i3YksBrxJYsgkpjvggkUBngF6ACbwAxwDjgUYacQG6jNpr3P5LoMXAcmPaNHgAVgg0HCVdnqyfW26LabCGhyvgcOGtAWO0N+UwCyBltrwLToJE0EtHQeicJ+A6xrD7BX7tdqoqDeL4itVJnXEchlfQFOUC/z8m1ZBBT8lQCnNnpNOaDvV4C7wEnxGuAAMAcsGrJl9jT8Wn5970MI+CHdBD4B74DVAF31/rXgDZVxaBkmhsQ+4LT3PvO9MqJN6yWD9qs9JZgADJirZ/Z5FbiVjqcXTUDFdrIYycoelrXVUclxSojHRsAmpIrua1VU9Plloz8koWO4t8v3WppbwFkh1M8Zze6mPc3Fy21cM3kLrOPmwnngEjArgGW2tEqeArdwke+FRkA723PgQgXBWeC+931VhOZFp7/9TcOoAN4YhVTuddkSXKR6O3J53pWIqa2oYTTJzhAnuOaUAjc8vSqHvgNHCZiGmkCruDKyoDqSrTyriYC/FS9CCNiy6+D+SMx4oBPAFWDJ8zKkYu6EVoHN7nXgI/BTwE/hJqQ6E9LcFPNDKAFVKijv+xqpkJkwZDOGgA+m0j9gRNoA2Gjh5rvfXutEO5mu3cyTTOwswXiOZjahtUR/4/7Sj/VwqusbcNWGZIrRHc91/QU+Aw8ZVE36D2+MB8zeq7hBAAAAAElFTkSuQmCC">
+<link rel="apple-touch-icon" sizes="180x180" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAR+ElEQVR4nO2df8xkVXnHPzPvu7Cy7Mriij8olF8iVtpNga6BQoFqkUjDprUBSlNJSrVpE2ttKfaHaa21P//QJqZFm7bGRoFYbCSBBrXUqiUKYQtCha0KWBRZ2WV/uCzL7vvj9o/nfPeeucy8887MvXfmnvt8kpM7c993Zs4593vPfe65z3meDuMxF7ZL0b4TgXOAc4GzgZOBTcAxwPyYv+PMDoeB54Bnge8A24GHgAeBbxX+dx5YDqVWOiP+fzdsVdFTgCuBK4DzgOPLqZbTIA5g4v4icCdwD3Ao/G0OyKhR2KMIeo58RD4feCewFRuBRVz5zojf7zSDLBSw49st/P2bwK3Ax4HHwr45TBcZM0AszLOwymZRWQAWySvspV1lGRvoFsJW+58DPgK8hpw5pkxcgRuxSqoRLmIv/YrErff7gT8F1mFM7X5KYn4lcBd5BRepv5O8NK8s0yvsrwOXYnSp2RyVmDcDj4cKLeAjspfRSyzsZeC95BTt70qQmLdgUzQZvWeaFy/jlCVyG/tWYC1GqaIuDvtd7Cz6EeBLwMtCJaZuzDvJsACswab5rgR+QK67iekUXneA44D7gNNxMTvVIFH/F3A58HzYn036xd3C62XgY5iYF3ExO9WwBhP1hcCnwr5SbxQl3F/BzhK3mb3UUQ6H7d9gTDylpyc9GeZ38SiwMfytljtQp/UsYkK+Ghut4yfSI9MlF/SN2E3gMi5mpz5k6t4EvArT4tj6k81yAvYMfn1hv+PUgUbpm4FfYoJRWmfCtcCG8CUuZqdu5jHtXQtcwASza7qzvAYb6l3MzrR5X9hm43y4A7wOc9I+qpz6OM7YLGOa3ALczximRxe4BBNz7asLHKeABP1r435BF3PWhzGHeMcpEdnNWxnznq6L+W0w6gcdpwI62Cj9cuCnwr6RpvC62Nyfvsxxpo1clN8c3o88Qm8ou0aOMwFykntDeD/yTeGa6IscZ9rIxDgDc8MYaTrZH3E7s0YHE/FG4KRo36pwQTuziKaQR76/c0E7s4imkOX56YJ2kmDd8H/pxQXtzDIjT1S4oJ1Z5oVRP+CCdmYRjczPr/hffXBBO7OIBL03bFftZ+SCdmYRCXr3qB90QTuzhp4MHgR2RvtWhQvamTUk3p3ArsK+oXiqiNFQPAno38mdaOu+MeOhfn0SywQwUpgwF3R/igFROpjz+ahCVXBCyNdvutBXRv31SNi6oMckI/fFnae/8A4A+7AAg89hkX8UMu1o7MnWBuClwLH0X7m8SB7gx8U9mG3jfMgFnWdrmqdXgI8BXwMewEaLJ4AdmKAPMtjkWIsJ+hXAqdgi5B/HYm2fQW+fa4mR38vk6BhI0COtde1gT2OOLrNGDUEdJTEdxEII34mFet2OjcCDKJoPsX3dj3ngtdjSoiuAi7FRvF9d2oqidj0FnIk9WJE76ap5gekH7auzKD+M3j8M3ACc1qdv5shH7tgGHmQqxH/vFj5f5GTgXcB/R3Vpe94aBQm9Ler/kWmToGMh3wdcRb5iB0yE81Rj30rk+v74N7di+f361bNNRYL+1dA3Y5nEbRG0OmsH8HZ6RVUUWR1I3DFvw6ar2ihqXZkOYlcv9dHItEHQEsdnsBTO0DsVN23iepwA3ILVd4n2mCAyt/499MPYA0zKgo7t5fdHbZ7V2Z24Xu+h90BPuy/rEHQGXN+nL0YiZUHLzHh3aKtu7maZDvnBfDvtELXathuLUa5+GItUBa0z/s9CO9dM0klTQDerv0dve1IsGng+Gto8UW6fFAWtg/+foY2DnvzNOhqp7yBtUStf+ObQXhd0nw46DPxoGR00RTR9eCr22F1PNafdv2UWnaT/FrV5IlITtC5fnw7ta6qYher/T/S2L5UiB64LC+0di1m/QRoHmRafJB3vtg6WfwTSOmZLWHs+iyXh7DJBBiyR0gity/Eh4JTQvqYLIJ6f3k9vO5tcNKW6BJwb2jjx1bTpB3sQexhjtcOMswd4JrxOoU1KDPTPmGfdRPkJRaqC1iiQEim1KcO0txf4A/JcmROTqqA3AseH1ynY0GA+1pvC66a3Sbbz7wNPk0fun5jUBN3BOutobE4zBed5Td2djYlaiXWayhI2v/4F4COUZGqIph/sfujSpdyLTb9My8H9qvC+ydnKMqw9+zGfjZGd91dDSrMcuntextwQT6fZo7RG51djS7+a/mBFc+hvC+2r5BlBaoLOyJ8+3RHaOKvedcOQP8fN9LariUV113x6ZcckRUHHHXhDaGe8MqUJqL7voPliXgrlaexmvUuFV81UBR37QusS1wQnpQ65mN+KCaHp7qM6DteEdlXqjpCqoCVq+Qr8ZtTmWfXviOt1PfmKlRTErJUolfd9yoIuivofsKkvyFdlzwLxwoNjgA+T173JYs6wvl+gJNfQ1ZC6oFU0UnwD+Lmo/dNaW6jfjW3Jt2BhFVTfpotZsxofD+2rZQBpi6BjUWfAXcAbC30xR7XLtCTi4oG9CLh9QD2bWnR1eQELGlPb9GmbBJ2R33Hr/ReB68jXsgmt7SsGmlkNxUAz/W5GjwN+Efj8CnVrctHo/InQ3lpG5zaHApM/gYT2DCauO7CgL99Z4bP9IihlYbvSk7wTgfOxUGBvJk8sqRFtVmz6MlA/bMGiQ5Xi6zyMNgtaqJNjMR3AAjRuw4I1bscCwOzCoo4OYx024p+EBWvcDJwHvB5YP+S3U0CuoV/GYvmNFBJ3ElzQORolob/ADmE+yc9ij6H3k5trYFFH12OzKC/DPP7W9vkemRSzEuSmCiTo6zB/53nsvqByXND9kbgl1nGfbMkuhvbEhM6wNu7GwgfvoSInpH401cehajQbEZNF26ywPxZpbFvHQWPagtxDP4eJuVT30GG0rbMnoVPYOv1R/9zOFBYpN9Wt0plNdG9wAAvyE9+X1IIL2ikTifcBLGxxaUurVosL2ikT3VvcE7a1T0e6oJ0ykb18b9jWMrMR44J2ykL28xLw9WhfrbignbKQeHeQuw24oJ3GIvE+iS1Qru1hSowL2ikLiVej81T8U1zQTtk8Nc0fd0E7ZbNzmj/ugnbKZu80f9wF7ZTNgWn+uAvaKZta/J4H4YJ2ksIF7ZTNVBeLuKCdslk//F+qwwXtlM3xw/+lOlzQTtm8Ypo/7oJ2ykKuoyeGbe1+HOCCdspDgj45bGtbGBvjgnbKIhb0xsK+2nBBO2Uhd9GNwGnRvlpxQTtlIjNjc9jWri8XtFMFF0zrh13QTplITxdgDv61+3W4oJ0yUc7uM4Gzon21VsBxykSRRy8L713QTqPRzMbPh61HTnIazRxmdrwBMz2WqVFnLminCpaw5KHXhve16cwDnjtVoFH5CSwlx+Gwv3L/Dh+hnSpQgqBTga3kYcJq+WHHqZLfocawui5opyoUuHELcDk1pa1zQTt18CfU5Kjkgh4NpVhQxtfFFcoSvbm624hG6Z/AsubqoUtl+CzHYIqp3SbNK6jc15Cnd2tDAqJlrJ3fxRKPHqDCk9wF3cuw5JsHsGyyO8N2L5ZZ9gXyude1wAbML/jloWwKfyuySDvyF2pk/hDw21SYiNMFbfRLUfw8Fon+fixX9SPA/2FCPjTCdx+LLRw9DRuhzgPOBV5Lr4gXGT/B56yjgaID/CTwVSrKX9h2QQ9KYH8nlvjmyQGf06iq10V0SR00VTWHPXC4FPhZLB+20igvFb4/FfSw5VHgHGCBXpOuNJSvuk2leMP2H8AvY6ZBjDLBzmMiHMc0kDjnou8pcgbwHuyKoDotFuqYQlkM278L7a4k8WvbBL0Yvf5X4KJCf8yRi7cqJPL5wu8chc0G3D+gvimUhbD9hdDm0kXdFkHHo/K9wBujPlBu72ndmEncYg54B/A90hO1pj33AqdH7S+NNgh6Kdq+l1w8Go1nBZ1Y4lXALbz4hGx60Qm6Dbt/K3UwSV3Q6ryngZ8ObS4KZxaJR+x3Y23QXPa0+7SMItPjY33aOxEpC1oj8+OYszn0nw+eVWJT5CpMBCmN1BL1u0IbSxF1qoLWgf8+NotQWodNAZ2EV5MLIQVRL5PP5rwptHHiK2eKglZHLQKXhHY2VcxCon4f1sZUbhQ18Owij7g00U1iioLWwf5gaGOTzIxBaE68Sz6tl4qo1Y4HgXVM+MQ0NUHrUrwLC76dkp+ELseXYW3UPUIKRfb0p0Mb5xnzuKUmaHXMh6OOSQk9lHmIdEX9gdDWkY9dav4CkLfpM0wpgXrFzGFXoTvD+1rjXlSMvPD+EFsxvsiIok5N0BnWpoOYE0xGWgc85v6wTcWcEjph/xHzTFxkhJmP1AQt9gL7pl2JitAVZ1fYpiZotWctcBvmMLbqYDWpCjqlG8FBpHrsIA+D8MPYo3/tG3pMU+2UjeSuoKkJW0u3Xh3ep2pSKRzvm4C/ZpWmR2qC7mBn9lFYFPkUHeXBzI7zp12JGtBN4g2Yu+mqRJ3qtN3NoX2z7oQ0Chqdjwa+TXrTdv2K3E33sUp309QELY+057FHqSmN0prCug5raypPCocVtfNe8lU/A03J1AQdd4CeOqXw6FuPgzdgax01ck27r+squvL+ZeiPgfPTKQo6FvX1oZ1NFnWHvP6fpLd9bSnL5KK+OPRFX3MyVUHL4+4w8DOhrU0UtZySAP4Ya5sObNuKrkjfJHdiepHpkaqgJeplLEDMFaG9VS+ALZN4BPojrE1tG5mLRSezPClfNEqnLOiM/KxeBN4ZtXtsb64aiEflY7DHwC5mK7Gv+zmhj3pEnbqg1QlyK/0U8ENR+2dJ2MXV3xdiPsIZ7TUz+hWd2F+K+u0IbRC0RK2OeAb4LeAlUT/Ieb5ucWvBbjzKnAT8LflJ6CPzYFG/NfTZkf5ri6CLHZFhHnm/jj0qjxk61zkhiqRUtP/OAP4K2B3VsU1Tc6Mex2Us2tQaosGobYLO6B2tMyzU6wexVGRFEQ8KB7aS2DtRGRYG7Fgsvt0t9Iaa9VF5eFEfXRP6cr7twRp1SY+F9hDwWeBuLOroziHfURS3OnslTsVOnsuwCE4nR3+Tv8Ks2PWzjIJtbsNSX3TaLmiRYZ1TfPq0BzNLHgQeBr6Fjea7gB+Qpysr0sH8eV8KnIAJ9izgxzCnqTPJo41CfmK1we21bOQrfQHwFRf0i9GMyKCVxxnmKLMP2I+tjjkUPjOP9eU6YD0m6GMH/I5s41RjQteFlmndBPyGC3plZG/LhBhXfBKvvqMt6SjqQIPPt4HXu6BHJxuwjelEWxdu9WRYP1+a2hL/OugUts70UQ7Ei912c1JiiwvaSQHp+DUuaCclNrmgnRTQ/cxLXNBOSmQuaCcFNHV60AXtpMQ+F7STAhqhv+eCdlJAgv5fF7STEttc0E4KzGEOYF/tYosvYbhTuuPMIoq++hjwP13MUd1xmorce+8GDnexlMHgI7TTTORf/i9680j4gwvaaRrLmJi3A18GOl3gK+GP7t/rNA0J+ibC4uIO8DpsEehR06uX44yMxLwDW4C8H8zk2A48QL7y2XGagAT959jExhzBOSkDbiXNJJVOmmiF/cPAR8mzZh2xm0/AYu6uD+/dnnZmlTiGyoXAPeQPVo5Eu3wG+HvyLFKOM6tIzH9BQcyQx17LsLx+j5IHLvTH4s6soaAyX8DyF3bojZtClzxQx07gxmif48wSGpkfA66mN2jjEWJbWUP37cCV5GeD40ybJUyf3wcuwWbmekwN0Sm87gDHAfdhSQ71RY4zLTSw7gAuB77GADFDr52soXs3NkI/u9IHHacGFjAxfwO4FBPzPCtosnjjp5BKjwBvwcStJOKOUxeKALsG+DxwEbmZMZYWZWZsBh7HRu8F8jtKL16qKHFyzQz4ALlZPLHpqy94JXBX9COeKsFL2aUo5Aewmz8oOVd7fFbcCDwXVUBJW6bdGV6aWeJ8g9q3A/hd8vDOlUxIxDGOz8L8PuKKLeDi9rK6IhEXcy5+F3g/Zg2IscQ8is9GPONxPpaVdSuW6VSo0vpu9wlpL1m07Wc2LGOPrj8B3IZNQIDprOfp3yiMKjhVSqI9BZviuwI4Dzh+nEo4reEpzD6+G/gc+WopmFDIYtwRVJeDeD7wRCz38rnA2Vjmp03YCO5PHNvDApbmZA+2XvUJTLgPhu3e6H+VRTfOQTMR/w8xIq+O+x8hVwAAAABJRU5ErkJggg==">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -108,6 +110,27 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 
 .form-card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:24px;}
 .form-card h3{font-family:var(--font-head);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:16px;}
+.form-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;}
+.bulk-btn{background:var(--brand-soft);color:var(--brand);border:1px dashed var(--brand);padding:7px 12px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:12px;cursor:pointer;}
+.bulk-textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text-primary);font-family:'SFMono-Regular',Consolas,monospace;font-size:12.5px;resize:vertical;outline:none;}
+.bulk-textarea:focus{border-color:var(--brand);}
+
+#compare-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:14px;outline:none;}
+#compare-input:focus{border-color:var(--brand);}
+.compare-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.compare-chip{display:flex;align-items:center;gap:6px;background:var(--brand-soft);color:var(--brand);border-radius:20px;padding:5px 6px 5px 12px;font-size:12px;font-weight:700;}
+.compare-chip button{background:none;border:none;color:var(--brand);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;opacity:.7;}
+.compare-chip button:hover{opacity:1;}
+.compare-table-wrap{overflow-x:auto;margin-top:14px;border:1px solid var(--border);border-radius:var(--radius-sm);}
+.compare-table{border-collapse:collapse;width:100%;font-size:12.5px;white-space:nowrap;}
+.compare-table th,.compare-table td{padding:9px 12px;text-align:right;border-bottom:1px solid var(--border);}
+.compare-table th:first-child,.compare-table td:first-child{text-align:left;position:sticky;left:0;background:var(--card);font-weight:700;font-family:var(--font-head);}
+.compare-table thead th{background:var(--bg);color:var(--text-secondary);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.4px;}
+.compare-table td.cell-pagado{color:var(--success);font-weight:700;}
+.compare-table td.cell-pendiente{color:var(--warning);font-weight:700;}
+.compare-table td.cell-empty{color:var(--text-muted);}
+.compare-table tfoot td{font-weight:800;font-family:var(--font-head);border-top:2px solid var(--border);border-bottom:none;}
+.compare-chart-wrap{position:relative;height:200px;margin-top:6px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end;}
 .form-group{display:flex;flex-direction:column;gap:5px;}
 .form-group label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);}
@@ -221,7 +244,21 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
   <div id="groups-container"></div>
 
   <div class="form-card">
-    <h3>➕ Cargar ítem nuevo</h3>
+    <h3>🔍 Comparar clientes</h3>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input type="text" id="compare-input" list="all-client-names" placeholder="Escribí un nombre de cliente y agregalo..." onkeydown="if(event.key==='Enter'){event.preventDefault();addToCompare();}">
+      <button type="button" class="submit-btn" style="width:auto;padding:10px 18px;flex-shrink:0;" onclick="addToCompare()">Agregar</button>
+    </div>
+    <datalist id="all-client-names"></datalist>
+    <div id="compare-chips" class="compare-chips"></div>
+    <div id="compare-output"></div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-card-header">
+      <h3 style="margin-bottom:0;">➕ Cargar ítem nuevo</h3>
+      <button type="button" class="bulk-btn" onclick="openBulkModal()">📋 Carga masiva</button>
+    </div>
     <form id="client-form" onsubmit="addClient(event)">
       <div class="form-grid">
         <div class="form-group"><label>Cliente / cuenta</label><input type="text" id="form-name" required placeholder="Ej: TGB"></div>
@@ -236,6 +273,20 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
     </form>
   </div>
 
+</div>
+
+<div class="modal-overlay" id="bulkModal">
+  <div class="modal-box" style="max-width:540px;">
+    <p style="margin-bottom:8px;">Pegá una fila por cliente (tal cual copiada de una planilla, separada por TAB):</p>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Nombre&nbsp;→&nbsp;Contacto&nbsp;→&nbsp;Presupuesto&nbsp;→&nbsp;Tier(grande/mediana/chica)&nbsp;→&nbsp;Plataforma&nbsp;→&nbsp;Tag. Los últimos tres son opcionales.</p>
+    <textarea id="bulk-textarea" class="bulk-textarea" rows="8" oninput="updateBulkPreview()" placeholder="TGB	Tomás	100000	grande	Meta	TGB
+Craft	Nicolás	400000	grande	Meta+Google"></textarea>
+    <p id="bulk-preview" style="font-size:12px;color:var(--text-muted);margin:8px 0 0;">0 filas detectadas · se cargan en <strong id="bulk-month-label"></strong></p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeBulkModal()">Cancelar</button>
+      <button class="modal-confirm" style="background:var(--brand);" onclick="confirmBulkUpload()">Cargar todo</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -352,6 +403,20 @@ async function commitChange(id, patch) {
   renderDashboard();
   const result = await syncPost({ ...updated, action: "update" });
   toastFromResult(result, "Guardado ✓", "Sheets rechazó el cambio");
+
+  // El tag identifica al CLIENTE, no a un mes puntual: si lo cambiás en un mes,
+  // se arrastra solo hacia atrás y hacia adelante a todas las filas de ese mismo
+  // cliente (mismo nombre), para que no quede "tagueado" en un solo mes suelto.
+  if (patch.tag !== undefined) {
+    const name = updated.name;
+    const siblings = rawClients.filter(c => c.id.toString() !== updated.id.toString() && c.name.trim().toLowerCase() === name.trim().toLowerCase());
+    for (const s of siblings) {
+      const sIdx = rawClients.findIndex(c => c.id.toString() === s.id.toString());
+      rawClients[sIdx] = { ...rawClients[sIdx], tag: patch.tag };
+      syncPost({ ...rawClients[sIdx], action: "update" });
+    }
+    if (siblings.length) { renderDashboard(); showToast(`Tag aplicado a ${siblings.length + 1} mes(es) de ${name}`); }
+  }
 }
 
 function toggleStatus(id) {
@@ -489,6 +554,9 @@ function renderDashboard() {
 
   const allTags = Array.from(new Set(rawClients.map(c => c.tag).filter(Boolean))).sort();
   document.getElementById('available-tags').innerHTML = allTags.map(t => `<option value="${t}">`).join('');
+
+  const allNames = Array.from(new Set(rawClients.map(c => c.name).filter(Boolean))).sort();
+  document.getElementById('all-client-names').innerHTML = allNames.map(n => `<option value="${n}">`).join('');
 
   let tiers = {}; Object.keys(CONFIG.tiers).forEach(t => tiers[t] = { total: 0, pendiente: 0, count: 0 });
   let totalFact = 0, totalCob = 0, totalPend = 0;
@@ -645,6 +713,134 @@ function buildClientCard(client) {
     <div class="tag-row"><span class="tag-label"># Grupo</span><input type="text" class="tag-input-live" list="available-tags" value="${client.tag || ''}" placeholder="Sin grupo..." onchange="commitChange('${client.id}',{tag:this.value})"></div>
     <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${client.notes || ''}" placeholder="Comentarios..." onchange="commitChange('${client.id}',{notes:this.value})"></div>
   </div>`;
+}
+
+/* ============================================================
+   COMPARAR CLIENTES — tabla mes a mes + un gráfico de totales,
+   para 2 o más clientes elegidos a mano. Usa TODO el historial
+   (no solo el mes que estás mirando arriba).
+   ============================================================ */
+let compareList = [];
+let compareChart;
+
+function addToCompare() {
+  const input = document.getElementById('compare-input');
+  const name = input.value.trim();
+  if (!name) return;
+  const exists = rawClients.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
+  if (!exists) { showToast(`No encontré ningún cliente llamado "${name}"`, true); return; }
+  if (!compareList.some(n => n.toLowerCase() === name.toLowerCase())) compareList.push(name);
+  input.value = '';
+  renderComparison();
+}
+function removeFromCompare(name) {
+  compareList = compareList.filter(n => n !== name);
+  renderComparison();
+}
+
+function renderComparison() {
+  document.getElementById('compare-chips').innerHTML = compareList.map(n =>
+    `<div class="compare-chip">${n} <button onclick="removeFromCompare('${n.replace(/'/g, "\\'")}')">×</button></div>`
+  ).join('');
+
+  const out = document.getElementById('compare-output');
+  if (compareList.length < 1) { out.innerHTML = `<div class="empty-state">Agregá uno o más clientes arriba para comparar su facturación mes a mes.</div>`; return; }
+
+  const rows = compareList.map(name => rawClients.filter(c => c.name.trim().toLowerCase() === name.toLowerCase()));
+  const monthSet = new Set();
+  rows.forEach(rs => rs.forEach(c => monthSet.add(parseCleanMonth(c.month))));
+  const months = Array.from(monthSet).sort();
+
+  if (!months.length) { out.innerHTML = `<div class="empty-state">Todavía no hay datos cargados para estos clientes.</div>`; return; }
+
+  const totals = compareList.map((name, i) => rows[i].reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+
+  let tableHtml = `<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th>Cliente</th>${months.map(m => `<th>${getMonthLabel(m)}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+  compareList.forEach((name, i) => {
+    tableHtml += `<tr><td>${name}</td>`;
+    months.forEach(m => {
+      const row = rows[i].find(c => parseCleanMonth(c.month) === m);
+      if (!row) { tableHtml += `<td class="cell-empty">—</td>`; return; }
+      const paid = (row.status || "").trim().toLowerCase() === "pagado";
+      tableHtml += `<td class="${paid ? 'cell-pagado' : 'cell-pendiente'}">${formatMoney(row.budget)}</td>`;
+    });
+    tableHtml += `<td>${formatMoney(totals[i])}</td></tr>`;
+  });
+  tableHtml += `</tbody></table></div>`;
+
+  out.innerHTML = `<div class="compare-chart-wrap"><canvas id="compareChart"></canvas></div>` + tableHtml;
+
+  const cobradoTotals = compareList.map((name, i) => rows[i].filter(c => (c.status || "").trim().toLowerCase() === "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+  const pendienteTotals = compareList.map((name, i) => totals[i] - cobradoTotals[i]);
+
+  if (compareChart) compareChart.destroy();
+  compareChart = new Chart(document.getElementById('compareChart').getContext('2d'), {
+    type: 'bar',
+    data: { labels: compareList, datasets: [
+      { label: 'Cobrado', data: cobradoTotals, backgroundColor: '#3EA872', borderRadius: 4, stack: 's' },
+      { label: 'Pendiente', data: pendienteTotals, backgroundColor: '#F05E5E', borderRadius: 4, stack: 's' }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${formatMoney(c.raw)}` } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 }, color: '#9b98a8' } },
+        y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
+      }
+    }
+  });
+}
+
+/* ============================================================
+   CARGA MASIVA — pegás varias filas separadas por TAB (como al
+   copiar de una planilla) y se cargan todas juntas en el mes
+   que tengas elegido arriba.
+   ============================================================ */
+function parseBulkText(text) {
+  return text.split('\n').map(l => l.trim()).filter(Boolean).map(line => {
+    const parts = line.split('\t').map(p => p.trim());
+    return { name: parts[0] || '', contact: parts[1] || '', budget: parseFloat(parts[2]), tier: (parts[3] || 'mediana').toLowerCase(), platform: parts[4] || 'Meta', tag: parts[5] || '' };
+  });
+}
+function bulkTargetMonth() {
+  const v = document.getElementById('view-month').value;
+  return /^\d{4}-\d{2}$/.test(v) ? v : currentMonthStr();
+}
+function updateBulkPreview() {
+  const rows = parseBulkText(document.getElementById('bulk-textarea').value);
+  document.getElementById('bulk-preview').innerHTML = `${rows.length} fila(s) detectada(s) · se cargan en <strong id="bulk-month-label">${getMonthLabel(bulkTargetMonth())}</strong>`;
+}
+function openBulkModal() {
+  document.getElementById('bulk-textarea').value = '';
+  updateBulkPreview();
+  document.getElementById('bulkModal').classList.add('show');
+}
+function closeBulkModal() { document.getElementById('bulkModal').classList.remove('show'); }
+
+async function confirmBulkUpload() {
+  const month = bulkTargetMonth();
+  const rows = parseBulkText(document.getElementById('bulk-textarea').value);
+  const validTiers = ['grande', 'mediana', 'chica'];
+  closeBulkModal();
+  if (!rows.length) return;
+
+  let ok = 0, skipped = 0, invalid = 0;
+  for (const r of rows) {
+    if (!r.name || isNaN(r.budget)) { invalid++; continue; }
+    if (rawClients.some(c => c.name.trim().toLowerCase() === r.name.toLowerCase() && parseCleanMonth(c.month) === month)) { skipped++; continue; }
+    const payload = {
+      action: "add", id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${month}`,
+      name: r.name, contact: r.contact, budget: r.budget, month,
+      tier: validTiers.includes(r.tier) ? r.tier : 'mediana',
+      platform: r.platform, status: "Pendiente", tag: r.tag, notes: "", activo: "TRUE"
+    };
+    const storedRow = { ...payload }; delete storedRow.action;
+    rawClients.push(storedRow);
+    const result = await syncPost(payload);
+    if (result.confirmed && result.ok) ok++; else if (!result.confirmed) ok++; // se guardó local igual
+  }
+  initDynamicMonths(); renderDashboard();
+  showToast(`${ok} cargados en ${getMonthLabel(month)}${skipped ? `, ${skipped} ya existían` : ''}${invalid ? `, ${invalid} con datos inválidos` : ''}`, invalid > 0 && ok === 0);
 }
 
 /* ============================================================
