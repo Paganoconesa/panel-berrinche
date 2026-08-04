@@ -9,347 +9,693 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
 :root {
-  --bg: #FBFAF6; --card: #ffffff; --border: #e0dfd2;
-  --text-primary: #3c342c; --text-secondary: #6b6360; --text-muted: #b3aead;
-  
-  /* Paleta principal ajustada */
-  --brand: #1cacc4; --brand-soft: #E3F4F6;
-  --success: #3ea414; --success-soft: #E3F5EC;
-  --warning: #f87f0c; --warning-soft: #FFF2E5;
-  --danger: #fb4b53; --danger-soft: #FBE4E4;
-  --yellow: #dbc425; --lime: #9ca91e; --brown: #3c342c;
-
-  --gap: 14px; --radius: 12px; --radius-sm: 8px;
-  --shadow-sm: 0 2px 8px rgba(60, 52, 44, .06);
-  --font-head: 'Work Sans', sans-serif; --font-body: 'Inter', sans-serif;
+  --cream:#E8E4D4; --teal:#2AABBD; --teal-soft:#E3F4F6;
+  --coral:#F05E5E; --coral-soft:#FDEBEB; --brown:#2E2826;
+  --brown-60:#6b6360; --brown-30:#b3aead;
+  --brand:var(--teal); --brand-soft:var(--teal-soft);
+  --success:#3EA872; --success-soft:#E3F5EC;
+  --warning:var(--coral); --warning-soft:var(--coral-soft);
+  --danger:#C23B3B; --danger-soft:#FBE4E4;
+  --tier-grande:var(--brown); --tier-mediana:var(--teal); --tier-chica:var(--coral);
+  --text-primary:var(--brown); --text-secondary:var(--brown-60); --text-muted:var(--brown-30);
+  --bg:#FBFAF6; --card:#ffffff; --border:#ECE9DD;
+  --gap:14px; --radius:16px; --radius-sm:10px;
+  --shadow-sm:0 2px 10px rgba(46,40,38,.06); --shadow-md:0 6px 24px rgba(46,40,38,.12);
+  --font-head:'Work Sans',sans-serif; --font-body:'Inter',sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:14px;line-height:1.5;padding-bottom:50px;}
+body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:15px;line-height:1.5;padding:0 0 70px;}
 
 .header{position:sticky;top:0;z-index:100;background:var(--card);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm);padding:12px 16px;}
 .header-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .logo-wrap{display:flex;align-items:center;gap:8px;}
-.logo-wrap img{height:22px;display:block;}
-.sync-status{font-size:11px;color:var(--text-muted);font-weight:500;}
-.header-controls{display:flex;gap:8px;}
-.btn-primary{background:var(--brand);color:#fff;border:none;padding:8px 12px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:12px;cursor:pointer;}
+.logo-wrap img{height:24px;display:block;}
+.sync-status{font-size:11px;color:var(--text-muted);font-weight:500;white-space:nowrap;}
+.btn-sync{background:var(--brand);color:#fff;border:none;padding:9px 14px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.btn-sync.spinning .sync-ic{display:inline-block;animation:spin .8s linear infinite;}
 .header-bottom{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.header-bottom select, .header-bottom input {flex:1;min-width:130px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;outline:none;}
-.header-bottom select:focus, .header-bottom input:focus {border-color:var(--brand);}
+.header-bottom select,.header-bottom input{flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;font-family:var(--font-body);}
+.header-bottom select:focus,.header-bottom input:focus{border-color:var(--brand);}
 
 .main{padding:16px;max-width:920px;margin:0 auto;}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap);margin-bottom:var(--gap);}
-.kpi-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;}
-.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--kpi-color, var(--brand));}
-.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);display:block;margin-bottom:4px;}
-.kpi-value{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--kpi-color);line-height:1.1;}
+.kpi-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:6px;position:relative;overflow:hidden;}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-accent,var(--brand));}
+.kpi-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);}
+.kpi-value{font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--kpi-color,var(--text-primary));line-height:1.1;}
+.kpi-sub{font-size:11px;color:var(--text-muted);font-weight:600;}
+.kpi-bar{height:5px;border-radius:4px;background:var(--border);overflow:hidden;margin-top:2px;}
+.kpi-bar-fill{height:100%;background:var(--success);border-radius:4px;transition:width .4s;}
 
-.charts-grid{display:grid;grid-template-columns:1fr;gap:var(--gap);margin-bottom:24px;}
-@media(min-width:640px){
-  .charts-grid{grid-template-columns:1.5fr 1fr;}
-  .kpi-grid{grid-template-columns:repeat(4,1fr);}
-}
-.chart-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);}
-.chart-card h3{font-family:var(--font-head);font-size:13px;font-weight:700;text-transform:uppercase;color:var(--text-secondary);margin-bottom:12px;}
-.chart-wrap{position:relative;height:200px;}
-.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;}
+.charts-grid{display:grid;grid-template-columns:1fr;gap:var(--gap);margin-bottom:var(--gap);}
+@media(min-width:640px){.charts-grid{grid-template-columns:1.4fr 1fr;}}
+.chart-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);}
+.chart-card h3{font-family:var(--font-head);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:4px;}
+.chart-sub{font-size:11px;color:var(--text-muted);margin-bottom:12px;}
+.chart-history-wrap{position:relative;height:230px;}
+.chart-donut-wrap{position:relative;height:180px;}
+.donut-legend{display:flex;justify-content:center;gap:12px;margin-top:10px;flex-wrap:wrap;}
+.donut-legend-item{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--text-secondary);}
+.donut-legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;padding-bottom:20px;}
+.donut-center-val{font-family:var(--font-head);font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.3;}
+.donut-center-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);}
 
-.group-section{margin-bottom:20px;}
-.group-header{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--brand-soft);border-radius:var(--radius-sm);margin-bottom:10px;}
-.group-name{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;color:var(--brand);}
-.group-totals{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--brand);}
+.tier-section{margin-bottom:20px;}
+.tier-header{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:var(--card);border-radius:var(--radius-sm);margin-bottom:10px;border-left:5px solid var(--group-color,var(--brand));box-shadow:var(--shadow-sm);cursor:pointer;}
+.tier-header-left{display:flex;align-items:center;gap:8px;}
+.tier-name{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--group-color,var(--brand));}
+.tier-count-badge{background:var(--group-color,var(--brand));color:#fff;border-radius:20px;font-size:10px;font-weight:700;padding:2px 7px;}
+.tier-totals{text-align:right;}
+.tier-total-main{font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--group-color,var(--brand));}
+.tier-total-sub{font-size:11px;color:var(--text-muted);}
+.tier-collapse-icon{font-size:11px;color:var(--text-muted);margin-left:8px;}
+.tier-body.collapsed{display:none;}
+.empty-state{text-align:center;padding:30px 16px;color:var(--text-muted);font-size:13px;}
 
-.client-item{background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;box-shadow:var(--shadow-sm);border:1px solid var(--border);}
-.client-top{display:flex;justify-content:space-between;padding:12px 14px 8px;}
-.client-name{font-family:var(--font-head);font-size:14px;font-weight:700;color:var(--text-primary);}
-.client-meta{font-size:11px;color:var(--text-muted);}
+.group-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:var(--gap);background:var(--card);border-radius:var(--radius-sm);padding:8px 12px;box-shadow:var(--shadow-sm);}
+.group-toolbar label{font-size:12px;font-weight:700;color:var(--text-secondary);white-space:nowrap;}
+.group-toolbar select{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:13px;outline:none;}
+
+.client-item{background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;box-shadow:var(--shadow-sm);overflow:hidden;}
+.client-top{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px;gap:8px;}
+.client-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.2;}
+.client-meta{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.client-top-right{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+
 .client-controls{display:flex;align-items:center;gap:6px;padding:0 14px 10px;flex-wrap:wrap;}
-.budget-input{width:80px;padding:6px;font-size:13px;font-weight:700;border:1px solid var(--border);border-radius:4px;text-align:right;}
-.field-select{padding:6px;font-size:12px;border:1px solid var(--border);border-radius:4px;background:var(--bg);}
-.status-btn{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-head);}
+.budget-wrap{display:flex;align-items:center;gap:3px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 8px;}
+.budget-symbol{font-size:13px;font-weight:700;color:var(--text-secondary);}
+.budget-input-live{width:90px;padding:8px 0;font-size:14px;font-weight:700;border:none;background:transparent;text-align:right;color:var(--text-primary);outline:none;font-family:var(--font-body);}
+.field-select{padding:8px;font-size:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);cursor:pointer;font-weight:600;color:var(--text-secondary);outline:none;font-family:var(--font-body);}
+
+.status-btn{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-head);}
 .status-btn.pagado{background:var(--success-soft);color:var(--success);}
 .status-btn.pendiente{background:var(--warning-soft);color:var(--warning);}
+.activo-btn{padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;cursor:pointer;font-family:var(--font-head);background:transparent;}
+.activo-btn.activo{color:var(--success);border-color:var(--success);}
+.activo-btn.inactivo{color:var(--text-muted);border-color:var(--border);}
+.icon-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:4px 6px;opacity:.5;line-height:1;}
+.icon-btn:hover{opacity:1;}
+.delete-btn{color:var(--danger);font-size:20px;}
 
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--brown);color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;font-weight:600;opacity:0;transition:.25s;z-index:9998;pointer-events:none;}
+.tag-row,.notes-row{border-top:1px dashed var(--border);padding:8px 14px;display:flex;align-items:center;gap:6px;}
+.tag-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--brand);white-space:nowrap;}
+.notes-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-muted);white-space:nowrap;}
+.notes-input-live{flex:1;border:none;background:transparent;font-size:13px;outline:none;color:var(--text-secondary);font-style:italic;font-family:var(--font-body);}
+.tag-input-live{flex:1;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--brand);outline:none;font-family:var(--font-body);}
+
+.form-card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:24px;}
+.form-card h3{font-family:var(--font-head);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:16px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:flex-end;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);}
+.form-group input,.form-group select{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;width:100%;font-family:var(--font-body);}
+.submit-btn{grid-column:1/-1;background:var(--brand);color:#fff;border:none;padding:13px;border-radius:var(--radius-sm);font-weight:700;font-family:var(--font-head);font-size:15px;cursor:pointer;}
+
+.loading-overlay{position:fixed;inset:0;background:rgba(251,250,246,.94);display:none;justify-content:center;align-items:center;z-index:9999;font-weight:700;font-family:var(--font-head);color:var(--brand);font-size:16px;flex-direction:column;gap:12px;}
+.loader-spinner{width:36px;height:36px;border:3px solid var(--brand-soft);border-top-color:var(--brand);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--brown);color:#fff;padding:10px 18px;border-radius:30px;font-size:13px;font-weight:600;box-shadow:var(--shadow-md);opacity:0;transition:opacity .25s,transform .25s;z-index:9998;pointer-events:none;white-space:nowrap;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.loading-overlay{position:fixed;inset:0;background:rgba(251,250,246,.9);display:none;justify-content:center;align-items:center;z-index:9999;font-weight:700;color:var(--brand);}
+.toast.error{background:var(--danger);}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(46,40,38,.45);display:none;justify-content:center;align-items:center;z-index:9997;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal-box{background:var(--card);border-radius:var(--radius);padding:22px;max-width:340px;width:100%;box-shadow:var(--shadow-md);}
+.modal-box p{font-size:14px;color:var(--text-primary);margin-bottom:18px;line-height:1.5;}
+.modal-actions{display:flex;gap:10px;}
+.modal-actions button{flex:1;padding:11px;border-radius:var(--radius-sm);border:none;font-weight:700;font-family:var(--font-head);font-size:13px;cursor:pointer;}
+.modal-cancel{background:var(--bg);color:var(--text-secondary);}
+.modal-confirm{background:var(--danger);color:#fff;}
+
+@media(min-width:640px){
+  body{padding-bottom:40px;} .main{padding:20px;}
+  .kpi-grid{grid-template-columns:repeat(4,1fr);}
+  .form-grid{grid-template-columns:repeat(3,1fr);}
+  .client-controls{flex-wrap:nowrap;}
+}
 </style>
 </head>
 <body>
 
-<div class="loading-overlay" id="loadingView">Sincronizando...</div>
-<div class="toast" id="toast"></div>
 <datalist id="available-tags"></datalist>
+<div class="loading-overlay" id="loadingView"><div class="loader-spinner"></div>Sincronizando con Sheets...</div>
+<div class="toast" id="toast"></div>
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <p id="confirmModalText">¿Confirmás esta acción?</p>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeConfirm(false)">Cancelar</button>
+      <button class="modal-confirm" onclick="closeConfirm(true)">Eliminar</button>
+    </div>
+  </div>
+</div>
 
 <header class="header">
   <div class="header-top">
     <div class="logo-wrap">
-      <span style="font-family:var(--font-head);font-weight:800;font-size:18px;color:var(--text-primary)">Berrinche.</span>
-      <span class="sync-status" id="sync-status"></span>
+      <img src="data:image/png;base64,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" alt="Berrinche">
+      <span class="sync-status" id="sync-status">sin sincronizar</span>
     </div>
-    <div class="header-controls">
-      <button class="btn-primary" onclick="loadDataFromSheet(true)">🔄 Sync</button>
-      <button class="btn-primary" onclick="rolloverMonth()" style="background:var(--brown);">Copiar mes ➔</button>
-    </div>
+    <button class="btn-sync" id="btn-sync" onclick="loadDataFromSheet(true)"><span class="sync-ic">🔄</span> Sync</button>
   </div>
   <div class="header-bottom">
     <select id="view-month" onchange="renderDashboard()"></select>
-    <select id="group-by" onchange="renderDashboard()">
-      <option value="tier">Agrupar por Tier</option>
-      <option value="platform">Agrupar por Plataforma</option>
-      <option value="status">Agrupar por Estado</option>
-      <option value="tag">Agrupar por Grupo/Tag</option>
-    </select>
     <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente...">
   </div>
 </header>
 
 <div class="main">
+
   <div class="kpi-grid">
-    <div class="kpi-card" style="--kpi-color:var(--brand);"><span class="kpi-label">Facturación</span><span class="kpi-value" id="kpi-total">$0</span></div>
-    <div class="kpi-card" style="--kpi-color:var(--success);"><span class="kpi-label">Cobrado</span><span class="kpi-value" id="kpi-cobrado">$0</span></div>
-    <div class="kpi-card" style="--kpi-color:var(--warning);"><span class="kpi-label">Pendiente</span><span class="kpi-value" id="kpi-pendiente">$0</span></div>
-    <div class="kpi-card" style="--kpi-color:var(--brown);"><span class="kpi-label">Ítems listados</span><span class="kpi-value" id="kpi-cuentas">0</span></div>
+    <div class="kpi-card" style="--kpi-accent:var(--brand);--kpi-color:var(--brand);">
+      <span class="kpi-label">Facturación período</span><span class="kpi-value" id="kpi-total">$0</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent:var(--success);--kpi-color:var(--success);">
+      <span class="kpi-label">Cobrado</span><span class="kpi-value" id="kpi-cobrado">$0</span>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kpi-cobrado-bar" style="width:0%"></div></div>
+      <span class="kpi-sub" id="kpi-cobrado-pct">0% del total</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent:var(--warning);--kpi-color:var(--warning);">
+      <span class="kpi-label">Por cobrar</span><span class="kpi-value" id="kpi-pendiente">$0</span>
+    </div>
+    <div class="kpi-card" style="--kpi-accent:var(--tier-mediana);">
+      <span class="kpi-label" id="kpi-label-cuentas">Ítems este mes</span><span class="kpi-value" id="kpi-cuentas">0</span>
+    </div>
   </div>
 
   <div class="charts-grid">
-    <div class="chart-card"><h3>Evolución Anual</h3><div class="chart-wrap"><canvas id="historyChart"></canvas></div></div>
-    <div class="chart-card"><h3>Distribución</h3><div class="chart-wrap"><canvas id="donutChart"></canvas><div class="donut-center" id="donut-total" style="font-family:var(--font-head);font-weight:800;font-size:18px;">$0</div></div></div>
+    <div class="chart-card">
+      <h3 id="chart-title">Cobrado vs. pendiente</h3>
+      <div class="chart-sub" id="chart-sub"></div>
+      <div class="chart-history-wrap"><canvas id="historyChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Distribución por tier</h3>
+      <div class="chart-sub">Tocá una porción para ver el detalle</div>
+      <div style="position:relative;">
+        <div class="chart-donut-wrap"><canvas id="tierChart"></canvas></div>
+        <div class="donut-center" id="donut-center"><span class="donut-center-val" id="donut-total">$0</span><span class="donut-center-label">Total</span></div>
+      </div>
+      <div class="donut-legend">
+        <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-grande)"></div> Grandes</div>
+        <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-mediana)"></div> Medianas</div>
+        <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--tier-chica)"></div> Chicas</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="group-toolbar">
+    <label>Agrupar por</label>
+    <select id="group-by" onchange="renderDashboard()">
+      <option value="tier">Tier</option>
+      <option value="tag">Tag / Grupo</option>
+      <option value="status">Estado (pagado/pendiente)</option>
+      <option value="platform">Plataforma</option>
+    </select>
   </div>
 
   <div id="groups-container"></div>
-  
-  <div class="chart-card" style="margin-top:24px;">
-    <h3>➕ Nuevo Ítem Rápido</h3>
-    <form onsubmit="addClient(event)" style="display:flex;gap:8px;flex-wrap:wrap;">
-      <input type="text" id="form-name" required placeholder="Cliente" class="budget-input" style="flex:1;text-align:left;">
-      <input type="number" id="form-budget" required placeholder="Presupuesto" class="budget-input">
-      <select id="form-tier" class="field-select"><option value="Grande">Grande</option><option value="Mediana" selected>Mediana</option><option value="Chica">Chica</option></select>
-      <button type="submit" class="btn-primary">Agregar</button>
+
+  <div class="form-card">
+    <h3>➕ Cargar ítem nuevo</h3>
+    <form id="client-form" onsubmit="addClient(event)">
+      <div class="form-grid">
+        <div class="form-group"><label>Cliente / cuenta</label><input type="text" id="form-name" required placeholder="Ej: TGB"></div>
+        <div class="form-group"><label>Contacto</label><input type="text" id="form-contact" required placeholder="Ej: Tomás"></div>
+        <div class="form-group"><label>Presupuesto ($)</label><input type="number" id="form-budget" required placeholder="0"></div>
+        <div class="form-group"><label>Mes</label><select id="form-month"></select></div>
+        <div class="form-group"><label>Tier</label><select id="form-tier"><option value="grande">Grande</option><option value="mediana" selected>Mediana</option><option value="chica">Chica</option></select></div>
+        <div class="form-group"><label>Plataforma</label><select id="form-platform"><option value="Meta+Google">Meta + Google</option><option value="Meta">Meta</option><option value="Google">Google</option></select></div>
+        <div class="form-group"><label>Tag / grupo (opcional)</label><input type="text" id="form-tag" list="available-tags" placeholder="Ej: TGB, Bruto..."></div>
+        <button type="submit" class="submit-btn">Cargar ítem</button>
+      </div>
     </form>
   </div>
+
 </div>
 
 <script>
+/* ============================================================
+   CONFIGURACIÓN — lo que cambia seguido va acá.
+   ============================================================ */
 const CONFIG = {
-  sheetApiUrl: "TU_URL_DE_APPS_SCRIPT_AQUI", // <--- REEMPLAZAR
-  chartColors: ['#1cacc4', '#3ea414', '#f87f0c', '#fb4b53', '#dbc425', '#9ca91e', '#3c342c'],
-  meses: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"]
+  sheetApiUrl: "https://script.google.com/macros/s/AKfycbzMkOYligCGvXvT1z4SaI1aRS_4A216yW-2i517j3OMFkf5IDyywO0C3Teqmg-dgzWn/exec",
+  cacheTtlMs: 15 * 60 * 1000,
+  tiers: {
+    grande:  { label: "Grandes",  color: "#2E2826" },
+    mediana: { label: "Medianas", color: "#2AABBD" },
+    chica:   { label: "Chicas",   color: "#F05E5E" }
+  },
+  meses: ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"],
+  groupPalette: ['#2AABBD','#F05E5E','#2E2826','#7367f0','#3EA872','#ff9f43','#4b7bec','#a259ff','#20bf6b','#f7b731']
 };
 
-let rawClients = [], visibleClients = [];
-let historyChart, donutChart;
+/* ============================================================
+   ESTADO — rawClients es exactamente lo que hay en la Sheet.
+   Cada fila = un cargo real de un cliente en un mes. No hay
+   clientes "virtuales" ni recurrencia automática de ningún tipo.
+   ============================================================ */
+let rawClients = [];
+let visibleClients = [];
+let tierChart, historyChart;
+let lastFetchTime = 0;
 
+/* ============================================================
+   FECHAS Y FORMATO
+   ============================================================ */
 function getMonthLabel(m) {
-  if (!m || !m.includes('-')) return m;
+  if (!m || !m.toString().includes('-')) return m;
   const [y, mm] = m.split('-');
-  return `${CONFIG.meses[parseInt(mm, 10)-1]} ${y}`;
+  return (CONFIG.meses[parseInt(mm, 10) - 1] || mm) + " " + y;
 }
 function parseCleanMonth(raw) {
-  let s = (raw||"").toString().trim();
+  if (!raw) return "";
+  let s = raw.toString().trim();
   if (/^\d{4}-\d{2}$/.test(s)) return s;
   let d = new Date(raw);
-  return !isNaN(d) ? d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0') : s;
+  if (!isNaN(d)) return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0');
+  return s;
 }
-function formatMoney(n) { return '$' + (n || 0).toLocaleString('es-AR'); }
-
-function getTimelineArray() {
-  let set = new Set();
-  for(let i=1; i<=12; i++) set.add("2026-" + String(i).padStart(2, '0')); // Todo 2026 forzado
-  rawClients.forEach(c => { const m = parseCleanMonth(c.month); if(m) set.add(m); });
-  return Array.from(set).sort();
+function currentMonthStr() {
+  const h = new Date();
+  return h.getFullYear() + "-" + String(h.getMonth() + 1).padStart(2, '0');
 }
+function shiftMonth(base, delta) {
+  const [y, m] = base.split('-').map(Number);
+  const d = new Date(y, m - 1 + delta, 1);
+  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0');
+}
+function formatMoney(n) { return '$' + (n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
 
-async function loadDataFromSheet(force = false) {
-  document.getElementById('loadingView').style.display = 'flex';
+/* ============================================================
+   CARGA / GUARDADO — el POST siempre se lee de vuelta (nunca
+   se manda "a ciegas"), así un error real se ve como error.
+   ============================================================ */
+function setSyncStatus(t) { document.getElementById('sync-status').textContent = t; }
+function showLoader(v) { document.getElementById('loadingView').style.display = v ? 'flex' : 'none'; }
+
+async function loadDataFromSheet(forzar = false) {
+  const now = Date.now();
+  if (!forzar && rawClients.length > 0 && (now - lastFetchTime < CONFIG.cacheTtlMs)) { renderDashboard(); return; }
+  showLoader(true);
+  document.getElementById('btn-sync').classList.add('spinning');
   try {
     const res = await fetch(CONFIG.sheetApiUrl);
     rawClients = await res.json();
-    initMonths();
+    lastFetchTime = now;
+    initDynamicMonths();
     renderDashboard();
-    document.getElementById('sync-status').textContent = new Date().toLocaleTimeString();
-  } catch(e) { showToast("Error de conexión", true); }
-  document.getElementById('loadingView').style.display = 'none';
+    setSyncStatus("actualizado " + new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }));
+    await autoCarryForwardIfNeeded();
+  } catch (e) {
+    showToast("No se pudo sincronizar con Sheets", true);
+    setSyncStatus("error de sincronización");
+  }
+  showLoader(false);
+  document.getElementById('btn-sync').classList.remove('spinning');
 }
 
 async function syncPost(payload) {
   try {
-    const res = await fetch(CONFIG.sheetApiUrl, { method: "POST", body: JSON.stringify(payload) });
-    return res.ok;
-  } catch(e) { fetch(CONFIG.sheetApiUrl, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }); return true; }
-}
-
-function initMonths() {
-  const sel = document.getElementById('view-month');
-  const oldVal = sel.value || ("2026-" + String(new Date().getMonth()+1).padStart(2,'0'));
-  sel.innerHTML = `<option value="Todos">Vista Anual Completa</option>`;
-  getTimelineArray().forEach(m => sel.innerHTML += `<option value="${m}" ${m===oldVal?'selected':''}>${getMonthLabel(m)}</option>`);
-}
-
-function renderDashboard() {
-  const month = document.getElementById('view-month').value;
-  const groupBy = document.getElementById('group-by').value;
-  const query = document.getElementById('search-input').value.toLowerCase();
-  
-  visibleClients = rawClients.filter(c => month === "Todos" || parseCleanMonth(c.month) === month)
-                             .filter(c => [c.name, c.tag, c.platform].join(' ').toLowerCase().includes(query));
-
-  let groups = {}, totalFact = 0, totalCob = 0, totalPend = 0;
-  
-  document.getElementById('available-tags').innerHTML = Array.from(new Set(rawClients.map(c=>c.tag).filter(Boolean))).map(t=>`<option value="${t}">`).join('');
-
-  visibleClients.forEach(c => {
-    let gVal = c[groupBy];
-    if (!gVal || gVal.trim()==="") gVal = "Sin Asignar";
-    if (groupBy==='tag' && gVal==="Sin Asignar") gVal = "Sin Grupo";
-    
-    if (!groups[gVal]) groups[gVal] = { total: 0, items: [] };
-    
-    const b = parseFloat(c.budget)||0;
-    groups[gVal].total += b;
-    groups[gVal].items.push(c);
-    
-    totalFact += b;
-    if ((c.status||"").toLowerCase()==="pagado") totalCob += b; else totalPend += b;
-  });
-
-  // Render KPIs
-  document.getElementById('kpi-total').innerText = formatMoney(totalFact);
-  document.getElementById('kpi-cobrado').innerText = formatMoney(totalCob);
-  document.getElementById('kpi-pendiente').innerText = formatMoney(totalPend);
-  document.getElementById('kpi-cuentas').innerText = visibleClients.length;
-  document.getElementById('donut-total').innerText = formatMoney(totalFact);
-
-  // Render Groups & Clients
-  const container = document.getElementById('groups-container');
-  container.innerHTML = "";
-  
-  Object.keys(groups).sort((a,b) => groups[b].total - groups[a].total).forEach((gName, idx) => {
-    const cColor = CONFIG.chartColors[idx % CONFIG.chartColors.length];
-    let html = `<div class="group-section"><div class="group-header" style="border-left:5px solid ${cColor}">
-                <span class="group-name" style="color:${cColor}">${gName} <small style="color:var(--text-secondary)">(${groups[gName].items.length})</small></span>
-                <span class="group-totals" style="color:${cColor}">${formatMoney(groups[gName].total)}</span></div>`;
-    
-    groups[gName].items.forEach(c => {
-      html += `
-      <div class="client-item">
-        <div class="client-top">
-          <div><div class="client-name">${c.name}</div><div class="client-meta">${getMonthLabel(c.month)} · ${c.platform||'Sin plat.'}</div></div>
-          <div>
-            <button class="status-btn ${(c.status||"pendiente").toLowerCase()}" onclick="updateField('${c.id}','status','${c.status==="Pagado"?"Pendiente":"Pagado"}')">${c.status}</button>
-            <button class="status-btn" style="background:var(--danger-soft);color:var(--danger);" onclick="deleteItem('${c.id}')">×</button>
-          </div>
-        </div>
-        <div class="client-controls">
-          $ <input type="number" class="budget-input" value="${c.budget}" onchange="updateField('${c.id}','budget',this.value)">
-          <input type="text" class="field-select" value="${c.tag||''}" list="available-tags" placeholder="Tag/Grupo" onchange="updateField('${c.id}','tag',this.value)">
-          <select class="field-select" onchange="updateField('${c.id}','tier',this.value)">
-            <option value="Grande" ${c.tier==='Grande'?'selected':''}>Grande</option><option value="Mediana" ${c.tier==='Mediana'?'selected':''}>Mediana</option><option value="Chica" ${c.tier==='Chica'?'selected':''}>Chica</option>
-          </select>
-        </div>
-      </div>`;
+    const res = await fetch(CONFIG.sheetApiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
     });
-    container.innerHTML += html + "</div>";
-  });
-
-  updateCharts(groups);
-}
-
-function updateCharts(groups) {
-  // Donut Chart
-  const dCtx = document.getElementById('donutChart').getContext('2d');
-  const gKeys = Object.keys(groups);
-  const dData = gKeys.map(k => groups[k].total);
-  if(donutChart) { donutChart.data.labels = gKeys; donutChart.data.datasets[0].data = dData; donutChart.update(); }
-  else {
-    donutChart = new Chart(dCtx, {
-      type: 'doughnut', data: { labels: gKeys, datasets: [{ data: dData, backgroundColor: CONFIG.chartColors, borderWidth:0 }] },
-      options: { responsive:true, maintainAspectRatio:false, cutout:'75%', plugins: { legend: { position: 'right', labels: { boxWidth: 10, font:{size:11} } } } }
-    });
-  }
-
-  // History Bar Chart (Agrupado por mes todo el año)
-  const hCtx = document.getElementById('historyChart').getContext('2d');
-  const months = getTimelineArray();
-  const cobData = months.map(m => rawClients.filter(c => parseCleanMonth(c.month)===m && (c.status||"").toLowerCase()==="pagado").reduce((s,c)=>s+(Number(c.budget)||0),0));
-  const penData = months.map(m => rawClients.filter(c => parseCleanMonth(c.month)===m && (c.status||"").toLowerCase()!=="pagado").reduce((s,c)=>s+(Number(c.budget)||0),0));
-  
-  if(historyChart) { historyChart.data.labels = months.map(getMonthLabel); historyChart.data.datasets[0].data = cobData; historyChart.data.datasets[1].data = penData; historyChart.update(); }
-  else {
-    historyChart = new Chart(hCtx, {
-      type: 'bar', data: { labels: months.map(getMonthLabel), datasets: [
-        { label: 'Cobrado', data: cobData, backgroundColor: '#3ea414', stack: 's' },
-        { label: 'Pendiente', data: penData, backgroundColor: '#fb4b53', stack: 's' }
-      ]},
-      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} }, scales: { x: { stacked: true, ticks:{font:{size:10}} }, y: { stacked: true, ticks:{font:{size:10}} } } }
-    });
+    let data = null;
+    try { data = await res.json(); } catch (_) {}
+    return { confirmed: true, ok: res.ok && (!data || data.error === undefined), data };
+  } catch (e) {
+    try { fetch(CONFIG.sheetApiUrl, { method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) }); } catch (_) {}
+    return { confirmed: false, ok: false };
   }
 }
+function toastFromResult(result, okMsg, errMsg) {
+  if (result.confirmed && result.ok) showToast(okMsg);
+  else if (result.confirmed && !result.ok) showToast(errMsg + " — revisá el Apps Script", true);
+  else showToast(okMsg + " (local, sin confirmar en Sheets)", true);
+}
 
-// Acciones CRUD
-async function updateField(id, field, val) {
+/* ============================================================
+   EDICIÓN — cada fila tiene un id único (timestamp + mes), así
+   que editar siempre le pega a la fila correcta.
+   ============================================================ */
+async function commitChange(id, patch) {
   const idx = rawClients.findIndex(c => c.id.toString() === id.toString());
   if (idx === -1) return;
-  rawClients[idx][field] = field === 'budget' ? Number(val) : val;
+  const updated = { ...rawClients[idx], ...patch };
+  rawClients[idx] = updated;
   renderDashboard();
-  const ok = await syncPost({ action: "update", id: id, [field]: rawClients[idx][field] });
-  showToast(ok ? "Guardado" : "Error al guardar en Sheets", !ok);
+  const result = await syncPost({ ...updated, action: "update" });
+  toastFromResult(result, "Guardado ✓", "Sheets rechazó el cambio");
 }
 
-async function deleteItem(id) {
-  if(!confirm("¿Eliminar este ítem?")) return;
-  rawClients = rawClients.filter(c => c.id.toString() !== id.toString());
-  renderDashboard();
-  await syncPost({ action: "delete", id });
+function toggleStatus(id) {
+  const c = rawClients.find(x => x.id.toString() === id.toString());
+  if (!c) return;
+  commitChange(id, { status: (c.status || "").trim().toLowerCase() === "pagado" ? "Pendiente" : "Pagado" });
 }
 
-async function addClient(e) {
-  e.preventDefault();
-  const month = document.getElementById('view-month').value === "Todos" ? ("2026-" + String(new Date().getMonth()+1).padStart(2,'0')) : document.getElementById('view-month').value;
-  const item = { action: "add", id: Date.now(), name: document.getElementById('form-name').value, budget: document.getElementById('form-budget').value, tier: document.getElementById('form-tier').value, month: month, status: "Pendiente", tag: "" };
-  rawClients.push(item);
-  renderDashboard();
-  e.target.reset();
-  await syncPost(item);
+function deleteClient(id) {
+  askConfirm("¿Eliminar este ítem de este mes? (no borra los meses anteriores)", async () => {
+    rawClients = rawClients.filter(c => c.id.toString() !== id.toString());
+    renderDashboard();
+    const result = await syncPost({ action: "delete", id });
+    toastFromResult(result, "Eliminado ✓", "Sheets rechazó el borrado");
+  });
 }
 
-// Funcionalidad Estrella: Arrastrar al mes siguiente en bloque
-async function rolloverMonth() {
-  const curr = document.getElementById('view-month').value;
-  if(curr === "Todos") return showToast("Seleccioná un mes específico arriba para poder copiarlo", true);
-  
-  const [y, m] = curr.split('-');
-  const nextDate = new Date(y, Number(m), 1);
-  const nextMonth = nextDate.getFullYear() + "-" + String(nextDate.getMonth()+1).padStart(2,'0');
-  
-  if(!visibleClients.length) return showToast("No hay clientes visibles para copiar", true);
-  
-  let newItems = [];
+/* ============================================================
+   DUPLICAR AL MES SIGUIENTE — un cliente, un clic, una fila
+   nueva. Nada de listas ni de adivinar de qué mes traer qué.
+   ============================================================ */
+async function duplicateToNextMonth(id) {
+  const c = rawClients.find(x => x.id.toString() === id.toString());
+  if (!c) return;
+  const thisMonth = parseCleanMonth(c.month);
+  const nextMonth = shiftMonth(thisMonth, 1);
+  if (rawClients.some(x => x.name === c.name && parseCleanMonth(x.month) === nextMonth)) {
+    showToast(`${c.name} ya tiene una fila en ${getMonthLabel(nextMonth)}`, true);
+    return;
+  }
+  const newRow = { ...c, id: `${Date.now()}_${nextMonth}`, month: nextMonth, status: "Pendiente" };
+  delete newRow.action;
+  rawClients.push(newRow);
+  renderDashboard();
+  const result = await syncPost({ ...newRow, action: "add" });
+  toastFromResult(result, `Duplicado a ${getMonthLabel(nextMonth)} ✓`, "Sheets rechazó el alta");
+}
+
+/* ============================================================
+   ACTIVO / INACTIVO — un cliente inactivo nunca se arrastra
+   solo al mes siguiente. Por defecto todo cliente es activo
+   (incluye filas viejas que no tengan la columna todavía).
+   ============================================================ */
+function isActive(c) {
+  const v = c.activo;
+  return !(v === false || v === "FALSE" || v === "false" || v === "0" || v === 0);
+}
+function toggleActivo(id) {
+  const c = rawClients.find(x => x.id.toString() === id.toString());
+  if (!c) return;
+  commitChange(id, { activo: isActive(c) ? "FALSE" : "TRUE" });
+}
+
+/* ============================================================
+   ARRASTRE AUTOMÁTICO AL MES ACTUAL — se corre una sola vez
+   por sesión, después de sincronizar, y SOLO si:
+   1) el mes real de hoy todavía no tiene ninguna fila, y
+   2) hay un mes anterior con datos.
+   Trae los clientes ACTIVOS de ese mes anterior más reciente,
+   como filas reales con estado Pendiente. No revisa meses
+   futuros ni se puede disparar dos veces para el mismo mes
+   (si ya hay una fila ese mes, no hace nada).
+   ============================================================ */
+async function autoCarryForwardIfNeeded() {
+  const curMonth = currentMonthStr();
+  const alreadyHasThisMonth = rawClients.some(c => parseCleanMonth(c.month) === curMonth);
+  if (alreadyHasThisMonth) return;
+
+  const priorMonths = Array.from(new Set(rawClients.map(c => parseCleanMonth(c.month)))).filter(m => m < curMonth).sort();
+  const sourceMonth = priorMonths[priorMonths.length - 1];
+  if (!sourceMonth) return;
+
+  const toCarry = rawClients.filter(c => parseCleanMonth(c.month) === sourceMonth && isActive(c));
+  if (!toCarry.length) return;
+
+  let ok = 0;
+  for (const c of toCarry) {
+    const newRow = { ...c, id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${curMonth}`, month: curMonth, status: "Pendiente" };
+    delete newRow.action;
+    rawClients.push(newRow);
+    const result = await syncPost({ ...newRow, action: "add" });
+    if (result.confirmed && result.ok) ok++;
+  }
+  renderDashboard();
+  showToast(`${ok} cliente(s) activos traídos automáticamente de ${getMonthLabel(sourceMonth)} a ${getMonthLabel(curMonth)}`);
+}
+/* ============================================================
+   MESES DISPONIBLES
+   ============================================================ */
+function getTimelineArray() {
+  let set = new Set();
+  rawClients.forEach(c => { const m = parseCleanMonth(c.month); if (m) set.add(m); });
+  const year = new Date().getFullYear();
+  for (let m = 1; m <= 12; m++) set.add(year + "-" + String(m).padStart(2, '0'));
+  set.add((year + 1) + "-01"); // un mes extra de margen para no quedar pegado en diciembre
+  return Array.from(set).sort();
+}
+function initDynamicMonths() {
+  const fSel = document.getElementById('view-month');
+  const fForm = document.getElementById('form-month');
+  const months = getTimelineArray();
+  const curr = currentMonthStr();
+  const oldVal = fSel.value || curr;
+  fForm.innerHTML = "";
+  fSel.innerHTML = `<optgroup label="Períodos"><option value="Todos">Histórico completo</option><option value="ultimos3">Últimos 3 meses</option><option value="ultimos6">Últimos 6 meses</option></optgroup><optgroup label="Mes por mes">`;
+  months.forEach(m => {
+    const label = getMonthLabel(m);
+    fForm.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
+    fSel.innerHTML += `<option value="${m}" ${m === oldVal ? 'selected' : ''}>${label}</option>`;
+  });
+  fSel.innerHTML += `</optgroup>`;
+}
+function getMonthsForPeriod(value) {
+  const curr = currentMonthStr();
+  if (value === "Todos") { const all = getTimelineArray(); return all.length ? all : [curr]; }
+  const n = value === "ultimos3" ? 3 : 6;
+  let result = [];
+  for (let i = n - 1; i >= 0; i--) result.push(shiftMonth(curr, -i));
+  return result;
+}
+
+/* ============================================================
+   RENDER PRINCIPAL — se filtra rawClients directo por mes(es),
+   sin ningún motor de recurrencia por detrás.
+   ============================================================ */
+function renderDashboard() {
+  const selectedMonth = document.getElementById('view-month').value;
+  const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
+  const isMultiMonth = selectedMonth === "Todos" || selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
+  const monthsInView = isMultiMonth ? getMonthsForPeriod(selectedMonth) : [selectedMonth];
+  const monthSet = new Set(monthsInView);
+
+  const matchesQuery = (c) => !query || [c.name, c.contact, c.notes, c.platform, c.tag].some(v => (v || "").toLowerCase().includes(query));
+  visibleClients = rawClients.filter(c => monthSet.has(parseCleanMonth(c.month))).filter(matchesQuery);
+
+  const allTags = Array.from(new Set(rawClients.map(c => c.tag).filter(Boolean))).sort();
+  document.getElementById('available-tags').innerHTML = allTags.map(t => `<option value="${t}">`).join('');
+
+  let tiers = {}; Object.keys(CONFIG.tiers).forEach(t => tiers[t] = { total: 0, pendiente: 0, count: 0 });
+  let totalFact = 0, totalCob = 0, totalPend = 0;
   visibleClients.forEach(c => {
-    if (!rawClients.some(x => x.name === c.name && parseCleanMonth(x.month) === nextMonth)) {
-      newItems.push({ ...c, id: Date.now() + Math.floor(Math.random()*1000), month: nextMonth, status: "Pendiente" });
+    const b = parseFloat(c.budget) || 0;
+    totalFact += b;
+    if ((c.status || "").trim().toLowerCase() === "pagado") totalCob += b; else totalPend += b;
+    if (tiers[c.tier]) {
+      tiers[c.tier].total += b; tiers[c.tier].count++;
+      if ((c.status || "").trim().toLowerCase() !== "pagado") tiers[c.tier].pendiente += b;
     }
   });
 
-  if (!newItems.length) return showToast(`Todos los clientes ya estaban en ${getMonthLabel(nextMonth)}`);
-  
-  rawClients.push(...newItems);
-  document.getElementById('view-month').value = nextMonth;
-  initMonths();
-  renderDashboard();
-  
-  showToast(`Copiando ${newItems.length} clientes a ${getMonthLabel(nextMonth)}...`);
-  const payloadItems = newItems.map(x => { let z = {...x}; delete z.action; return z; });
-  await syncPost({ action: "batch_add", items: payloadItems });
-  showToast("Clientes copiados correctamente.");
+  const groupsContainer = document.getElementById('groups-container');
+  if (isMultiMonth) {
+    groupsContainer.innerHTML = `<div class="empty-state">Elegí un mes puntual arriba para ver y editar clientes uno por uno.</div>`;
+  } else {
+    renderGroups(visibleClients, document.getElementById('group-by').value);
+  }
+
+  document.getElementById('kpi-total').innerText = formatMoney(totalFact);
+  document.getElementById('kpi-cobrado').innerText = formatMoney(totalCob);
+  document.getElementById('kpi-pendiente').innerText = formatMoney(totalPend);
+  document.getElementById('kpi-label-cuentas').innerText = isMultiMonth ? "Ítems del período" : "Ítems este mes";
+  document.getElementById('kpi-cuentas').innerText = visibleClients.length;
+  const pct = totalFact > 0 ? Math.round((totalCob / totalFact) * 100) : 0;
+  document.getElementById('kpi-cobrado-bar').style.width = pct + '%';
+  document.getElementById('kpi-cobrado-pct').innerText = pct + '% del total';
+  document.getElementById('donut-total').innerHTML = `${formatMoney(totalFact)}<br><span style="font-size:10px;color:var(--success);font-weight:700;">${pct}% cobrado</span>`;
+
+  updateCharts(tiers, monthsInView, isMultiMonth);
 }
 
-function showToast(msg, err=false) {
+/* ============================================================
+   AGRUPAMIENTO GENÉRICO — un solo renderer que sirve para
+   agrupar por tier, tag, estado o plataforma. Cada grupo es
+   una sección colapsable con su color, total y pendiente.
+   ============================================================ */
+const GROUP_META = {
+  tier:     { getKey: c => c.tier, getLabel: k => CONFIG.tiers[k]?.label || k, getColor: k => CONFIG.tiers[k]?.color || '#999', order: Object.keys(CONFIG.tiers) },
+  tag:      { getKey: c => c.tag || "Sin grupo", getLabel: k => k, getColor: null, order: null },
+  status:   { getKey: c => (c.status || "Pendiente").trim(), getLabel: k => k, getColor: k => k.toLowerCase() === 'pagado' ? '#3EA872' : '#F05E5E', order: ['Pendiente', 'Pagado'] },
+  platform: { getKey: c => c.platform || "Sin plataforma", getLabel: k => k, getColor: null, order: null }
+};
+function renderGroups(clients, field) {
+  const meta = GROUP_META[field] || GROUP_META.tier;
+  const groups = {};
+  clients.forEach(c => { const k = meta.getKey(c) || "Sin dato"; (groups[k] = groups[k] || []).push(c); });
+
+  let keys = Object.keys(groups);
+  if (meta.order) {
+    keys = meta.order.filter(k => groups[k]).concat(keys.filter(k => !meta.order.includes(k)));
+  } else {
+    keys.sort((a, b) => a === "Sin grupo" || a === "Sin plataforma" ? 1 : (b === "Sin grupo" || b === "Sin plataforma" ? -1 : a.localeCompare(b)));
+  }
+
+  const container = document.getElementById('groups-container');
+  if (!keys.length) { container.innerHTML = `<div class="empty-state">Sin clientes este mes todavía.</div>`; return; }
+
+  container.innerHTML = keys.map((k, i) => {
+    const items = groups[k].slice().sort((a, b) => a.name.localeCompare(b.name));
+    const total = items.reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+    const pendiente = items.filter(c => (c.status || "").trim().toLowerCase() !== "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+    const color = meta.getColor ? meta.getColor(k) : CONFIG.groupPalette[i % CONFIG.groupPalette.length];
+    const groupId = "grp_" + field + "_" + k.toString().replace(/\s+/g, "_");
+    return `<div class="tier-section" style="--group-color:${color}">
+      <div class="tier-header" onclick="document.getElementById('${groupId}').classList.toggle('collapsed')">
+        <div class="tier-header-left"><span class="tier-name">${meta.getLabel(k)}</span><span class="tier-count-badge">${items.length}</span></div>
+        <div class="tier-totals"><div class="tier-total-main">${formatMoney(total)}</div><div class="tier-total-sub">${formatMoney(pendiente)} pdte.</div></div>
+      </div>
+      <div class="tier-body" id="${groupId}">${items.map(buildClientCard).join('')}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ============================================================
+   UN SOLO GRÁFICO: barras apiladas Cobrado/Pendiente.
+   Mes puntual → una barra por cliente. Rango → una barra por mes.
+   ============================================================ */
+function updateCharts(tiersData, monthsInView, isMultiMonth) {
+  if (historyChart) historyChart.destroy();
+  const ctx = document.getElementById('historyChart').getContext('2d');
+  let labels, cobradoData, pendienteData;
+
+  if (!isMultiMonth) {
+    document.getElementById('chart-title').textContent = `Cobrado vs. pendiente (${getMonthLabel(monthsInView[0])})`;
+    document.getElementById('chart-sub').textContent = 'Una barra por cliente: la parte coral es lo que todavía te debe';
+    const sorted = [...visibleClients].sort((a, b) => (parseFloat(b.budget) || 0) - (parseFloat(a.budget) || 0));
+    labels = sorted.map(c => c.name);
+    cobradoData = sorted.map(c => (c.status || "").trim().toLowerCase() === "pagado" ? parseFloat(c.budget) || 0 : 0);
+    pendienteData = sorted.map(c => (c.status || "").trim().toLowerCase() === "pagado" ? 0 : parseFloat(c.budget) || 0);
+  } else {
+    document.getElementById('chart-title').textContent = 'Cobrado vs. pendiente por mes';
+    document.getElementById('chart-sub').textContent = 'Una barra por mes: la parte coral es lo que quedó pendiente ese mes';
+    labels = monthsInView.map(getMonthLabel);
+    cobradoData = monthsInView.map(m => visibleClients.filter(c => parseCleanMonth(c.month) === m && (c.status || "").trim().toLowerCase() === "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+    pendienteData = monthsInView.map(m => visibleClients.filter(c => parseCleanMonth(c.month) === m && (c.status || "").trim().toLowerCase() !== "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+  }
+
+  historyChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: 'Cobrado', data: cobradoData, backgroundColor: '#3EA872', borderRadius: 4, stack: 's' },
+      { label: 'Pendiente', data: pendienteData, backgroundColor: '#F05E5E', borderRadius: 4, stack: 's' }
+    ]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } }, tooltip: { callbacks: { label: c => ` ${c.dataset.label}: ${formatMoney(c.raw)}` } } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, color: '#9b98a8', maxRotation: 45, minRotation: labels.length > 6 ? 45 : 0 } },
+        y: { stacked: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
+      }
+    }
+  });
+
+  const donutData = Object.keys(CONFIG.tiers).map(t => tiersData[t].total);
+  const donutColors = Object.keys(CONFIG.tiers).map(t => CONFIG.tiers[t].color);
+  if (tierChart) { tierChart.data.datasets[0].data = donutData; tierChart.update(); }
+  else {
+    tierChart = new Chart(document.getElementById('tierChart').getContext('2d'), {
+      type: 'doughnut',
+      data: { labels: Object.values(CONFIG.tiers).map(t => t.label), datasets: [{ data: donutData, backgroundColor: donutColors, borderWidth: 0, hoverOffset: 6 }] },
+      options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => { const tot = ctx.dataset.data.reduce((a, b) => a + b, 0); const p = tot > 0 ? Math.round(ctx.raw / tot * 100) : 0; return ` ${ctx.label}: ${formatMoney(ctx.raw)} (${p}%)`; } } } } }
+    });
+  }
+}
+
+/* ============================================================
+   TARJETA DE CLIENTE
+   ============================================================ */
+function buildClientCard(client) {
+  const budget = parseFloat(client.budget) || 0;
+  const tierOptions = Object.keys(CONFIG.tiers).map(t => `<option value="${t}" ${client.tier === t ? 'selected' : ''}>${CONFIG.tiers[t].label.replace(/s$/, '')}</option>`).join('');
+  return `
+  <div class="client-item">
+    <div class="client-top">
+      <div><div class="client-name">${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
+      <div class="client-top-right">
+        <button class="status-btn ${(client.status || "pendiente").trim().toLowerCase()}" onclick="toggleStatus('${client.id}')">${client.status}</button>
+        <button class="activo-btn ${isActive(client) ? 'activo' : 'inactivo'}" title="Si está inactivo, no se arrastra solo al mes siguiente" onclick="toggleActivo('${client.id}')">${isActive(client) ? '🟢 Activo' : '⚪ Inactivo'}</button>
+        <button class="icon-btn" title="Duplicar al mes siguiente" onclick="duplicateToNextMonth('${client.id}')">📅</button>
+        <button class="icon-btn delete-btn" title="Eliminar" onclick="deleteClient('${client.id}')">×</button>
+      </div>
+    </div>
+    <div class="client-controls">
+      <div class="budget-wrap"><span class="budget-symbol">$</span><input type="number" class="budget-input-live" value="${budget}" onchange="commitChange('${client.id}',{budget:parseFloat(this.value)})"></div>
+      <select class="field-select" onchange="commitChange('${client.id}',{tier:this.value})">${tierOptions}</select>
+      <select class="field-select" onchange="commitChange('${client.id}',{platform:this.value})">
+        <option value="Meta+Google" ${client.platform === 'Meta+Google' ? 'selected' : ''}>Meta+Google</option>
+        <option value="Meta" ${client.platform === 'Meta' ? 'selected' : ''}>Meta</option>
+        <option value="Google" ${client.platform === 'Google' ? 'selected' : ''}>Google</option>
+      </select>
+    </div>
+    <div class="tag-row"><span class="tag-label"># Grupo</span><input type="text" class="tag-input-live" list="available-tags" value="${client.tag || ''}" placeholder="Sin grupo..." onchange="commitChange('${client.id}',{tag:this.value})"></div>
+    <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${client.notes || ''}" placeholder="Comentarios..." onchange="commitChange('${client.id}',{notes:this.value})"></div>
+  </div>`;
+}
+
+/* ============================================================
+   FORMULARIO "CARGAR ÍTEM"
+   ============================================================ */
+async function addClient(e) {
+  e.preventDefault();
+  const month = document.getElementById('form-month').value;
+  const payload = {
+    action: "add", id: `${Date.now()}_${month}`,
+    name: document.getElementById('form-name').value,
+    contact: document.getElementById('form-contact').value,
+    budget: parseFloat(document.getElementById('form-budget').value),
+    month, tier: document.getElementById('form-tier').value,
+    platform: document.getElementById('form-platform').value,
+    status: "Pendiente",
+    tag: (document.getElementById('form-tag')?.value || "").trim(),
+    notes: "",
+    activo: "TRUE"
+  };
+
+  document.getElementById('view-month').value = month;
+  const storedRow = { ...payload }; delete storedRow.action;
+  rawClients.push(storedRow);
+  initDynamicMonths(); renderDashboard();
+  document.getElementById('client-form').reset();
+
+  const result = await syncPost(payload);
+  toastFromResult(result, `${payload.name} agregado ✓`, "Sheets rechazó el alta");
+}
+
+/* ============================================================
+   TOAST Y MODAL DE CONFIRMACIÓN
+   ============================================================ */
+let toastTimer = null;
+function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.style.background = err ? "var(--danger)" : "var(--brown)";
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  t.textContent = msg; t.classList.toggle('error', isError); t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+let confirmCallback = null;
+function askConfirm(text, cb) {
+  document.getElementById('confirmModalText').textContent = text;
+  confirmCallback = cb;
+  document.getElementById('confirmModal').classList.add('show');
+}
+function closeConfirm(ok) {
+  document.getElementById('confirmModal').classList.remove('show');
+  if (ok && confirmCallback) confirmCallback();
+  confirmCallback = null;
 }
 
 window.onload = loadDataFromSheet;
