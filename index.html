@@ -38,6 +38,9 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .header-bottom{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
 .header-bottom select,.header-bottom input{flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:14px;background:var(--bg);color:var(--text-primary);outline:none;font-family:var(--font-body);}
 .header-bottom select:focus,.header-bottom input:focus{border-color:var(--brand);}
+.range-row{align-items:center;}
+.range-sep{color:var(--text-muted);font-weight:700;flex:0 0 auto;}
+.range-apply{width:auto;flex:0 0 auto;padding:10px 16px;}
 
 .main{padding:16px;max-width:920px;margin:0 auto;}
 
@@ -118,6 +121,9 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 #compare-input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:14px;outline:none;}
 #compare-input:focus{border-color:var(--brand);}
 .compare-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.compare-range-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;padding:10px;background:var(--bg);border-radius:var(--radius-sm);}
+.compare-range-row label{font-size:12px;font-weight:700;color:var(--text-secondary);white-space:nowrap;}
+.compare-range-row select{padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--card);font-family:var(--font-body);font-size:13px;outline:none;}
 .compare-chip{display:flex;align-items:center;gap:6px;background:var(--brand-soft);color:var(--brand);border-radius:20px;padding:5px 6px 5px 12px;font-size:12px;font-weight:700;}
 .compare-chip button{background:none;border:none;color:var(--brand);cursor:pointer;font-size:15px;line-height:1;padding:2px 4px;opacity:.7;}
 .compare-chip button:hover{opacity:1;}
@@ -186,8 +192,16 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
     <button class="btn-sync" id="btn-sync" onclick="loadDataFromSheet(true)"><span class="sync-ic">🔄</span> Sync</button>
   </div>
   <div class="header-bottom">
-    <select id="view-month" onchange="renderDashboard()"></select>
+    <select id="view-month" onchange="clearCustomRange(); renderDashboard()"></select>
     <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente...">
+    <button type="button" class="bulk-btn" onclick="toggleRangeUI()">📅 Rango de meses</button>
+  </div>
+  <div class="header-bottom range-row" id="range-row" style="display:none;">
+    <select id="range-from"></select>
+    <span class="range-sep">→</span>
+    <select id="range-to"></select>
+    <button type="button" class="submit-btn range-apply" onclick="applyCustomRange()">Aplicar</button>
+    <button type="button" class="bulk-btn" onclick="clearCustomRange()">Quitar rango</button>
   </div>
 </header>
 
@@ -244,13 +258,21 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
   <div id="groups-container"></div>
 
   <div class="form-card">
-    <h3>🔍 Comparar clientes</h3>
+    <h3>🔍 Comparar clientes o tags</h3>
     <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <input type="text" id="compare-input" list="all-client-names" placeholder="Escribí un nombre de cliente y agregalo..." onkeydown="if(event.key==='Enter'){event.preventDefault();addToCompare();}">
+      <input type="text" id="compare-input" list="all-client-names" placeholder="Nombre de cliente, o # + tag (ej: #TAGLIA)..." onkeydown="if(event.key==='Enter'){event.preventDefault();addToCompare();}">
       <button type="button" class="submit-btn" style="width:auto;padding:10px 18px;flex-shrink:0;" onclick="addToCompare()">Agregar</button>
     </div>
     <datalist id="all-client-names"></datalist>
     <div id="compare-chips" class="compare-chips"></div>
+    <div class="compare-range-row">
+      <label>Acotar a un rango:</label>
+      <select id="compare-range-from"></select>
+      <span class="range-sep">→</span>
+      <select id="compare-range-to"></select>
+      <button type="button" class="bulk-btn" onclick="applyCompareRange()">Aplicar</button>
+      <button type="button" class="bulk-btn" onclick="clearCompareRange()">Ver todo</button>
+    </div>
     <div id="compare-output"></div>
   </div>
 
@@ -339,6 +361,36 @@ function shiftMonth(base, delta) {
   const [y, m] = base.split('-').map(Number);
   const d = new Date(y, m - 1 + delta, 1);
   return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, '0');
+}
+function monthsBetween(from, to) {
+  const [a, b] = from <= to ? [from, to] : [to, from];
+  let result = [], cur = a;
+  while (cur <= b) { result.push(cur); cur = shiftMonth(cur, 1); }
+  return result;
+}
+
+/* ============================================================
+   RANGO PERSONALIZADO — elegís "desde" y "hasta" a mano en vez
+   de los presets fijos. Se puede usar en el panel general y
+   (por separado) para acotar la comparación de clientes/tags.
+   ============================================================ */
+let customRange = null;
+function toggleRangeUI() {
+  const row = document.getElementById('range-row');
+  row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+}
+function applyCustomRange() {
+  const from = document.getElementById('range-from').value;
+  const to = document.getElementById('range-to').value;
+  customRange = { from, to };
+  renderDashboard();
+  showToast(`Mostrando de ${getMonthLabel(from)} a ${getMonthLabel(to)}`);
+}
+function clearCustomRange() {
+  if (!customRange) return;
+  customRange = null;
+  document.getElementById('range-row').style.display = 'none';
+  renderDashboard();
 }
 function formatMoney(n) { return '$' + (n || 0).toLocaleString('es-AR', { maximumFractionDigits: 0 }); }
 
@@ -517,15 +569,27 @@ function getTimelineArray() {
 function initDynamicMonths() {
   const fSel = document.getElementById('view-month');
   const fForm = document.getElementById('form-month');
+  const fFrom = document.getElementById('range-from');
+  const fTo = document.getElementById('range-to');
+  const cFrom = document.getElementById('compare-range-from');
+  const cTo = document.getElementById('compare-range-to');
   const months = getTimelineArray();
   const curr = currentMonthStr();
   const oldVal = fSel.value || curr;
   fForm.innerHTML = "";
+  fFrom.innerHTML = "";
+  fTo.innerHTML = "";
+  cFrom.innerHTML = "";
+  cTo.innerHTML = "";
   fSel.innerHTML = `<optgroup label="Períodos"><option value="Todos">Histórico completo</option><option value="ultimos3">Últimos 3 meses</option><option value="ultimos6">Últimos 6 meses</option></optgroup><optgroup label="Mes por mes">`;
   months.forEach(m => {
     const label = getMonthLabel(m);
     fForm.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
     fSel.innerHTML += `<option value="${m}" ${m === oldVal ? 'selected' : ''}>${label}</option>`;
+    fFrom.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
+    fTo.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
+    cFrom.innerHTML += `<option value="${m}">${label}</option>`;
+    cTo.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
   });
   fSel.innerHTML += `</optgroup>`;
 }
@@ -543,10 +607,16 @@ function getMonthsForPeriod(value) {
    sin ningún motor de recurrencia por detrás.
    ============================================================ */
 function renderDashboard() {
-  const selectedMonth = document.getElementById('view-month').value;
   const query = (document.getElementById('search-input')?.value || "").toLowerCase().trim();
-  const isMultiMonth = selectedMonth === "Todos" || selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
-  const monthsInView = isMultiMonth ? getMonthsForPeriod(selectedMonth) : [selectedMonth];
+  let monthsInView, isMultiMonth;
+  if (customRange) {
+    monthsInView = monthsBetween(customRange.from, customRange.to);
+    isMultiMonth = monthsInView.length > 1;
+  } else {
+    const selectedMonth = document.getElementById('view-month').value;
+    isMultiMonth = selectedMonth === "Todos" || selectedMonth === "ultimos3" || selectedMonth === "ultimos6";
+    monthsInView = isMultiMonth ? getMonthsForPeriod(selectedMonth) : [selectedMonth];
+  }
   const monthSet = new Set(monthsInView);
 
   const matchesQuery = (c) => !query || [c.name, c.contact, c.notes, c.platform, c.tag].some(v => (v || "").toLowerCase().includes(query));
@@ -556,7 +626,10 @@ function renderDashboard() {
   document.getElementById('available-tags').innerHTML = allTags.map(t => `<option value="${t}">`).join('');
 
   const allNames = Array.from(new Set(rawClients.map(c => c.name).filter(Boolean))).sort();
-  document.getElementById('all-client-names').innerHTML = allNames.map(n => `<option value="${n}">`).join('');
+  const allTagsForCompare = Array.from(new Set(rawClients.map(c => c.tag).filter(Boolean))).sort();
+  document.getElementById('all-client-names').innerHTML =
+    allNames.map(n => `<option value="${n}">`).join('') +
+    allTagsForCompare.map(t => `<option value="# ${t}">`).join('');
 
   let tiers = {}; Object.keys(CONFIG.tiers).forEach(t => tiers[t] = { total: 0, pendiente: 0, count: 0 });
   let totalFact = 0, totalCob = 0, totalPend = 0;
@@ -716,53 +789,92 @@ function buildClientCard(client) {
 }
 
 /* ============================================================
-   COMPARAR CLIENTES — tabla mes a mes + un gráfico de totales,
-   para 2 o más clientes elegidos a mano. Usa TODO el historial
-   (no solo el mes que estás mirando arriba).
+   COMPARAR CLIENTES O TAGS — tabla mes a mes + un gráfico de
+   totales. Cada entrada puede ser un cliente puntual o un tag
+   completo (agrupa y suma a todos los clientes de ese tag).
+   Por defecto usa TODO el historial; se puede acotar a un
+   rango propio sin afectar al filtro del panel general.
    ============================================================ */
-let compareList = [];
+let compareList = []; // [{type:'client'|'tag', value:'...'}]
 let compareChart;
+let compareRange = null;
 
 function addToCompare() {
   const input = document.getElementById('compare-input');
-  const name = input.value.trim();
-  if (!name) return;
-  const exists = rawClients.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
-  if (!exists) { showToast(`No encontré ningún cliente llamado "${name}"`, true); return; }
-  if (!compareList.some(n => n.toLowerCase() === name.toLowerCase())) compareList.push(name);
+  let raw = input.value.trim();
+  if (!raw) return;
+  let type, value;
+  if (raw.startsWith('#')) {
+    value = raw.slice(1).trim();
+    type = 'tag';
+    if (!rawClients.some(c => (c.tag || '').trim().toLowerCase() === value.toLowerCase())) {
+      showToast(`No encontré ningún tag llamado "${value}"`, true); return;
+    }
+  } else if (rawClients.some(c => c.name.trim().toLowerCase() === raw.toLowerCase())) {
+    type = 'client'; value = raw;
+  } else if (rawClients.some(c => (c.tag || '').trim().toLowerCase() === raw.toLowerCase())) {
+    type = 'tag'; value = raw;
+  } else {
+    showToast(`No encontré ningún cliente ni tag llamado "${raw}"`, true); return;
+  }
+  const already = compareList.some(c => c.type === type && c.value.toLowerCase() === value.toLowerCase());
+  if (!already) compareList.push({ type, value });
   input.value = '';
   renderComparison();
 }
-function removeFromCompare(name) {
-  compareList = compareList.filter(n => n !== name);
+function removeFromCompare(type, value) {
+  compareList = compareList.filter(c => !(c.type === type && c.value === value));
+  renderComparison();
+}
+function applyCompareRange() {
+  compareRange = { from: document.getElementById('compare-range-from').value, to: document.getElementById('compare-range-to').value };
+  renderComparison();
+}
+function clearCompareRange() {
+  compareRange = null;
   renderComparison();
 }
 
+function compareEntryRows(entry) {
+  let rows = entry.type === 'tag'
+    ? rawClients.filter(c => (c.tag || '').trim().toLowerCase() === entry.value.toLowerCase())
+    : rawClients.filter(c => c.name.trim().toLowerCase() === entry.value.toLowerCase());
+  if (compareRange) {
+    const monthSet = new Set(monthsBetween(compareRange.from, compareRange.to));
+    rows = rows.filter(c => monthSet.has(parseCleanMonth(c.month)));
+  }
+  return rows;
+}
+function compareEntryLabel(entry) { return entry.type === 'tag' ? `# ${entry.value}` : entry.value; }
+
 function renderComparison() {
-  document.getElementById('compare-chips').innerHTML = compareList.map(n =>
-    `<div class="compare-chip">${n} <button onclick="removeFromCompare('${n.replace(/'/g, "\\'")}')">×</button></div>`
+  document.getElementById('compare-chips').innerHTML = compareList.map(e =>
+    `<div class="compare-chip">${compareEntryLabel(e)} <button onclick="removeFromCompare('${e.type}','${e.value.replace(/'/g, "\\'")}')">×</button></div>`
   ).join('');
 
   const out = document.getElementById('compare-output');
-  if (compareList.length < 1) { out.innerHTML = `<div class="empty-state">Agregá uno o más clientes arriba para comparar su facturación mes a mes.</div>`; return; }
+  if (compareList.length < 1) { out.innerHTML = `<div class="empty-state">Agregá uno o más clientes (o tags con #) arriba para comparar su facturación mes a mes.</div>`; return; }
 
-  const rows = compareList.map(name => rawClients.filter(c => c.name.trim().toLowerCase() === name.toLowerCase()));
+  const rows = compareList.map(compareEntryRows);
   const monthSet = new Set();
   rows.forEach(rs => rs.forEach(c => monthSet.add(parseCleanMonth(c.month))));
   const months = Array.from(monthSet).sort();
 
-  if (!months.length) { out.innerHTML = `<div class="empty-state">Todavía no hay datos cargados para estos clientes.</div>`; return; }
+  if (!months.length) { out.innerHTML = `<div class="empty-state">${compareRange ? 'No hay datos para estos clientes/tags en el rango elegido.' : 'Todavía no hay datos cargados para esto.'}</div>`; return; }
 
-  const totals = compareList.map((name, i) => rows[i].reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+  // si un tag junta varios clientes en el mismo mes, se suman en esa celda
+  const cellFor = (entryRows, m) => entryRows.filter(c => parseCleanMonth(c.month) === m);
+  const totals = compareList.map((e, i) => rows[i].reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
 
-  let tableHtml = `<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th>Cliente</th>${months.map(m => `<th>${getMonthLabel(m)}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
-  compareList.forEach((name, i) => {
-    tableHtml += `<tr><td>${name}</td>`;
+  let tableHtml = `<div class="compare-table-wrap"><table class="compare-table"><thead><tr><th>Cliente / Tag</th>${months.map(m => `<th>${getMonthLabel(m)}</th>`).join('')}<th>Total</th></tr></thead><tbody>`;
+  compareList.forEach((e, i) => {
+    tableHtml += `<tr><td>${compareEntryLabel(e)}</td>`;
     months.forEach(m => {
-      const row = rows[i].find(c => parseCleanMonth(c.month) === m);
-      if (!row) { tableHtml += `<td class="cell-empty">—</td>`; return; }
-      const paid = (row.status || "").trim().toLowerCase() === "pagado";
-      tableHtml += `<td class="${paid ? 'cell-pagado' : 'cell-pendiente'}">${formatMoney(row.budget)}</td>`;
+      const cells = cellFor(rows[i], m);
+      if (!cells.length) { tableHtml += `<td class="cell-empty">—</td>`; return; }
+      const sum = cells.reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+      const allPaid = cells.every(c => (c.status || "").trim().toLowerCase() === "pagado");
+      tableHtml += `<td class="${allPaid ? 'cell-pagado' : 'cell-pendiente'}">${formatMoney(sum)}</td>`;
     });
     tableHtml += `<td>${formatMoney(totals[i])}</td></tr>`;
   });
@@ -770,13 +882,13 @@ function renderComparison() {
 
   out.innerHTML = `<div class="compare-chart-wrap"><canvas id="compareChart"></canvas></div>` + tableHtml;
 
-  const cobradoTotals = compareList.map((name, i) => rows[i].filter(c => (c.status || "").trim().toLowerCase() === "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
-  const pendienteTotals = compareList.map((name, i) => totals[i] - cobradoTotals[i]);
+  const cobradoTotals = compareList.map((e, i) => rows[i].filter(c => (c.status || "").trim().toLowerCase() === "pagado").reduce((s, c) => s + (parseFloat(c.budget) || 0), 0));
+  const pendienteTotals = compareList.map((e, i) => totals[i] - cobradoTotals[i]);
 
   if (compareChart) compareChart.destroy();
   compareChart = new Chart(document.getElementById('compareChart').getContext('2d'), {
     type: 'bar',
-    data: { labels: compareList, datasets: [
+    data: { labels: compareList.map(compareEntryLabel), datasets: [
       { label: 'Cobrado', data: cobradoTotals, backgroundColor: '#3EA872', borderRadius: 4, stack: 's' },
       { label: 'Pendiente', data: pendienteTotals, backgroundColor: '#F05E5E', borderRadius: 4, stack: 's' }
     ]},
