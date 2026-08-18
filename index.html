@@ -83,6 +83,35 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .group-toolbar label{font-size:12px;font-weight:700;color:var(--text-secondary);white-space:nowrap;}
 .group-toolbar select{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text-primary);font-family:var(--font-body);font-size:13px;outline:none;}
 
+.overdue-banner{background:var(--danger-soft);border:1px solid var(--danger);border-radius:var(--radius);padding:14px 16px;margin-bottom:var(--gap);}
+.overdue-banner h4{font-family:var(--font-head);font-size:13px;font-weight:800;color:var(--danger);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.overdue-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:13px;border-top:1px solid rgba(194,59,59,.15);}
+.overdue-item:first-of-type{border-top:none;}
+.overdue-item .oi-name{font-weight:700;color:var(--text-primary);}
+.overdue-item .oi-days{color:var(--danger);font-weight:700;font-size:12px;white-space:nowrap;}
+.dueday-wrap{display:flex;align-items:center;gap:4px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);padding:0 8px;}
+.dueday-wrap span{font-size:11px;color:var(--text-muted);white-space:nowrap;}
+.dueday-input{width:34px;padding:8px 0;font-size:13px;font-weight:700;border:none;background:transparent;text-align:center;color:var(--text-primary);outline:none;font-family:var(--font-body);}
+.overdue-badge{display:inline-block;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;}
+
+.health-card{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:var(--gap);}
+@media(min-width:640px){.health-card{grid-template-columns:1fr 1fr;}}
+.health-box{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);}
+.health-box h4{font-family:var(--font-head);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);margin-bottom:10px;}
+.health-stat{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--text-primary);}
+.health-sub{font-size:12px;color:var(--text-muted);margin-top:2px;}
+.health-split{display:flex;gap:14px;margin-top:8px;}
+.health-split div{flex:1;}
+.health-split .hs-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px;}
+.health-split .hs-val{font-family:var(--font-head);font-size:16px;font-weight:800;}
+.movers-list{display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;}
+.mover-item{display:flex;justify-content:space-between;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--border);}
+.mover-item:last-child{border-bottom:none;}
+.mover-up{color:var(--success);font-weight:700;}
+.mover-down{color:var(--danger);font-weight:700;}
+.mover-new{color:var(--brand);font-weight:700;}
+.mover-gone{color:var(--text-muted);font-weight:700;}
+
 .client-item{background:var(--card);border-radius:var(--radius-sm);margin-bottom:8px;box-shadow:var(--shadow-sm);overflow:hidden;}
 .client-top{display:flex;align-items:flex-start;justify-content:space-between;padding:12px 14px 8px;gap:8px;}
 .client-name{font-family:var(--font-head);font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.2;}
@@ -245,6 +274,10 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
     </div>
   </div>
 
+  <div id="overdue-banner"></div>
+
+  <div class="health-card" id="health-card"></div>
+
   <div class="group-toolbar">
     <label>Agrupar por</label>
     <select id="group-by" onchange="renderDashboard()">
@@ -288,6 +321,7 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
         <div class="form-group"><label>Presupuesto ($)</label><input type="number" id="form-budget" required placeholder="0"></div>
         <div class="form-group"><label>Mes</label><select id="form-month"></select></div>
         <div class="form-group"><label>Tier</label><select id="form-tier"><option value="grande">Grande</option><option value="mediana" selected>Mediana</option><option value="chica">Chica</option></select></div>
+        <div class="form-group"><label>Día de pago (opcional)</label><input type="number" id="form-diapago" min="1" max="31" placeholder="Ej: 10"></div>
         <div class="form-group"><label>Plataforma</label><select id="form-platform"><option value="Meta+Google">Meta + Google</option><option value="Meta">Meta</option><option value="Google">Google</option></select></div>
         <button type="submit" class="submit-btn">Cargar ítem</button>
       </div>
@@ -459,15 +493,18 @@ async function commitChange(id, patch) {
   // en un mes, se arrastra solo hacia atrás y hacia adelante a todas las
   // filas de ese mismo cliente (mismo nombre), para no dejarlo corregido
   // en un solo mes suelto.
-  if (patch.contact !== undefined) {
+  if (patch.contact !== undefined || patch.dia_pago !== undefined) {
     const name = updated.name;
     const siblings = rawClients.filter(c => c.id.toString() !== updated.id.toString() && c.name.trim().toLowerCase() === name.trim().toLowerCase());
     for (const s of siblings) {
       const sIdx = rawClients.findIndex(c => c.id.toString() === s.id.toString());
-      rawClients[sIdx] = { ...rawClients[sIdx], contact: patch.contact };
+      const sPatch = {};
+      if (patch.contact !== undefined) sPatch.contact = patch.contact;
+      if (patch.dia_pago !== undefined) sPatch.dia_pago = patch.dia_pago;
+      rawClients[sIdx] = { ...rawClients[sIdx], ...sPatch };
       syncPost({ ...rawClients[sIdx], action: "update" });
     }
-    if (siblings.length) { renderDashboard(); showToast(`Persona aplicada a ${siblings.length + 1} mes(es) de ${name}`); }
+    if (siblings.length) { renderDashboard(); showToast(`Aplicado a ${siblings.length + 1} mes(es) de ${name}`); }
   }
 }
 
@@ -520,6 +557,25 @@ function toggleActivo(id) {
   const c = rawClients.find(x => x.id.toString() === id.toString());
   if (!c) return;
   commitChange(id, { activo: isActive(c) ? "FALSE" : "TRUE" });
+}
+
+/* ============================================================
+   DÍA DE PAGO / VENCIDOS — el día de pago es una propiedad del
+   cliente (no del mes), así que se arrastra solo a los demás
+   meses igual que la persona. isOverdue calcula cuántos días
+   pasaron desde el vencimiento de ESA fila puntual (mes + día).
+   ============================================================ */
+function isOverdue(c) {
+  if ((c.status || "").trim().toLowerCase() === "pagado") return null;
+  const dia = parseInt(c.dia_pago, 10);
+  if (!dia || dia < 1 || dia > 31) return null;
+  const m = parseCleanMonth(c.month);
+  if (!/^\d{4}-\d{2}$/.test(m)) return null;
+  const [y, mm] = m.split('-').map(Number);
+  const due = new Date(y, mm - 1, dia);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  if (today <= due) return null;
+  return Math.floor((today - due) / 86400000);
 }
 
 /* ============================================================
@@ -660,6 +716,92 @@ function renderDashboard() {
   document.getElementById('donut-total').innerHTML = `${formatMoney(totalFact)}<br><span style="font-size:10px;color:var(--success);font-weight:700;">${pct}% cobrado</span>`;
 
   updateCharts(tiers, monthsInView, isMultiMonth);
+  renderOverdueBanner();
+  renderHealthCard(isMultiMonth ? monthsInView[monthsInView.length - 1] : monthsInView[0]);
+}
+
+/* ============================================================
+   VENCIDOS — mira TODO el historial (no solo el mes que estás
+   viendo), porque una factura vieja sin cobrar no debería
+   desaparecer de tu vista solo porque cambiaste de mes.
+   ============================================================ */
+function renderOverdueBanner() {
+  const overdue = rawClients
+    .map(c => ({ c, days: isOverdue(c) }))
+    .filter(x => x.days !== null)
+    .sort((a, b) => b.days - a.days);
+
+  const el = document.getElementById('overdue-banner');
+  if (!overdue.length) { el.innerHTML = ''; return; }
+
+  el.innerHTML = `<div class="overdue-banner">
+    <h4>⚠️ ${overdue.length} pago(s) vencido(s)</h4>
+    ${overdue.slice(0, 8).map(x => `<div class="overdue-item"><span class="oi-name">${x.c.name} · ${getMonthLabel(x.c.month)}</span><span class="oi-days">${x.days} día(s) · ${formatMoney(x.c.budget)}</span></div>`).join('')}
+    ${overdue.length > 8 ? `<div class="overdue-item" style="color:var(--text-muted)">+ ${overdue.length - 8} más...</div>` : ''}
+  </div>`;
+}
+
+/* ============================================================
+   SALUD DEL NEGOCIO — tres cosas que no se ven en ningún otro
+   lado: qué tan concentrada está la facturación en pocos
+   clientes, cuánto es recurrente vs puntual, y quién subió o
+   bajó respecto al mes anterior.
+   ============================================================ */
+function renderHealthCard(refMonth) {
+  const el = document.getElementById('health-card');
+  if (!refMonth || !/^\d{4}-\d{2}$/.test(refMonth)) { el.innerHTML = ''; return; }
+
+  const thisMonthClients = rawClients.filter(c => parseCleanMonth(c.month) === refMonth);
+  if (!thisMonthClients.length) { el.innerHTML = ''; return; }
+
+  const total = thisMonthClients.reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+  const sorted = [...thisMonthClients].sort((a, b) => (parseFloat(b.budget) || 0) - (parseFloat(a.budget) || 0));
+  const top3Sum = sorted.slice(0, 3).reduce((s, c) => s + (parseFloat(c.budget) || 0), 0);
+  const top3Pct = total > 0 ? Math.round((top3Sum / total) * 100) : 0;
+
+  const allNamesEver = new Set(rawClients.map(c => c.name.trim().toLowerCase()));
+  const priorMonths = new Set(rawClients.filter(c => parseCleanMonth(c.month) < refMonth).map(c => c.name.trim().toLowerCase()));
+  let recurrenteSum = 0, puntualSum = 0, recurrenteCount = 0, puntualCount = 0;
+  thisMonthClients.forEach(c => {
+    const isRecurrente = priorMonths.has(c.name.trim().toLowerCase());
+    const b = parseFloat(c.budget) || 0;
+    if (isRecurrente) { recurrenteSum += b; recurrenteCount++; } else { puntualSum += b; puntualCount++; }
+  });
+
+  const prevMonth = shiftMonth(refMonth, -1);
+  const prevClients = rawClients.filter(c => parseCleanMonth(c.month) === prevMonth);
+  const prevByName = {}; prevClients.forEach(c => { prevByName[c.name.trim().toLowerCase()] = parseFloat(c.budget) || 0; });
+  const curByName = {}; thisMonthClients.forEach(c => { curByName[c.name.trim().toLowerCase()] = (curByName[c.name.trim().toLowerCase()] || 0) + (parseFloat(c.budget) || 0); });
+
+  let movers = [];
+  Object.keys(curByName).forEach(n => {
+    const cur = curByName[n], prev = prevByName[n];
+    const label = thisMonthClients.find(c => c.name.trim().toLowerCase() === n).name;
+    if (prev === undefined) movers.push({ label, type: 'new', text: `Nuevo · ${formatMoney(cur)}` });
+    else if (cur !== prev) movers.push({ label, type: cur > prev ? 'up' : 'down', text: `${cur > prev ? '+' : ''}${formatMoney(cur - prev)}`, abs: Math.abs(cur - prev) });
+  });
+  Object.keys(prevByName).forEach(n => {
+    if (curByName[n] === undefined) {
+      const label = prevClients.find(c => c.name.trim().toLowerCase() === n).name;
+      movers.push({ label, type: 'gone', text: `Se fue · ${formatMoney(prevByName[n])}`, abs: prevByName[n] });
+    }
+  });
+  movers.sort((a, b) => (b.abs || 0) - (a.abs || 0));
+
+  el.innerHTML = `
+    <div class="health-box">
+      <h4>Concentración</h4>
+      <div class="health-stat">${top3Pct}%</div>
+      <div class="health-sub">de ${getMonthLabel(refMonth)} viene de tus 3 clientes más grandes</div>
+      <div class="health-split">
+        <div><div class="hs-label">Recurrente</div><div class="hs-val" style="color:var(--success)">${formatMoney(recurrenteSum)}</div><div class="health-sub">${recurrenteCount} cliente(s)</div></div>
+        <div><div class="hs-label">Puntual</div><div class="hs-val" style="color:var(--warning)">${formatMoney(puntualSum)}</div><div class="health-sub">${puntualCount} cliente(s)</div></div>
+      </div>
+    </div>
+    <div class="health-box">
+      <h4>Vs. ${getMonthLabel(prevMonth)}</h4>
+      ${!movers.length ? `<div class="health-sub">Sin datos de ${getMonthLabel(prevMonth)} para comparar.</div>` : `<div class="movers-list">${movers.map(m => `<div class="mover-item"><span>${m.label}</span><span class="mover-${m.type}">${m.text}</span></div>`).join('')}</div>`}
+    </div>`;
 }
 
 /* ============================================================
@@ -761,11 +903,12 @@ function updateCharts(tiersData, monthsInView, isMultiMonth) {
    ============================================================ */
 function buildClientCard(client) {
   const budget = parseFloat(client.budget) || 0;
+  const overdueDays = isOverdue(client);
   const tierOptions = Object.keys(CONFIG.tiers).map(t => `<option value="${t}" ${client.tier === t ? 'selected' : ''}>${CONFIG.tiers[t].label.replace(/s$/, '')}</option>`).join('');
   return `
   <div class="client-item">
     <div class="client-top">
-      <div><div class="client-name">${client.name}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
+      <div><div class="client-name">${client.name}${overdueDays !== null ? `<span class="overdue-badge">${overdueDays}d vencido</span>` : ''}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
       <div class="client-top-right">
         <button class="status-btn ${(client.status || "pendiente").trim().toLowerCase()}" onclick="toggleStatus('${client.id}')">${client.status}</button>
         <button class="activo-btn ${isActive(client) ? 'activo' : 'inactivo'}" title="Si está inactivo, no se arrastra solo al mes siguiente" onclick="toggleActivo('${client.id}')">${isActive(client) ? '🟢 Activo' : '⚪ Inactivo'}</button>
@@ -781,6 +924,7 @@ function buildClientCard(client) {
         <option value="Meta" ${client.platform === 'Meta' ? 'selected' : ''}>Meta</option>
         <option value="Google" ${client.platform === 'Google' ? 'selected' : ''}>Google</option>
       </select>
+      <div class="dueday-wrap" title="Día del mes en que vence el pago"><span>Vence el</span><input type="number" class="dueday-input" min="1" max="31" value="${client.dia_pago || ''}" placeholder="—" onchange="commitChange('${client.id}',{dia_pago:this.value})"></div>
     </div>
     <div class="tag-row"><span class="tag-label"># Persona</span><input type="text" class="tag-input-live" list="available-contacts" value="${client.contact || ''}" placeholder="Sin asignar..." onchange="commitChange('${client.id}',{contact:this.value})"></div>
     <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${client.notes || ''}" placeholder="Comentarios..." onchange="commitChange('${client.id}',{notes:this.value})"></div>
@@ -969,7 +1113,8 @@ async function addClient(e) {
     platform: document.getElementById('form-platform').value,
     status: "Pendiente",
     notes: "",
-    activo: "TRUE"
+    activo: "TRUE",
+    dia_pago: (document.getElementById('form-diapago')?.value || "").trim()
   };
 
   document.getElementById('view-month').value = month;
