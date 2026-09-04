@@ -130,6 +130,9 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .activo-btn{padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;cursor:pointer;font-family:var(--font-head);background:transparent;}
 .activo-btn.activo{color:var(--success);border-color:var(--success);}
 .activo-btn.inactivo{color:var(--text-muted);border-color:var(--border);}
+.facturado-btn{padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;cursor:pointer;font-family:var(--font-head);background:transparent;}
+.facturado-btn.si{color:var(--brand);border-color:var(--brand);}
+.facturado-btn.no{color:var(--text-muted);border-color:var(--border);}
 .icon-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:4px 6px;opacity:.5;line-height:1;}
 .icon-btn:hover{opacity:1;}
 .delete-btn{color:var(--danger);font-size:20px;}
@@ -560,6 +563,21 @@ function toggleActivo(id) {
 }
 
 /* ============================================================
+   FACTURADO — independiente de Pagado/Pendiente: indica si ya
+   se emitió la factura de ese cargo, más allá de si se cobró.
+   Es propio de cada fila (no se arrastra entre meses).
+   ============================================================ */
+function isFacturado(c) {
+  const v = c.facturado;
+  return v === true || v === "TRUE" || v === "true" || v === "1" || v === 1;
+}
+function toggleFacturado(id) {
+  const c = rawClients.find(x => x.id.toString() === id.toString());
+  if (!c) return;
+  commitChange(id, { facturado: isFacturado(c) ? "FALSE" : "TRUE" });
+}
+
+/* ============================================================
    DÍA DE PAGO / VENCIDOS — el día de pago es una propiedad del
    cliente (no del mes), así que se arrastra solo a los demás
    meses igual que la persona. isOverdue calcula cuántos días
@@ -572,7 +590,10 @@ function isOverdue(c) {
   const m = parseCleanMonth(c.month);
   if (!/^\d{4}-\d{2}$/.test(m)) return null;
   const [y, mm] = m.split('-').map(Number);
-  const due = new Date(y, mm - 1, dia);
+  // El vencimiento cae en el mes SIGUIENTE al del cargo: si el cargo es de
+  // septiembre con día 10, vence el 10 de octubre (por eso "mm" sin el -1,
+  // que en Date ya representa el mes de después dado que es 0-indexado).
+  const due = new Date(y, mm, dia);
   const today = new Date(); today.setHours(0, 0, 0, 0);
   if (today <= due) return null;
   return Math.floor((today - due) / 86400000);
@@ -631,7 +652,8 @@ function initDynamicMonths() {
   const cTo = document.getElementById('compare-range-to');
   const months = getTimelineArray();
   const curr = currentMonthStr();
-  const oldVal = fSel.value || curr;
+  const defaultMonth = shiftMonth(curr, -1); // "mes de llegada": siempre el anterior al actual
+  const oldVal = fSel.value || defaultMonth;
   fForm.innerHTML = "";
   fFrom.innerHTML = "";
   fTo.innerHTML = "";
@@ -640,7 +662,7 @@ function initDynamicMonths() {
   fSel.innerHTML = `<optgroup label="Períodos"><option value="Todos">Histórico completo</option><option value="ultimos3">Últimos 3 meses</option><option value="ultimos6">Últimos 6 meses</option></optgroup><optgroup label="Mes por mes">`;
   months.forEach(m => {
     const label = getMonthLabel(m);
-    fForm.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
+    fForm.innerHTML += `<option value="${m}" ${m === defaultMonth ? 'selected' : ''}>${label}</option>`;
     fSel.innerHTML += `<option value="${m}" ${m === oldVal ? 'selected' : ''}>${label}</option>`;
     fFrom.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
     fTo.innerHTML += `<option value="${m}" ${m === curr ? 'selected' : ''}>${label}</option>`;
@@ -911,6 +933,7 @@ function buildClientCard(client) {
       <div><div class="client-name">${client.name}${overdueDays !== null ? `<span class="overdue-badge">${overdueDays}d vencido</span>` : ''}</div><div class="client-meta">${client.contact} · ${getMonthLabel(client.month)}</div></div>
       <div class="client-top-right">
         <button class="status-btn ${(client.status || "pendiente").trim().toLowerCase()}" onclick="toggleStatus('${client.id}')">${client.status}</button>
+        <button class="facturado-btn ${isFacturado(client) ? 'si' : 'no'}" title="¿Ya se emitió la factura?" onclick="toggleFacturado('${client.id}')">🧾 ${isFacturado(client) ? 'Facturado' : 'Sin facturar'}</button>
         <button class="activo-btn ${isActive(client) ? 'activo' : 'inactivo'}" title="Si está inactivo, no se arrastra solo al mes siguiente" onclick="toggleActivo('${client.id}')">${isActive(client) ? '🟢 Activo' : '⚪ Inactivo'}</button>
         <button class="icon-btn" title="Duplicar al mes siguiente" onclick="duplicateToNextMonth('${client.id}')">📅</button>
         <button class="icon-btn delete-btn" title="Eliminar" onclick="deleteClient('${client.id}')">×</button>
@@ -924,7 +947,7 @@ function buildClientCard(client) {
         <option value="Meta" ${client.platform === 'Meta' ? 'selected' : ''}>Meta</option>
         <option value="Google" ${client.platform === 'Google' ? 'selected' : ''}>Google</option>
       </select>
-      <div class="dueday-wrap" title="Día del mes en que vence el pago"><span>Vence el</span><input type="number" class="dueday-input" min="1" max="31" value="${client.dia_pago || ''}" placeholder="—" onchange="commitChange('${client.id}',{dia_pago:this.value})"></div>
+      <div class="dueday-wrap" title="Vence el día elegido, del MES SIGUIENTE a este cargo"><span>Vence el</span><input type="number" class="dueday-input" min="1" max="31" value="${client.dia_pago || ''}" placeholder="—" onchange="commitChange('${client.id}',{dia_pago:this.value})"></div>
     </div>
     <div class="tag-row"><span class="tag-label"># Persona</span><input type="text" class="tag-input-live" list="available-contacts" value="${client.contact || ''}" placeholder="Sin asignar..." onchange="commitChange('${client.id}',{contact:this.value})"></div>
     <div class="notes-row"><span class="notes-label">Obs.</span><input type="text" class="notes-input-live" value="${client.notes || ''}" placeholder="Comentarios..." onchange="commitChange('${client.id}',{notes:this.value})"></div>
@@ -1114,6 +1137,7 @@ async function addClient(e) {
     status: "Pendiente",
     notes: "",
     activo: "TRUE",
+    facturado: "FALSE",
     dia_pago: (document.getElementById('form-diapago')?.value || "").trim()
   };
 
