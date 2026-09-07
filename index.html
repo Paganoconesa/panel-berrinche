@@ -130,9 +130,9 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
 .activo-btn{padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;cursor:pointer;font-family:var(--font-head);background:transparent;}
 .activo-btn.activo{color:var(--success);border-color:var(--success);}
 .activo-btn.inactivo{color:var(--text-muted);border-color:var(--border);}
-.facturado-btn{padding:6px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;cursor:pointer;font-family:var(--font-head);background:transparent;}
-.facturado-btn.si{color:var(--brand);border-color:var(--brand);}
-.facturado-btn.no{color:var(--text-muted);border-color:var(--border);}
+.facturado-btn{padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-head);}
+.facturado-btn.si{background:var(--brand-soft);color:var(--brand);}
+.facturado-btn.no{background:var(--border);color:var(--text-muted);}
 .icon-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:4px 6px;opacity:.5;line-height:1;}
 .icon-btn:hover{opacity:1;}
 .delete-btn{color:var(--danger);font-size:20px;}
@@ -226,6 +226,11 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
   <div class="header-bottom">
     <select id="view-month" onchange="clearCustomRange(); renderDashboard()"></select>
     <input type="text" id="search-input" oninput="renderDashboard()" placeholder="Buscar cliente...">
+    <select id="facturado-filter" onchange="renderDashboard()">
+      <option value="todos">Facturación: todos</option>
+      <option value="si">Solo facturados</option>
+      <option value="no">Solo sin facturar</option>
+    </select>
     <button type="button" class="bulk-btn" onclick="toggleRangeUI()">📅 Rango de meses</button>
   </div>
   <div class="header-bottom range-row" id="range-row" style="display:none;">
@@ -539,7 +544,7 @@ async function duplicateToNextMonth(id) {
     showToast(`${c.name} ya tiene una fila en ${getMonthLabel(nextMonth)}`, true);
     return;
   }
-  const newRow = { ...c, id: `${Date.now()}_${nextMonth}`, month: nextMonth, status: "Pendiente" };
+  const newRow = { ...c, id: `${Date.now()}_${nextMonth}`, month: nextMonth, status: "Pendiente", facturado: "Sin facturar" };
   delete newRow.action;
   rawClients.push(newRow);
   renderDashboard();
@@ -568,13 +573,12 @@ function toggleActivo(id) {
    Es propio de cada fila (no se arrastra entre meses).
    ============================================================ */
 function isFacturado(c) {
-  const v = c.facturado;
-  return v === true || v === "TRUE" || v === "true" || v === "1" || v === 1;
+  return (c.facturado || "").toString().trim().toLowerCase() === "facturado";
 }
 function toggleFacturado(id) {
   const c = rawClients.find(x => x.id.toString() === id.toString());
   if (!c) return;
-  commitChange(id, { facturado: isFacturado(c) ? "FALSE" : "TRUE" });
+  commitChange(id, { facturado: isFacturado(c) ? "Sin facturar" : "Facturado" });
 }
 
 /* ============================================================
@@ -623,7 +627,7 @@ async function autoCarryForwardIfNeeded() {
 
   let ok = 0;
   for (const c of toCarry) {
-    const newRow = { ...c, id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${curMonth}`, month: curMonth, status: "Pendiente" };
+    const newRow = { ...c, id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${curMonth}`, month: curMonth, status: "Pendiente", facturado: "Sin facturar" };
     delete newRow.action;
     rawClients.push(newRow);
     const result = await syncPost({ ...newRow, action: "add" });
@@ -698,7 +702,9 @@ function renderDashboard() {
   const monthSet = new Set(monthsInView);
 
   const matchesQuery = (c) => !query || [c.name, c.contact, c.notes, c.platform].some(v => (v || "").toLowerCase().includes(query));
-  visibleClients = rawClients.filter(c => monthSet.has(parseCleanMonth(c.month))).filter(matchesQuery);
+  const facturadoFilter = document.getElementById('facturado-filter')?.value || 'todos';
+  const matchesFacturado = (c) => facturadoFilter === 'todos' || (facturadoFilter === 'si' ? isFacturado(c) : !isFacturado(c));
+  visibleClients = rawClients.filter(c => monthSet.has(parseCleanMonth(c.month))).filter(matchesQuery).filter(matchesFacturado);
 
   const allContacts = Array.from(new Set(rawClients.map(c => c.contact).filter(Boolean))).sort();
   document.getElementById('available-contacts').innerHTML = allContacts.map(t => `<option value="${t}">`).join('');
@@ -1110,7 +1116,7 @@ async function confirmBulkUpload() {
       action: "add", id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${month}`,
       name: r.name, contact: r.contact, budget: r.budget, month,
       tier: validTiers.includes(r.tier) ? r.tier : 'mediana',
-      platform: r.platform, status: "Pendiente", notes: "", activo: "TRUE"
+      platform: r.platform, status: "Pendiente", notes: "", activo: "TRUE", facturado: "Sin facturar"
     };
     const storedRow = { ...payload }; delete storedRow.action;
     rawClients.push(storedRow);
@@ -1137,7 +1143,7 @@ async function addClient(e) {
     status: "Pendiente",
     notes: "",
     activo: "TRUE",
-    facturado: "FALSE",
+    facturado: "Sin facturar",
     dia_pago: (document.getElementById('form-diapago')?.value || "").trim()
   };
 
