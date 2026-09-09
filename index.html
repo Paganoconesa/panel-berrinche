@@ -253,6 +253,11 @@ body{background:var(--bg);color:var(--text-primary);font-family:var(--font-body)
       <div class="kpi-bar"><div class="kpi-bar-fill" id="kpi-cobrado-bar" style="width:0%"></div></div>
       <span class="kpi-sub" id="kpi-cobrado-pct">0% del total</span>
     </div>
+    <div class="kpi-card" style="--kpi-accent:var(--brand);--kpi-color:var(--brand);">
+      <span class="kpi-label">Facturado</span><span class="kpi-value" id="kpi-facturado">$0</span>
+      <div class="kpi-bar"><div class="kpi-bar-fill" id="kpi-facturado-bar" style="width:0%;background:var(--brand);"></div></div>
+      <span class="kpi-sub" id="kpi-facturado-pct">0% del total</span>
+    </div>
     <div class="kpi-card" style="--kpi-accent:var(--warning);--kpi-color:var(--warning);">
       <span class="kpi-label">Por cobrar</span><span class="kpi-value" id="kpi-pendiente">$0</span>
     </div>
@@ -715,11 +720,12 @@ function renderDashboard() {
     allContacts.map(t => `<option value="# ${t}">`).join('');
 
   let tiers = {}; Object.keys(CONFIG.tiers).forEach(t => tiers[t] = { total: 0, pendiente: 0, count: 0 });
-  let totalFact = 0, totalCob = 0, totalPend = 0;
+  let totalFact = 0, totalCob = 0, totalPend = 0, totalFacturado = 0;
   visibleClients.forEach(c => {
     const b = parseFloat(c.budget) || 0;
     totalFact += b;
     if ((c.status || "").trim().toLowerCase() === "pagado") totalCob += b; else totalPend += b;
+    if (isFacturado(c)) totalFacturado += b;
     if (tiers[c.tier]) {
       tiers[c.tier].total += b; tiers[c.tier].count++;
       if ((c.status || "").trim().toLowerCase() !== "pagado") tiers[c.tier].pendiente += b;
@@ -741,6 +747,10 @@ function renderDashboard() {
   const pct = totalFact > 0 ? Math.round((totalCob / totalFact) * 100) : 0;
   document.getElementById('kpi-cobrado-bar').style.width = pct + '%';
   document.getElementById('kpi-cobrado-pct').innerText = pct + '% del total';
+  const pctFacturado = totalFact > 0 ? Math.round((totalFacturado / totalFact) * 100) : 0;
+  document.getElementById('kpi-facturado').innerText = formatMoney(totalFacturado);
+  document.getElementById('kpi-facturado-bar').style.width = pctFacturado + '%';
+  document.getElementById('kpi-facturado-pct').innerText = pctFacturado + '% del total';
   document.getElementById('donut-total').innerHTML = `${formatMoney(totalFact)}<br><span style="font-size:10px;color:var(--success);font-weight:700;">${pct}% cobrado</span>`;
 
   updateCharts(tiers, monthsInView, isMultiMonth);
