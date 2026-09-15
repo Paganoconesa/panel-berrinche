@@ -1181,7 +1181,8 @@ function showToast(msg, isError = false) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.toggle('error', isError); t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  const duration = msg.length > 40 ? 4500 : 2400;
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
 }
 let confirmCallback = null;
 function askConfirm(text, cb) {
