@@ -362,7 +362,7 @@ Craft	Nicolás	400000	grande	Meta+Google"></textarea>
    CONFIGURACIÓN — lo que cambia seguido va acá.
    ============================================================ */
 const CONFIG = {
-  sheetApiUrl: "https://script.google.com/macros/s/AKfycbzMkOYligCGvXvT1z4SaI1aRS_4A216yW-2i517j3OMFkf5IDyywO0C3Teqmg-dgzWn/exec",
+  sheetApiUrl: "https://script.google.com/macros/s/AKfycbyqu64B5dKz-TCuDHbsgba1mz6Oc6Q5ACfT-HudGlrOUfAQed3uhcesUkbHmiEIo6x1/exec",
   cacheTtlMs: 15 * 60 * 1000,
   tiers: {
     grande:  { label: "Grandes",  color: "#2E2826" },
@@ -459,7 +459,7 @@ async function loadDataFromSheet(forzar = false) {
     initDynamicMonths();
     renderDashboard();
     setSyncStatus("actualizado " + new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' }));
-    await autoCarryForwardIfNeeded();
+    try { await autoCarryForwardIfNeeded(); } catch (e2) { showToast("El arrastre automático tuvo un problema, pero el resto de los datos ya está cargado", true); }
   } catch (e) {
     showToast("No se pudo sincronizar con Sheets", true);
     setSyncStatus("error de sincronización");
@@ -630,15 +630,17 @@ async function autoCarryForwardIfNeeded() {
   const toCarry = rawClients.filter(c => parseCleanMonth(c.month) === sourceMonth && isActive(c));
   if (!toCarry.length) return;
 
-  let ok = 0;
-  for (const c of toCarry) {
+  const newRows = toCarry.map(c => {
     const newRow = { ...c, id: `${Date.now()}_${Math.random().toString(36).slice(2, 6)}_${curMonth}`, month: curMonth, status: "Pendiente", facturado: "Sin facturar" };
     delete newRow.action;
-    rawClients.push(newRow);
-    const result = await syncPost({ ...newRow, action: "add" });
-    if (result.confirmed && result.ok) ok++;
-  }
-  renderDashboard();
+    return newRow;
+  });
+  rawClients.push(...newRows);
+  renderDashboard(); // se muestran al toque, sin esperar la confirmación de cada una
+
+  // todos los pedidos van en paralelo, no uno atrás del otro
+  const results = await Promise.allSettled(newRows.map(r => syncPost({ ...r, action: "add" })));
+  const ok = results.filter(r => r.status === "fulfilled" && r.value.confirmed && r.value.ok).length;
   showToast(`${ok} cliente(s) activos traídos automáticamente de ${getMonthLabel(sourceMonth)} a ${getMonthLabel(curMonth)}`);
 }
 /* ============================================================
