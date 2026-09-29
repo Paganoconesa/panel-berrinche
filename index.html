@@ -453,7 +453,7 @@ async function loadDataFromSheet(forzar = false) {
   showLoader(true);
   document.getElementById('btn-sync').classList.add('spinning');
   try {
-    const res = await fetch(CONFIG.sheetApiUrl);
+    const res = await fetch(CONFIG.sheetApiUrl + '?t=' + Date.now(), { cache: 'no-store' });
     rawClients = await res.json();
     lastFetchTime = now;
     initDynamicMonths();
@@ -500,13 +500,7 @@ async function commitChange(id, patch) {
   rawClients[idx] = updated;
   renderDashboard();
   const result = await syncPost({ ...updated, action: "update" });
-  if (result.confirmed && result.ok && result.data && result.data.written) {
-    const changedKeys = Object.keys(patch);
-    const confirmedVals = changedKeys.map(k => `${k}: "${result.data.written[k]}"`).join(', ');
-    showToast(`Guardado y confirmado en Sheets → ${confirmedVals}`);
-  } else {
-    toastFromResult(result, "Guardado ✓", "Sheets rechazó el cambio");
-  }
+  toastFromResult(result, "Guardado ✓", "Sheets rechazó el cambio");
 
   // El contacto identifica a la PERSONA, no a un mes puntual: si lo corregís
   // en un mes, se arrastra solo hacia atrás y hacia adelante a todas las
