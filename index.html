@@ -205,6 +205,19 @@ body{
 .tag-input-live{flex:1;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--brand);outline:none;font-family:var(--font-body);}
 .notes-input-live:focus,.tag-input-live:focus{background:var(--bg);border-radius:6px;padding:3px 7px;margin:-3px -7px;}
 
+/* ---------- Proyección a 6 meses ---------- */
+.proj-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:var(--gap);animation:fadeInUp .35s var(--ease) both;}
+.proj-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.proj-title{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);}
+.proj-badge{background:var(--brand-soft);color:var(--brand-deep);font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;}
+.proj-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;}
+.proj-stat{background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;display:flex;flex-direction:column;gap:3px;}
+.proj-stat-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);}
+.proj-stat-val{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.15;}
+.proj-stat-sub{font-size:11.5px;color:var(--text-muted);font-weight:600;}
+.proj-chart{position:relative;height:230px;margin-bottom:14px;}
+.proj-note{font-size:11.5px;color:var(--text-muted);margin-top:12px;line-height:1.55;}
+
 /* ---------- Form cards ---------- */
 .form-card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:22px;animation:fadeInUp .35s var(--ease) both;}
 .form-card h3{font-family:var(--font-head);font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:16px;display:flex;align-items:center;gap:8px;}
@@ -230,6 +243,7 @@ body{
 .compare-table th,.compare-table td{padding:10px 13px;text-align:right;border-bottom:1px solid var(--border);}
 .compare-table th:first-child,.compare-table td:first-child{text-align:left;position:sticky;left:0;background:var(--card);font-weight:700;font-family:var(--font-head);}
 .compare-table thead th{background:var(--bg);color:var(--text-secondary);font-weight:700;text-transform:uppercase;font-size:10.5px;letter-spacing:.4px;}
+.compare-table thead th:first-child{background:var(--bg);}
 .compare-table tbody tr:hover td{background:var(--bg);}
 .compare-table td.cell-pagado{color:var(--success);font-weight:700;}
 .compare-table td.cell-pendiente{color:var(--warning);font-weight:700;}
@@ -384,6 +398,8 @@ body{
   <div id="overdue-banner"></div>
 
   <div class="health-card" id="health-card"></div>
+
+  <div id="projection-card"></div>
 
 
   <div class="group-toolbar">
@@ -871,6 +887,7 @@ function renderDashboard() {
   updateCharts(tiers, monthsInView, isMultiMonth);
   renderOverdueBanner();
   renderHealthCard(isMultiMonth ? monthsInView[monthsInView.length - 1] : monthsInView[0]);
+  renderProjectionCard();
 }
 
 /* ============================================================
@@ -955,6 +972,139 @@ function renderHealthCard(refMonth) {
       <h4>Vs. ${getMonthLabel(prevMonth)}</h4>
       ${!movers.length ? `<div class="health-sub">Sin datos de ${getMonthLabel(prevMonth)} para comparar.</div>` : `<div class="movers-list">${movers.map(m => `<div class="mover-item"><span>${m.label}</span><span class="mover-${m.type}">${m.text}</span></div>`).join('')}</div>`}
     </div>`;
+}
+
+/* ============================================================
+   PROYECCIÓN A 6 MESES — simula la "vida" de la cartera mes a
+   mes en vez de estirar una recta. De los últimos meses CERRADOS
+   (hasta 6, nunca el actual, que está incompleto) saca:
+   - retención de clientes: qué % de los clientes de un mes sigue
+     al mes siguiente (de ahí sale cuánto "vive" un cliente);
+   - retención de ingresos: qué % de la facturación de un mes se
+     repite al siguiente (incluye bajas y cambios de presupuesto);
+   - altas: cuántos clientes nuevos entran por mes y cuánto aportan.
+   Con eso proyecta 6 meses: escenario base (sigue el ritmo de
+   altas) y escenario sin clientes nuevos. Solo usa meses que
+   tienen datos reales, así los meses vacíos del calendario no
+   distorsionan nada.
+   ============================================================ */
+let projectionChart = null, projectionKey = "";
+
+function computeAgencyProjection(clients, curMonth) {
+  const byMonth = {};
+  clients.forEach(c => {
+    const m = parseCleanMonth(c.month);
+    const name = (c.name || "").trim().toLowerCase();
+    if (!/^\d{4}-\d{2}$/.test(m) || !name) return;
+    if (!byMonth[m]) byMonth[m] = {};
+    byMonth[m][name] = (byMonth[m][name] || 0) + (parseFloat(c.budget) || 0);
+  });
+
+  const months = Object.keys(byMonth).filter(m => m <= curMonth).sort();
+  if (!months.length) return null;
+  const base = months[months.length - 1];
+  const total = m => Object.values(byMonth[m]).reduce((a, b) => a + b, 0);
+
+  const transitions = [];
+  for (let i = 1; i < months.length; i++) {
+    const prev = months[i - 1], cur = months[i];
+    if (shiftMonth(prev, 1) !== cur || cur >= curMonth) continue; // solo meses consecutivos y ya cerrados
+    const A = byMonth[prev], B = byMonth[cur];
+    const namesA = Object.keys(A), revPrev = total(prev);
+    if (!namesA.length || revPrev <= 0) continue;
+    const kept = namesA.filter(n => n in B);
+    const added = Object.keys(B).filter(n => !(n in A));
+    transitions.push({
+      logoRet: kept.length / namesA.length,
+      nrr: kept.reduce((s, n) => s + B[n], 0) / revPrev,
+      newCount: added.length,
+      newRev: added.reduce((s, n) => s + B[n], 0)
+    });
+  }
+  const used = transitions.slice(-6);
+  if (used.length < 2) return { insufficient: true, closedMonths: transitions.length + 1 };
+
+  const avg = k => used.reduce((s, t) => s + t[k], 0) / used.length;
+  const logoRet = Math.min(avg('logoRet'), 1);
+  const nrr = Math.min(Math.max(avg('nrr'), 0.5), 1.05); // tope 105% para no inflar la proyección
+  const newCount = avg('newCount'), newRev = avg('newRev');
+
+  const startRev = total(base), startCount = Object.keys(byMonth[base]).length;
+  let rb = startRev, rn = startRev, cb = startCount, cn = startCount;
+  const proj = [];
+  for (let i = 1; i <= 6; i++) {
+    rb = rb * nrr + newRev;  rn = rn * nrr;
+    cb = cb * logoRet + newCount;  cn = cn * logoRet;
+    proj.push({ month: shiftMonth(base, i), base: rb, sinNuevos: rn, clientes: cb, clientesSin: cn });
+  }
+  return {
+    base, startRev, startCount, proj, logoRet, nrr, newCount, newRev,
+    monthsUsed: used.length,
+    history: months.slice(-6).map(m => ({ month: m, rev: total(m) })),
+    lifetime: logoRet < 0.999 ? 1 / (1 - logoRet) : Infinity,
+    acumulado: proj.reduce((s, x) => s + x.base, 0)
+  };
+}
+
+function renderProjectionCard() {
+  const el = document.getElementById('projection-card');
+  const curMonth = currentMonthStr();
+  // si nada cambió desde la última vez (por ejemplo al tipear en el buscador), no se rehace
+  const key = curMonth + '|' + rawClients.map(c => `${c.id}:${c.name}:${c.budget}:${c.month}`).join(',');
+  if (key === projectionKey) return;
+  projectionKey = key;
+  if (projectionChart) { projectionChart.destroy(); projectionChart = null; }
+
+  const p = computeAgencyProjection(rawClients, curMonth);
+  if (!p) { el.innerHTML = ''; return; }
+  if (p.insufficient) {
+    el.innerHTML = `<div class="proj-card"><div class="proj-head"><h3 class="proj-title">Proyección a 6 meses</h3></div>
+      <div class="empty-state">Para proyectar necesito al menos 3 meses cerrados y consecutivos con datos. Por ahora hay ${p.closedMonths}.</div></div>`;
+    return;
+  }
+
+  const short = m => { const [y, mm] = m.split('-'); return CONFIG.meses[parseInt(mm, 10) - 1].slice(0, 3) + ' ' + y.slice(2); };
+  const last = p.proj[p.proj.length - 1];
+  const delta = p.startRev > 0 ? Math.round(((last.base - p.startRev) / p.startRev) * 100) : 0;
+  const lifeTxt = p.lifetime >= 36 ? 'más de 3 años' : p.lifetime.toFixed(1).replace('.', ',') + ' meses';
+  const pct = v => Math.round(v * 100);
+
+  el.innerHTML = `<div class="proj-card">
+    <div class="proj-head"><h3 class="proj-title">Proyección a 6 meses</h3><span class="proj-badge">${getMonthLabel(p.proj[0].month)} a ${getMonthLabel(last.month)}</span></div>
+    <div class="proj-stats">
+      <div class="proj-stat"><span class="proj-stat-label">Facturación en ${getMonthLabel(last.month)}</span><span class="proj-stat-val">${formatMoney(last.base)}</span><span class="proj-stat-sub">${delta >= 0 ? '+' : ''}${delta}% vs. ${getMonthLabel(p.base)}</span></div>
+      <div class="proj-stat"><span class="proj-stat-label">Acumulado 6 meses</span><span class="proj-stat-val">${formatMoney(p.acumulado)}</span><span class="proj-stat-sub">escenario base</span></div>
+      <div class="proj-stat"><span class="proj-stat-label">Vida promedio de un cliente</span><span class="proj-stat-val">${lifeTxt}</span><span class="proj-stat-sub">retención de ${pct(p.logoRet)}% por mes</span></div>
+    </div>
+    <div class="proj-chart"><canvas id="projectionChart"></canvas></div>
+    <div class="compare-table-wrap"><table class="compare-table">
+      <thead><tr><th>Mes</th><th>Base</th><th>Sin nuevos</th><th>Clientes</th></tr></thead>
+      <tbody>${p.proj.map(x => `<tr><td>${short(x.month)}</td><td>${formatMoney(x.base)}</td><td>${formatMoney(x.sinNuevos)}</td><td>${Math.round(x.clientes)}</td></tr>`).join('')}</tbody>
+    </table></div>
+    <div class="proj-note">Se calcula con los últimos ${p.monthsUsed} meses cerrados: los clientes de un mes facturan, en promedio, el ${pct(p.nrr)}% de lo que facturaban al mes siguiente (bajas y cambios de presupuesto incluidos), y entran en promedio ${p.newCount.toFixed(1).replace('.', ',')} clientes nuevos por mes (${formatMoney(p.newRev)} en total). En la tabla, "Base" sigue ese ritmo de altas y "Sin nuevos" muestra qué pasaría si dejaran de entrar; "Clientes" es la cantidad estimada en el escenario base. Es una tendencia, no una garantía.</div>
+  </div>`;
+
+  if (typeof Chart === 'undefined') return;
+  const hist = p.history, pad = n => Array(n).fill(null);
+  projectionChart = new Chart(document.getElementById('projectionChart').getContext('2d'), {
+    type: 'line',
+    data: {
+      labels: [...hist.map(h => short(h.month)), ...p.proj.map(x => short(x.month))],
+      datasets: [
+        { label: 'Real', data: [...hist.map(h => h.rev), ...pad(6)], borderColor: '#2E2826', backgroundColor: '#2E2826', tension: .3, pointRadius: 3 },
+        { label: 'Escenario base', data: [...pad(hist.length - 1), p.startRev, ...p.proj.map(x => x.base)], borderColor: '#2AABBD', backgroundColor: '#2AABBD', borderDash: [6, 4], tension: .3, pointRadius: 3 },
+        { label: 'Sin clientes nuevos', data: [...pad(hist.length - 1), p.startRev, ...p.proj.map(x => x.sinNuevos)], borderColor: '#F05E5E', backgroundColor: '#F05E5E', borderDash: [2, 4], tension: .3, pointRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, font: { size: 11 } } }, tooltip: { callbacks: { label: c => c.raw == null ? '' : ` ${c.dataset.label}: ${formatMoney(c.raw)}` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9b98a8' } },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
+      }
+    }
+  });
 }
 
 /* ============================================================
