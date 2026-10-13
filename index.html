@@ -205,18 +205,32 @@ body{
 .tag-input-live{flex:1;border:none;background:transparent;font-size:13px;font-weight:600;color:var(--brand);outline:none;font-family:var(--font-body);}
 .notes-input-live:focus,.tag-input-live:focus{background:var(--bg);border-radius:6px;padding:3px 7px;margin:-3px -7px;}
 
-/* ---------- Proyección a 6 meses ---------- */
-.proj-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow-sm);margin-bottom:var(--gap);animation:fadeInUp .35s var(--ease) both;}
-.proj-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
-.proj-title{font-family:var(--font-head);font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);}
-.proj-badge{background:var(--brand-soft);color:var(--brand-deep);font-size:11px;font-weight:700;padding:4px 11px;border-radius:999px;}
-.proj-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;}
-.proj-stat{background:var(--bg);border-radius:var(--radius-sm);padding:12px 14px;display:flex;flex-direction:column;gap:3px;}
-.proj-stat-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text-secondary);}
-.proj-stat-val{font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--text-primary);line-height:1.15;}
-.proj-stat-sub{font-size:11.5px;color:var(--text-muted);font-weight:600;}
-.proj-chart{position:relative;height:230px;margin-bottom:14px;}
-.proj-note{font-size:11.5px;color:var(--text-muted);margin-top:12px;line-height:1.55;}
+/* ---------- Análisis del panel ---------- */
+.ai-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:18px;margin-bottom:var(--gap);}
+.ai-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.ai-title{font-family:var(--font-head);font-weight:700;font-size:16px;color:var(--text-primary);}
+.ai-sub{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+.ai-btn{font-family:var(--font-head);font-weight:600;font-size:13px;background:var(--brown);color:#fff;border:0;border-radius:var(--radius-sm);padding:10px 16px;cursor:pointer;transition:transform .2s var(--ease),opacity .2s;}
+.ai-btn:hover{transform:translateY(-1px);}
+.ai-btn:disabled{opacity:.55;cursor:wait;transform:none;}
+.ai-summary{margin-top:14px;font-size:14px;line-height:1.55;color:var(--text-primary);}
+.ai-cols{display:grid;grid-template-columns:1fr;gap:14px;margin-top:16px;}
+@media(min-width:900px){.ai-cols{grid-template-columns:repeat(3,1fr);}}
+.ai-col h4{font-family:var(--font-head);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:8px;}
+.ai-item{border:1px solid var(--border);border-left:4px solid var(--teal);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:8px;background:var(--bg);animation:fadeInUp .35s var(--ease) both;}
+.ai-item b{display:block;font-size:13px;margin-bottom:2px;}
+.ai-item span{font-size:12.5px;color:var(--text-secondary);line-height:1.45;}
+.ai-item.alta{border-left-color:var(--danger);}
+.ai-item.media{border-left-color:#ff9f43;}
+.ai-item.baja{border-left-color:var(--text-muted);}
+.ai-col.sug .ai-item{border-left-color:var(--teal);}
+.ai-col.pos .ai-item{border-left-color:var(--success);}
+.ai-empty{font-size:12.5px;color:var(--text-muted);}
+.ai-meta{margin-top:12px;font-size:11px;color:var(--text-muted);}
+.ai-error{margin-top:12px;font-size:13px;color:var(--danger);background:var(--danger-soft);border-radius:var(--radius-sm);padding:10px 12px;}
+.ai-loading{margin-top:14px;font-size:13px;color:var(--text-secondary);}
+.ai-loading::after{content:'';display:inline-block;width:12px;height:12px;margin-left:8px;border:2px solid var(--border);border-top-color:var(--teal);border-radius:50%;vertical-align:-2px;animation:aiSpin .8s linear infinite;}
+@keyframes aiSpin{to{transform:rotate(360deg);}}
 
 /* ---------- Form cards ---------- */
 .form-card{background:var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow-sm);margin-top:22px;animation:fadeInUp .35s var(--ease) both;}
@@ -399,7 +413,8 @@ body{
 
   <div class="health-card" id="health-card"></div>
 
-  <div id="projection-card"></div>
+  <div id="analysis-card"></div>
+
 
 
   <div class="group-toolbar">
@@ -887,7 +902,7 @@ function renderDashboard() {
   updateCharts(tiers, monthsInView, isMultiMonth);
   renderOverdueBanner();
   renderHealthCard(isMultiMonth ? monthsInView[monthsInView.length - 1] : monthsInView[0]);
-  renderProjectionCard();
+  renderAnalysisCard();
 }
 
 /* ============================================================
@@ -975,136 +990,139 @@ function renderHealthCard(refMonth) {
 }
 
 /* ============================================================
-   PROYECCIÓN A 6 MESES — simula la "vida" de la cartera mes a
-   mes en vez de estirar una recta. De los últimos meses CERRADOS
-   (hasta 6, nunca el actual, que está incompleto) saca:
-   - retención de clientes: qué % de los clientes de un mes sigue
-     al mes siguiente (de ahí sale cuánto "vive" un cliente);
-   - retención de ingresos: qué % de la facturación de un mes se
-     repite al siguiente (incluye bajas y cambios de presupuesto);
-   - altas: cuántos clientes nuevos entran por mes y cuánto aportan.
-   Con eso proyecta 6 meses: escenario base (sigue el ritmo de
-   altas) y escenario sin clientes nuevos. Solo usa meses que
-   tienen datos reales, así los meses vacíos del calendario no
-   distorsionan nada.
+   ANÁLISIS DEL PANEL — calcula alertas, sugerencias y posibilidades
+   con reglas sobre los datos de la Sheet, sin servicios externos y
+   sin costo. El último resultado queda guardado en este navegador.
    ============================================================ */
-let projectionChart = null, projectionKey = "";
+const ANALYSIS_CACHE_KEY = 'berrinche_analysis';
+let aiState = { loading: false, error: '', data: null, at: null };
+try { const c = JSON.parse(localStorage.getItem(ANALYSIS_CACHE_KEY) || 'null'); if (c && c.data) aiState = { loading: false, error: '', data: c.data, at: c.at }; } catch (e) {}
 
-function computeAgencyProjection(clients, curMonth) {
-  const byMonth = {};
-  clients.forEach(c => {
-    const m = parseCleanMonth(c.month);
-    const name = (c.name || "").trim().toLowerCase();
-    if (!/^\d{4}-\d{2}$/.test(m) || !name) return;
-    if (!byMonth[m]) byMonth[m] = {};
-    byMonth[m][name] = (byMonth[m][name] || 0) + (parseFloat(c.budget) || 0);
-  });
-
-  const months = Object.keys(byMonth).filter(m => m <= curMonth).sort();
-  if (!months.length) return null;
-  const base = months[months.length - 1];
-  const total = m => Object.values(byMonth[m]).reduce((a, b) => a + b, 0);
-
-  const transitions = [];
-  for (let i = 1; i < months.length; i++) {
-    const prev = months[i - 1], cur = months[i];
-    if (shiftMonth(prev, 1) !== cur || cur >= curMonth) continue; // solo meses consecutivos y ya cerrados
-    const A = byMonth[prev], B = byMonth[cur];
-    const namesA = Object.keys(A), revPrev = total(prev);
-    if (!namesA.length || revPrev <= 0) continue;
-    const kept = namesA.filter(n => n in B);
-    const added = Object.keys(B).filter(n => !(n in A));
-    transitions.push({
-      logoRet: kept.length / namesA.length,
-      nrr: kept.reduce((s, n) => s + B[n], 0) / revPrev,
-      newCount: added.length,
-      newRev: added.reduce((s, n) => s + B[n], 0)
-    });
-  }
-  const used = transitions.slice(-6);
-  if (used.length < 2) return { insufficient: true, closedMonths: transitions.length + 1 };
-
-  const avg = k => used.reduce((s, t) => s + t[k], 0) / used.length;
-  const logoRet = Math.min(avg('logoRet'), 1);
-  const nrr = Math.min(Math.max(avg('nrr'), 0.5), 1.05); // tope 105% para no inflar la proyección
-  const newCount = avg('newCount'), newRev = avg('newRev');
-
-  const startRev = total(base), startCount = Object.keys(byMonth[base]).length;
-  let rb = startRev, rn = startRev, cb = startCount, cn = startCount;
-  const proj = [];
-  for (let i = 1; i <= 6; i++) {
-    rb = rb * nrr + newRev;  rn = rn * nrr;
-    cb = cb * logoRet + newCount;  cn = cn * logoRet;
-    proj.push({ month: shiftMonth(base, i), base: rb, sinNuevos: rn, clientes: cb, clientesSin: cn });
-  }
-  return {
-    base, startRev, startCount, proj, logoRet, nrr, newCount, newRev,
-    monthsUsed: used.length,
-    history: months.slice(-6).map(m => ({ month: m, rev: total(m) })),
-    lifetime: logoRet < 0.999 ? 1 / (1 - logoRet) : Infinity,
-    acumulado: proj.reduce((s, x) => s + x.base, 0)
-  };
+function esc(t) {
+  return (t == null ? '' : String(t)).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
 }
 
-function renderProjectionCard() {
-  const el = document.getElementById('projection-card');
-  const curMonth = currentMonthStr();
-  // si nada cambió desde la última vez (por ejemplo al tipear en el buscador), no se rehace
-  const key = curMonth + '|' + rawClients.map(c => `${c.id}:${c.name}:${c.budget}:${c.month}`).join(',');
-  if (key === projectionKey) return;
-  projectionKey = key;
-  if (projectionChart) { projectionChart.destroy(); projectionChart = null; }
-
-  const p = computeAgencyProjection(rawClients, curMonth);
-  if (!p) { el.innerHTML = ''; return; }
-  if (p.insufficient) {
-    el.innerHTML = `<div class="proj-card"><div class="proj-head"><h3 class="proj-title">Proyección a 6 meses</h3></div>
-      <div class="empty-state">Para proyectar necesito al menos 3 meses cerrados y consecutivos con datos. Por ahora hay ${p.closedMonths}.</div></div>`;
-    return;
-  }
-
-  const short = m => { const [y, mm] = m.split('-'); return CONFIG.meses[parseInt(mm, 10) - 1].slice(0, 3) + ' ' + y.slice(2); };
-  const last = p.proj[p.proj.length - 1];
-  const delta = p.startRev > 0 ? Math.round(((last.base - p.startRev) / p.startRev) * 100) : 0;
-  const lifeTxt = p.lifetime >= 36 ? 'más de 3 años' : p.lifetime.toFixed(1).replace('.', ',') + ' meses';
-  const pct = v => Math.round(v * 100);
-
-  el.innerHTML = `<div class="proj-card">
-    <div class="proj-head"><h3 class="proj-title">Proyección a 6 meses</h3><span class="proj-badge">${getMonthLabel(p.proj[0].month)} a ${getMonthLabel(last.month)}</span></div>
-    <div class="proj-stats">
-      <div class="proj-stat"><span class="proj-stat-label">Facturación en ${getMonthLabel(last.month)}</span><span class="proj-stat-val">${formatMoney(last.base)}</span><span class="proj-stat-sub">${delta >= 0 ? '+' : ''}${delta}% vs. ${getMonthLabel(p.base)}</span></div>
-      <div class="proj-stat"><span class="proj-stat-label">Acumulado 6 meses</span><span class="proj-stat-val">${formatMoney(p.acumulado)}</span><span class="proj-stat-sub">escenario base</span></div>
-      <div class="proj-stat"><span class="proj-stat-label">Vida promedio de un cliente</span><span class="proj-stat-val">${lifeTxt}</span><span class="proj-stat-sub">retención de ${pct(p.logoRet)}% por mes</span></div>
-    </div>
-    <div class="proj-chart"><canvas id="projectionChart"></canvas></div>
-    <div class="compare-table-wrap"><table class="compare-table">
-      <thead><tr><th>Mes</th><th>Base</th><th>Sin nuevos</th><th>Clientes</th></tr></thead>
-      <tbody>${p.proj.map(x => `<tr><td>${short(x.month)}</td><td>${formatMoney(x.base)}</td><td>${formatMoney(x.sinNuevos)}</td><td>${Math.round(x.clientes)}</td></tr>`).join('')}</tbody>
-    </table></div>
-    <div class="proj-note">Se calcula con los últimos ${p.monthsUsed} meses cerrados: los clientes de un mes facturan, en promedio, el ${pct(p.nrr)}% de lo que facturaban al mes siguiente (bajas y cambios de presupuesto incluidos), y entran en promedio ${p.newCount.toFixed(1).replace('.', ',')} clientes nuevos por mes (${formatMoney(p.newRev)} en total). En la tabla, "Base" sigue ese ritmo de altas y "Sin nuevos" muestra qué pasaría si dejaran de entrar; "Clientes" es la cantidad estimada en el escenario base. Es una tendencia, no una garantía.</div>
-  </div>`;
-
-  if (typeof Chart === 'undefined') return;
-  const hist = p.history, pad = n => Array(n).fill(null);
-  projectionChart = new Chart(document.getElementById('projectionChart').getContext('2d'), {
-    type: 'line',
-    data: {
-      labels: [...hist.map(h => short(h.month)), ...p.proj.map(x => short(x.month))],
-      datasets: [
-        { label: 'Real', data: [...hist.map(h => h.rev), ...pad(6)], borderColor: '#2E2826', backgroundColor: '#2E2826', tension: .3, pointRadius: 3 },
-        { label: 'Escenario base', data: [...pad(hist.length - 1), p.startRev, ...p.proj.map(x => x.base)], borderColor: '#2AABBD', backgroundColor: '#2AABBD', borderDash: [6, 4], tension: .3, pointRadius: 3 },
-        { label: 'Sin clientes nuevos', data: [...pad(hist.length - 1), p.startRev, ...p.proj.map(x => x.sinNuevos)], borderColor: '#F05E5E', backgroundColor: '#F05E5E', borderDash: [2, 4], tension: .3, pointRadius: 3 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', boxWidth: 8, font: { size: 11 } } }, tooltip: { callbacks: { label: c => c.raw == null ? '' : ` ${c.dataset.label}: ${formatMoney(c.raw)}` } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#9b98a8' } },
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,.04)' }, ticks: { font: { size: 11 }, color: '#9b98a8', callback: v => formatMoney(v) } }
-      }
-    }
+function buildAnalysisSummary() {
+  const hoy = new Date();
+  const byMonth = {}, byClient = {};
+  rawClients.forEach(c => {
+    const m = parseCleanMonth(c.month);
+    if (!/^\d{4}-\d{2}$/.test(m)) return;
+    const b = parseFloat(c.budget) || 0;
+    const paid = (c.status || '').trim().toLowerCase() === 'pagado';
+    const M = byMonth[m] || (byMonth[m] = { mes: m, total: 0, cobrado: 0, pendiente: 0, facturado: 0, clientes: 0 });
+    M.total += b; M.clientes++;
+    if (paid) M.cobrado += b; else M.pendiente += b;
+    if (isFacturado(c)) M.facturado += b;
+    const n = (c.name || '').toString().trim();
+    if (!n) return;
+    const C = byClient[n] || (byClient[n] = { n, p: (c.contact || '').toString().trim(), tier: c.tier, plat: c.platform, hist: {}, _last: '' });
+    C.hist[m] = b;
+    if (m >= C._last) { C._last = m; C.estado = paid ? 'pagado' : 'pendiente'; C.fact = isFacturado(c) ? 'si' : 'no'; C.dia = parseInt(c.dia_pago, 10) || null; C.activo = isActive(c); C.tier = c.tier; C.plat = c.platform; }
   });
+  const meses = Object.values(byMonth).sort((a, b) => a.mes.localeCompare(b.mes)).slice(-12);
+  const desde = meses.length ? meses[0].mes : '';
+  const clientes = Object.values(byClient).map(c => {
+    const hist = {}; Object.keys(c.hist).sort().filter(k => k >= desde).forEach(k => hist[k] = c.hist[k]);
+    return { n: c.n, p: c.p, tier: c.tier, plat: c.plat, ult: c._last, hist, estado: c.estado, fact: c.fact, dia: c.dia, activo: c.activo };
+  });
+  const vencidos = rawClients.map(c => ({ c, d: isOverdue(c) })).filter(x => x.d).map(x => ({ n: x.c.name, mes: parseCleanMonth(x.c.month), dias: x.d, monto: parseFloat(x.c.budget) || 0 }));
+  return { hoy: hoy.toISOString().slice(0, 10), mesBase: currentMonthStr(), meses, clientes, vencidos };
+}
+
+function localAnalysis(S) {
+  const $ = formatMoney, al = [], su = [], po = [];
+  const cur = S.mesBase, prev = shiftMonth(cur, -1);
+  const M = {}; S.meses.forEach(m => M[m.mes] = m);
+  const mc = M[cur], mp = M[prev];
+  // Vencidos
+  if (S.vencidos.length) {
+    const by = {}; S.vencidos.forEach(v => { const b = by[v.n] || (by[v.n] = { n: v.n, monto: 0, dias: 0 }); b.monto += v.monto; b.dias = Math.max(b.dias, v.dias); });
+    const arr = Object.values(by).sort((a, b) => b.monto - a.monto), tot = arr.reduce((t, x) => t + x.monto, 0);
+    al.push({ titulo: `${arr.length} cliente${arr.length > 1 ? 's' : ''} con pagos vencidos por ${$(tot)}`, detalle: arr.slice(0, 4).map(x => `${x.n} (${$(x.monto)}, hasta ${x.dias} días)`).join('; ') + '.', prioridad: 'alta' });
+    su.push({ titulo: 'Reclamar los pagos vencidos', detalle: `Empezá por ${arr[0].n}, que concentra ${$(arr[0].monto)} vencidos.` });
+  }
+  // Caída o suba de ingresos
+  if (mc && mp && mp.total > 0) {
+    const v = (mc.total - mp.total) / mp.total;
+    if (v <= -0.1) al.push({ titulo: `Los ingresos del mes cayeron ${Math.round(-v * 100)}%`, detalle: `${getMonthLabel(cur)} suma ${$(mc.total)} contra ${$(mp.total)} de ${getMonthLabel(prev)}.`, prioridad: 'alta' });
+    else if (v >= 0.1) po.push({ titulo: `Ingresos en alza (+${Math.round(v * 100)}%)`, detalle: `${getMonthLabel(cur)} suma ${$(mc.total)} contra ${$(mp.total)} del mes anterior. Buen momento para consolidar los abonos nuevos.` });
+  }
+  // Clientes que estaban el mes pasado y no figuran este mes
+  if (mc) {
+    const perdidos = S.clientes.filter(c => c.activo && c.hist[prev] && c.hist[cur] == null);
+    if (perdidos.length) al.push({ titulo: `${perdidos.length} cliente${perdidos.length > 1 ? 's' : ''} sin cargo este mes`, detalle: perdidos.slice(0, 5).map(c => `${c.n} (${$(c.hist[prev])} el mes pasado)`).join('; ') + '. Confirmá si siguen o se dieron de baja.', prioridad: 'media' });
+  }
+  // Concentración
+  const ref = mc || mp;
+  if (ref && ref.total > 0) {
+    const key = mc ? cur : prev;
+    const top = S.clientes.filter(c => c.hist[key]).sort((a, b) => b.hist[key] - a.hist[key])[0];
+    if (top && top.hist[key] / ref.total >= 0.3) {
+      const pct = Math.round(top.hist[key] / ref.total * 100);
+      al.push({ titulo: `${top.n} es el ${pct}% de tu ingreso`, detalle: 'Depender tanto de un solo cliente es un riesgo: si se va, el mes se resiente.', prioridad: pct >= 45 ? 'alta' : 'media' });
+      su.push({ titulo: 'Diversificar la cartera', detalle: `Sumar clientes medianos para que ${top.n} pese menos del 30%.` });
+    }
+  }
+  // Cobrado sin facturar (meses anteriores)
+  const sinFact = S.meses.filter(m => m.mes < cur && m.cobrado > m.facturado).map(m => ({ mes: m.mes, monto: m.cobrado - m.facturado }));
+  const sfTot = sinFact.reduce((t, x) => t + x.monto, 0);
+  if (sfTot > 0) {
+    al.push({ titulo: `${$(sfTot)} cobrados sin facturar`, detalle: 'Meses con cobros sin factura: ' + sinFact.slice(-4).map(x => `${getMonthLabel(x.mes)} (${$(x.monto)})`).join('; ') + '.', prioridad: 'media' });
+    su.push({ titulo: 'Ponerte al día con las facturas', detalle: 'Emití las facturas de los cobros de meses cerrados para no acumular pendientes con el fisco.' });
+  }
+  if (mc && mc.pendiente > 0 && mc.pendiente === mc.total && new Date().getDate() >= 10) su.push({ titulo: 'Ningún cobro registrado este mes', detalle: `Todo ${getMonthLabel(cur)} (${$(mc.total)}) sigue pendiente. Si ya cobraste, marcalo para tener el panel al día.` });
+  // Clientes sin día de pago
+  const sinDia = S.clientes.filter(c => c.activo && !c.dia);
+  if (sinDia.length) su.push({ titulo: 'Cargar el día de pago que falta', detalle: `${sinDia.length} cliente${sinDia.length > 1 ? 's' : ''} sin día de pago (${sinDia.slice(0, 5).map(c => c.n).join(', ')}). Sin eso el panel no puede avisarte de vencimientos.` });
+  // Posibilidades: abonos que vienen creciendo
+  const crecen = S.clientes.filter(c => { const k = Object.keys(c.hist).sort(); if (k.length < 3) return false; const a = c.hist[k[k.length - 3]], b = c.hist[k[k.length - 2]], d = c.hist[k[k.length - 1]]; return a < b && b < d; });
+  if (crecen.length) po.push({ titulo: 'Clientes con abono en crecimiento', detalle: crecen.slice(0, 4).map(c => c.n).join(', ') + ': subieron tres meses seguidos. Pueden ser candidatos a ampliar el servicio o pasar de categoría.' });
+  // Reactivar inactivos
+  const inact = S.clientes.filter(c => !c.activo);
+  if (inact.length) po.push({ titulo: 'Clientes inactivos para reactivar', detalle: inact.slice(0, 5).map(c => `${c.n} (último abono ${$(c.hist[Object.keys(c.hist).sort().pop()] || 0)})`).join('; ') + '.' });
+  // Venta cruzada de plataforma
+  const solo = S.clientes.filter(c => c.activo && c.plat && !/ambas|ambos|meta.*google|google.*meta|\+|,|\//i.test(c.plat));
+  if (solo.length >= 2) po.push({ titulo: 'Venta cruzada de plataforma', detalle: `${solo.length} clientes activos trabajan con una sola plataforma. Ofrecer la otra puede sumar abono sin buscar clientes nuevos.` });
+  // Resumen
+  let resumen = mc ? `${getMonthLabel(cur)} suma ${$(mc.total)} entre ${mc.clientes} cargos: ${$(mc.cobrado)} cobrados (${mc.total ? Math.round(mc.cobrado / mc.total * 100) : 0}%) y ${$(mc.pendiente)} pendientes.` : (mp ? `Todavía no hay cargos en ${getMonthLabel(cur)}. El mes pasado cerró en ${$(mp.total)}.` : 'No hay datos suficientes de los últimos meses.');
+  if (S.vencidos.length) resumen += ` Hay ${S.vencidos.length} cargo${S.vencidos.length > 1 ? 's' : ''} vencido${S.vencidos.length > 1 ? 's' : ''}.`;
+  const ord = { alta: 0, media: 1, baja: 2 }; al.sort((a, b) => ord[a.prioridad] - ord[b.prioridad]);
+  return { resumen, alertas: al.slice(0, 6), sugerencias: su.slice(0, 6), posibilidades: po.slice(0, 6) };
+}
+
+function runAnalysis() {
+  if (!rawClients.length) { showToast('Todavía no hay datos para analizar', true); return; }
+  aiState = { loading: false, error: '', data: localAnalysis(buildAnalysisSummary()), at: new Date().toISOString() };
+  try { localStorage.setItem(ANALYSIS_CACHE_KEY, JSON.stringify({ data: aiState.data, at: aiState.at })); } catch (e) {}
+  renderAnalysisCard();
+}
+
+function renderAnalysisCard() {
+  const el = document.getElementById('analysis-card');
+  if (!el) return;
+  const d = aiState.data;
+  const list = (items, cls, withPrio) => items.length
+    ? items.map(i => `<div class="ai-item ${withPrio ? esc(i.prioridad) : ''}"><b>${esc(i.titulo)}</b><span>${esc(i.detalle)}</span></div>`).join('')
+    : '<div class="ai-empty">Sin elementos para mostrar.</div>';
+  let body = '';
+  if (aiState.loading) body = '<div class="ai-loading">Analizando tus datos</div>';
+  else {
+    if (aiState.error) body += `<div class="ai-error">${esc(aiState.error)}</div>`;
+    if (d) {
+      const when = aiState.at ? new Date(aiState.at).toLocaleString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+      body += `<div class="ai-summary">${esc(d.resumen)}</div>
+        <div class="ai-cols">
+          <div class="ai-col"><h4>Alertas</h4>${list(d.alertas || [], '', true)}</div>
+          <div class="ai-col sug"><h4>Sugerencias</h4>${list(d.sugerencias || [], '', false)}</div>
+          <div class="ai-col pos"><h4>Posibilidades</h4>${list(d.posibilidades || [], '', false)}</div>
+        </div>
+        <div class="ai-meta">Análisis de ${esc(when)} - calculado automáticamente con los datos del panel.</div>`;
+    } else if (!aiState.error) body = '<div class="ai-empty" style="margin-top:12px">Todavía no hiciste ningún análisis. Apretá el botón para revisar tus clientes, cobros y facturación.</div>';
+  }
+  el.innerHTML = `<div class="ai-card">
+    <div class="ai-head"><div><div class="ai-title">Análisis del panel</div><div class="ai-sub">Alertas, sugerencias y posibilidades según tus datos</div></div>
+    <button class="ai-btn" onclick="runAnalysis()" ${aiState.loading ? 'disabled' : ''}>${d ? 'Volver a analizar' : 'Analizar ahora'}</button></div>${body}</div>`;
 }
 
 /* ============================================================
